@@ -1,0 +1,305 @@
+---
+swagger: "2.0"
+info:
+  description: "API to use services from the Broker"
+  version: "1.0.0"
+  title: "WITDOM Broker API"
+host: "localhost:8080"
+basePath: "/v1"
+schemes:
+- "http"
+produces:
+- "application/json"
+paths:
+  /forward/domain:
+    post:
+      tags:
+      - "forward"
+      summary: "Forward request to a WITDOM domain"
+      description: "This request is processed by a remote part of the broker in other\
+        \ domain to create a service request there."
+      operationId: "forwardDomainPOST"
+      parameters:
+      - in: "body"
+        name: "service"
+        description: "Name of the service"
+        required: true
+        schema:
+          $ref: "#/definitions/Request"
+      responses:
+        200:
+          description: "Request ID"
+          schema:
+            type: "number"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Forward"
+  /request/create:
+    post:
+      tags:
+      - "request"
+      summary: "Forwarding a request to a service or module"
+      description: "The creation of a request just sends the request to the target\
+        \ service or module\n"
+      operationId: "requestCreatePOST"
+      parameters:
+      - in: "body"
+        name: "service"
+        description: "Name of the service"
+        required: true
+        schema:
+          $ref: "#/definitions/Request"
+      responses:
+        200:
+          description: "Request ID"
+          schema:
+            type: "number"
+            format: "int32"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Request"
+  /request/create_blocker:
+    post:
+      tags:
+      - "request"
+      summary: "Forwards a request to a service or module in a blocking manner"
+      description: "The creation of a request just sends the request to the target\
+        \ service or module and blocks the return until available results\n"
+      operationId: "requestCreate_blockerPOST"
+      parameters:
+      - in: "body"
+        name: "service"
+        description: "Name of the service"
+        required: true
+        schema:
+          $ref: "#/definitions/Request"
+      responses:
+        200:
+          description: "Request result"
+          schema:
+            $ref: "#/definitions/Result"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Request"
+  /request/getresult:
+    get:
+      tags:
+      - "request"
+      summary: "Try to get the result of a previous request if available"
+      description: "If the request_id is finished then returns the result if not returns\
+        \ an error.\n"
+      operationId: "requestGetresultGET"
+      parameters:
+      - name: "user"
+        in: "query"
+        description: "user name"
+        required: true
+        type: "string"
+      - name: "token"
+        in: "query"
+        description: "Token of the user"
+        required: true
+        type: "string"
+      - name: "request_id"
+        in: "query"
+        description: "Number to identify the request referenced"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Request result"
+          schema:
+            $ref: "#/definitions/Result"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Request"
+  /request/update:
+    post:
+      tags:
+      - "request"
+      summary: "Update a request"
+      description: "The forward requests just send the request\n"
+      operationId: "requestUpdatePOST"
+      parameters:
+      - in: "body"
+        name: "service"
+        description: "Name of the service"
+        required: true
+        schema:
+          $ref: "#/definitions/Result"
+      - name: "request_id"
+        in: "query"
+        description: "Number to identify the request referenced"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Request result"
+          schema:
+            $ref: "#/definitions/Result"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Request"
+  /service/details:
+    get:
+      tags:
+      - "services"
+      summary: "Details like location of a specific services"
+      description: "This request will throw as result the details of a service."
+      operationId: "serviceDetailsGET"
+      parameters:
+      - name: "service"
+        in: "query"
+        description: "Name of the service"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "The details of a service or module deployed in WITDOM"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Service"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Services"
+  /service/domainlist:
+    get:
+      tags:
+      - "services"
+      summary: "List of services available in the domain"
+      description: "This request throws as a result the list of all the services and\
+        \ modules associated with the deployment manager of the trusted domain."
+      operationId: "serviceDomainlistGET"
+      parameters: []
+      responses:
+        200:
+          description: "A list of all the service and module deployed inside the trusted\
+            \ domain"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Service"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Services"
+  /service/list:
+    get:
+      tags:
+      - "services"
+      summary: "List of services available in WITDOM"
+      description: "This request will throw as result a list of all the services and\
+        \ modules deployed in WITDOM"
+      operationId: "serviceListGET"
+      parameters: []
+      responses:
+        200:
+          description: "An array of all the service and module deployed in WITDOM"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Service"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Services"
+  /service/outsidelist:
+    get:
+      tags:
+      - "services"
+      summary: "Time Estimates"
+      description: "This request throws as a result the list of all the services and\
+        \ modules associated with the deployment manager outside the trusted domain."
+      operationId: "serviceOutsidelistGET"
+      parameters: []
+      responses:
+        200:
+          description: "A list of service names"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Service"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Services"
+definitions:
+  Request:
+    type: "object"
+    required:
+    - "request_data"
+    - "request_type"
+    - "request_uri"
+    - "service_name"
+    properties:
+      service_name:
+        type: "string"
+        description: "Name representing a specific service in WITDOM."
+      request_type:
+        type: "string"
+        description: "get or post"
+      request_uri:
+        type: "string"
+        description: "http/https call after IP and port of the service"
+      request_data:
+        type: "string"
+        description: "JSON or HTML with the parameters of the request in case request_type\
+          \ is POST"
+  Service:
+    type: "object"
+    required:
+    - "description"
+    - "image"
+    - "service_id"
+    - "uri"
+    properties:
+      service_id:
+        type: "string"
+        description: "Unique identifier representing a specific service in WITDOM."
+      description:
+        type: "string"
+        description: "Description of the service."
+      uri:
+        type: "string"
+        description: "URI of the service."
+      image:
+        type: "string"
+        description: "Image URL representing the service."
+  Result:
+    type: "object"
+    required:
+    - "result_data"
+    properties:
+      result_data:
+        type: "string"
+        description: "JSON or HTML of the result"
+  Error:
+    type: "object"
+    required:
+    - "code"
+    - "fields"
+    - "message"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+      fields:
+        type: "string"
