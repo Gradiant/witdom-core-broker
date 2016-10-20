@@ -16,7 +16,10 @@
   "dependencies": {
     "connect": "^3.2.0",
     "js-yaml": "^3.3.0",
-    "swagger-tools": "0.10.1"
+    "swagger-tools": "0.10.1",
+    "ipware" : "^1.0.0",
+    "request-ip" : "^1.2.2",
+    "array-includes" : "^3.0.2"
   },
   "devDependencies": {
     "should": "~11.1.1",
