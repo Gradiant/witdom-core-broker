@@ -22,10 +22,12 @@ var spec = fs.readFileSync('./api/swagger.yaml', 'utf8');
 var swaggerDoc = jsyaml.safeLoad(spec);
 
 var httpsOptions = {
-    key: fs.readFileSync('witdomCA/broker_temp_key.pem'), 
+    key: fs.readFileSync('witdomCA/broker_key.pem'), 
     passphrase: 'W1td0mBr0k3r',
     cert: fs.readFileSync('witdomCA/broker_crt.pem'), 
-    ca: fs.readFileSync('witdomCA/witdomcacert.pem')
+    ca: fs.readFileSync('witdomCA/witdomcacert.pem'),
+    requestCert: true, 
+    rejectUnauthorized: true
 };
 
 // Initialize the Swagger middleware

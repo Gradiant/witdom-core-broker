@@ -3,7 +3,8 @@ var should = require("should");
 var fs = require('fs');
 
 // server to test
-var server = supertest.agent("https://localhost:5043/v1", {ca: fs.readFileSync('witdomCA/witdomcacert.pem')})
+var server = supertest.agent("https://localhost:5043/v1", {ca: fs.readFileSync('witdomCA/witdomcacert.pem'), key: fs.readFileSync('witdomCA/client1_key.pem'),cert: fs.readFileSync('witdomCA/client1_crt.pem')})
+
 
 describe("Syntax : ", function() {
     // services test
