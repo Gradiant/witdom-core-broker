@@ -4,10 +4,7 @@ info:
   description: "API to use services from the Broker"
   version: "1.0.0"
   title: "WITDOM Broker API"
-host: "localhost:5000"
 basePath: "/v1"
-schemes:
-- "http"
 produces:
 - "application/json"
 paths:

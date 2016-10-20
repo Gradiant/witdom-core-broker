@@ -4,3 +4,6 @@ LICENSE
 node_modules/
 # IDE files
 .vscode/
+jsconfig.json
+typings.json
+typings/

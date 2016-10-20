@@ -2,11 +2,13 @@
 
 var app = require('connect')();
 var http = require('http');
+var https = require('https');
 var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
 var fs = require('fs');
 var errorHandler = require('./utils/errorHandler')
 var serverPort = 5000;
+var serverHttpsPort = 5043;
 
 // swaggerRouter configuration
 var options = {
@@ -18,6 +20,13 @@ var options = {
 // The Swagger document (require it, build it programmatically, fetch it from a URL, ...)
 var spec = fs.readFileSync('./api/swagger.yaml', 'utf8');
 var swaggerDoc = jsyaml.safeLoad(spec);
+
+var httpsOptions = {
+    key: fs.readFileSync('witdomCA/broker_temp_key.pem'), 
+    passphrase: 'W1td0mBr0k3r',
+    cert: fs.readFileSync('witdomCA/broker_crt.pem'), 
+    ca: fs.readFileSync('witdomCA/witdomcacert.pem')
+};
 
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
@@ -40,5 +49,11 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
     http.createServer(app).listen(serverPort, function () {
         console.log('Your server is listening on port %d (http://localhost:%d)', serverPort, serverPort);
         console.log('Swagger-ui is available on http://localhost:%d/docs', serverPort);
+    });
+
+    // Start the https server
+    https.createServer(httpsOptions,app).listen(serverHttpsPort, function () {
+        console.log('Your server is listening on port %d (https://localhost:%d)', serverHttpsPort, serverHttpsPort);
+        console.log('Swagger-ui is available on https://localhost:%d/docs', serverHttpsPort);
     });
 });
