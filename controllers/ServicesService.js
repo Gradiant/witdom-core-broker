@@ -6,12 +6,12 @@ exports.serviceDetailsGET = function(args, res, next) {
   * service (String)
   **/
     var examples = {};
-  examples['application/json'] = [ {
+  examples['application/json'] = {
   "image" : "aeiou",
   "service_id" : "aeiou",
   "description" : "aeiou",
   "uri" : "aeiou"
-} ];
+};
   if(Object.keys(examples).length > 0) {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));

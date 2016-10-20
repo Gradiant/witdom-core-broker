@@ -1,6 +1,6 @@
 // global error handler
 function globalHandler(error, request, response, next) {
-    console.log(error);
+    //console.log(error);
     if (error.failedValidation) {
         response.setHeader('Content-Type', 'application/json');
         response.writeHead(400);

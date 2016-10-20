@@ -167,8 +167,6 @@ paths:
         200:
           description: "The details of a service or module deployed in WITDOM"
           schema:
-            type: "array"
-            items:
               $ref: "#/definitions/Service"
         default:
           description: "Unexpected error"
@@ -258,7 +256,7 @@ definitions:
         type: "string"
         description: "http/https call after IP and port of the service"
       request_data:
-        type: "string"
+        type: "object"
         description: "JSON or HTML with the parameters of the request in case request_type\
           \ is POST"
   Service:
@@ -287,7 +285,7 @@ definitions:
     - "result_data"
     properties:
       result_data:
-        type: "string"
+        type: "object"
         description: "JSON or HTML of the result"
   Error:
     type: "object"
