@@ -1,4 +1,4 @@
-	# How to create server and client certificates
+# How to create server and client certificates
 ---------------------------------------------
 
 ## CA creation
@@ -15,9 +15,17 @@ The CA private key is protected with the passpharse 'W1td0m'.
 
 The commands needed to generate the CA certificate from config file are the following:
 
-First edit the file 'witdmocaconfig.cnf' and change the values of 'dir' under 'local_ca', and of 'default_key_file' under 'req'.
+First inside the CA directory create the subdirectories 'private' and 'signedcerts'
 
-> openssl req -config caconfig.cnf -x509 -newkey rsa:2048 -out cacert.pem -outform PEM -days 1825
+> mkdir private && mkdir signedcerts
+
+Then create the files 'index.txt' and 'serial'
+
+> touch index.txt && echo 01 > serial
+
+Then edit the file 'witdmocaconfig.cnf' and change the values of 'dir' under 'local_ca', and of 'default_key_file' under 'req'.
+
+> openssl req -config witdomcaconfig.cnf -x509 -newkey rsa:2048 -out witdomcacert.pem -outform PEM -days 1825
 
 This will prompt you for a passphrase to protect the generated private key of the CA certificate .
 A 2048-bit private key will be created in the path indicated by 'default_key_file' in the file 'witdomcaconfig.cnf'.
@@ -48,7 +56,7 @@ An example client certificate is provided in the file 'client1_crt.pem', its ass
 
 To generate a new client certificate copy the file 'client1.cnf' and edit the field 'commonName' under 'witdom_client'. Generate a private key for the client with the following command:
 
-> openssl genrsa -out client-key.pem 4096
+> openssl genrsa -out client1_key.pem 4096
 
 This will generate a 4096-bit RSA key for the client. After that generate the certificate signing request for the client with the following command using the generated key:
 
@@ -61,6 +69,7 @@ And sign the signing request with:
 This will generate and store the certificate in the file 'client_crt.pem'. To convert the certificate to PKCS#12 so it can be imported by a web browser use the following commands:
 
 > cat client_key.pem client_crt.pem > client_key_and_crt.pem
+
 > openssl pkcs12 -export -out client_crt.pfx -in client_key_and_crt.pem  -name "Client Certificate"
 
 The first command concatenates the key and the certificate in the same file, and the second command converts the certificate to PKCS#12 format (this command would ask for a passphrase to protect the certificate, it can be left blank), storing it in the file 'client_crt.pfx'.

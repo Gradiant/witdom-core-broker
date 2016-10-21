@@ -18,9 +18,12 @@ function clientAuthHandler(request, response, next) {
 
     }
 
+    var cert = request.connection.getPeerCertificate();
+
     console.log(request.clientIp);
 
-    var internalIPServices = ['127.0.0.1']; //Here add a list of ips of the deployed internal services (also the untrested broker)
+    var internalIPServices = ['127.0.0.1', '10.5.0.120']; //Here add a list of ips of the deployed internal services (also the untrested broker)
+    //var internalIPServices = ['10.5.1.120']; //Here add a list of ips of the deployed internal services (also the untrested broker)
 
     if (!request.client.authorized) {
         console.log(includes(internalIPServices,request.clientIp));
@@ -28,7 +31,11 @@ function clientAuthHandler(request, response, next) {
         if (includes(internalIPServices,request.clientIp)) { // An internal server must be authorized by its client cert
             //request.client.
             response.writeHead(401, {'Content-Type': 'application/json'});
-            response.end(JSON.stringify({message: [{code:"401",'status':'denied',message:"Authorization failed"}]}));
+            if (cert.subject) {
+                response.end(JSON.stringify({message: [{code:"401",'status':'denied',message:"Authorization failed: wrong certificate provided"}]}));
+            } else {
+                response.end(JSON.stringify({message: [{code:"401",'status':'denied',message:"Authorization failed: a client certificate is needed"}]}));
+            }
             //response.end(JSON.stringify({'status':'denied'}));
             return;
         }
