@@ -8,6 +8,11 @@ function clientAuthHandler(request, response, next) {
     //var ip_info = get_ip(request);
     //console.log(ip_info);
 
+    if (!request.client.encrypted) {// Don't require authorization for http requests
+        next();
+        return;
+    }
+
     if (request.clientIp.indexOf('::ffff:') !== -1) {
         request.clientIp = request.clientIp.substring(7);
 
@@ -23,7 +28,8 @@ function clientAuthHandler(request, response, next) {
         if (includes(internalIPServices,request.clientIp)) { // An internal server must be authorized by its client cert
             //request.client.
             response.writeHead(401, {'Content-Type': 'application/json'});
-            response.end(JSON.stringify({'status':'denied'}));
+            response.end(JSON.stringify({message: [{code:"401",'status':'denied',message:"Authorization failed"}]}));
+            //response.end(JSON.stringify({'status':'denied'}));
             return;
         }
     }
