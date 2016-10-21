@@ -1,6 +1,10 @@
-README.md
+#README.md
 LICENSE
 # Installable dependencies
 node_modules/
+npm-debug.log
 # IDE files
 .vscode/
+jsconfig.json
+typings.json
+typings/
