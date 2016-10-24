@@ -1,5 +1,6 @@
 //var get_ip = require('ipware')().get_ip;
 var includes = require('array-includes');
+var fs = require('fs');
 
 // Requests from Apps don't need a client certificate
 // A handler for client authorization
@@ -20,13 +21,26 @@ function clientAuthHandler(request, response, next) {
 
     var cert = request.connection.getPeerCertificate();
 
-    console.log(request.clientIp);
+    //console.log(request.clientIp);
 
-    var internalIPServices = ['127.0.0.1', '10.5.0.120']; //Here add a list of ips of the deployed internal services (also the untrested broker)
-    //var internalIPServices = ['10.5.1.120']; //Here add a list of ips of the deployed internal services (also the untrested broker)
+    
+    var internalIPServices = ['127.0.0.1', '10.5.0.120']; //Here add a list of ips of the deployed internal services (also the untrusted broker)
+    //var internalIPServices = ['10.5.1.120']; //Here add a list of ips of the deployed internal services (also the untrusted broker)
+
+    try {
+       fs.accessSync('docker_host_ip.txt', fs.F_OK);
+        // Do something
+        var dockerHostIP = fs.readFileSync('docker_host_ip.txt', 'utf8');
+        dockerHostIP = dockerHostIP.replace(/\n$/, '');
+        //console.log('dockerHostIP: '+dockerHostIP);
+        internalIPServices.push(dockerHostIP);
+        //console.log(internalIPServices);
+    } catch (e) {
+        // It isn't accessible
+    }
 
     if (!request.client.authorized) {
-        console.log(includes(internalIPServices,request.clientIp));
+        //console.log(includes(internalIPServices,request.clientIp));
         //if (internalIPServices.indexOf(request.clientIp) != -1) { 
         if (includes(internalIPServices,request.clientIp)) { // An internal server must be authorized by its client cert
             //request.client.
