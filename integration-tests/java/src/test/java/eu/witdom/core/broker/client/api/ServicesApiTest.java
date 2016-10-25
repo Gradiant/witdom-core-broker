@@ -25,6 +25,7 @@
 
 package eu.witdom.core.broker.client.api;
 
+import eu.witdom.core.broker.client.ApiClient;
 import eu.witdom.core.broker.client.ApiException;
 import eu.witdom.core.broker.client.model.Service;
 import eu.witdom.core.broker.client.model.Error;
@@ -40,7 +41,9 @@ import java.util.Map;
  */
 public class ServicesApiTest {
 
-    private final ServicesApi api = new ServicesApi();
+    String basePath = "http://localhost:5000/v1";
+    private ApiClient client = new ApiClient().setBasePath(basePath);
+    private final ServicesApi api = new ServicesApi(client);
 
     
     /**
@@ -53,8 +56,10 @@ public class ServicesApiTest {
      */
     @Test
     public void serviceDetailsGETTest() throws ApiException {
-        String service = null;
-        // Service response = api.serviceDetailsGET(service);
+
+        String service = "service_id";
+
+        Service response = api.serviceDetailsGET(service);
 
         // TODO: test validations
     }
@@ -69,7 +74,8 @@ public class ServicesApiTest {
      */
     @Test
     public void serviceDomainlistGETTest() throws ApiException {
-        // List<Service> response = api.serviceDomainlistGET();
+        
+        List<Service> response = api.serviceDomainlistGET();
 
         // TODO: test validations
     }
@@ -84,7 +90,8 @@ public class ServicesApiTest {
      */
     @Test
     public void serviceListGETTest() throws ApiException {
-        // List<Service> response = api.serviceListGET();
+        
+        List<Service> response = api.serviceListGET();
 
         // TODO: test validations
     }
@@ -99,7 +106,8 @@ public class ServicesApiTest {
      */
     @Test
     public void serviceOutsidelistGETTest() throws ApiException {
-        // List<Service> response = api.serviceOutsidelistGET();
+        
+        List<Service> response = api.serviceOutsidelistGET();
 
         // TODO: test validations
     }

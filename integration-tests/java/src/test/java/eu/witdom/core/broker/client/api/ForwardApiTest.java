@@ -25,6 +25,7 @@
 
 package eu.witdom.core.broker.client.api;
 
+import eu.witdom.core.broker.client.ApiClient;
 import eu.witdom.core.broker.client.ApiException;
 import eu.witdom.core.broker.client.model.Request;
 import eu.witdom.core.broker.client.model.Error;
@@ -36,12 +37,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Objects;
+
 /**
  * API tests for ForwardApi
  */
 public class ForwardApiTest {
 
-    private final ForwardApi api = new ForwardApi();
+    String basePath = "http://localhost:5000/v1";
+    private ApiClient client = new ApiClient().setBasePath(basePath);
+    private final ForwardApi api = new ForwardApi(client);
 
     
     /**
@@ -54,8 +61,21 @@ public class ForwardApiTest {
      */
     @Test
     public void forwardDomainPOSTTest() throws ApiException {
-        Request service = null;
-        // BigDecimal response = api.forwardDomainPOST(service);
+        
+        Request request = new Request();
+
+        request.setServiceName("string");
+
+        request.setRequestType("string");
+
+        request.setRequestUri("string");
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objectNode = mapper.createObjectNode();
+        objectNode.put("data", "String");
+        request.setRequestData(objectNode);
+
+        BigDecimal response = api.forwardDomainPOST(request);
 
         // TODO: test validations
     }

@@ -25,6 +25,7 @@
 
 package eu.witdom.core.broker.client.api;
 
+import eu.witdom.core.broker.client.ApiClient;
 import eu.witdom.core.broker.client.ApiException;
 import eu.witdom.core.broker.client.model.Error;
 import eu.witdom.core.broker.client.model.Result;
@@ -35,12 +36,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Objects;
+
 /**
  * API tests for CallbackApi
  */
 public class CallbackApiTest {
 
-    private final CallbackApi api = new CallbackApi();
+    String basePath = "http://localhost:5000/v1";
+    private ApiClient client = new ApiClient().setBasePath(basePath);
+    private final CallbackApi api = new CallbackApi(client);
 
     
     /**
@@ -53,9 +60,14 @@ public class CallbackApiTest {
      */
     @Test
     public void callbackErrorPOSTTest() throws ApiException {
-        Result service = null;
-        String requestId = null;
-        // Result response = api.callbackErrorPOST(service, requestId);
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objectNode = mapper.createObjectNode();
+        objectNode.put("data", "String");
+        Result result = new Result().resultData(objectNode);
+
+        String requestId = "string";
+        Result response = api.callbackErrorPOST(result, requestId);
 
         // TODO: test validations
     }
@@ -70,9 +82,14 @@ public class CallbackApiTest {
      */
     @Test
     public void callbackSuccessPOSTTest() throws ApiException {
-        Result service = null;
-        String requestId = null;
-        // Result response = api.callbackSuccessPOST(service, requestId);
+        
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objectNode = mapper.createObjectNode();
+        objectNode.put("data", "String");
+        Result result = new Result().resultData(objectNode);
+
+        String requestId = "string";
+        Result response = api.callbackSuccessPOST(result, requestId);
 
         // TODO: test validations
     }

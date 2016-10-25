@@ -25,6 +25,7 @@
 
 package eu.witdom.core.broker.client.api;
 
+import eu.witdom.core.broker.client.ApiClient;
 import eu.witdom.core.broker.client.ApiException;
 import eu.witdom.core.broker.client.model.Request;
 import eu.witdom.core.broker.client.model.Error;
@@ -37,12 +38,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Objects;
+
 /**
  * API tests for RequestApi
  */
 public class RequestApiTest {
 
-    private final RequestApi api = new RequestApi();
+    String basePath = "http://localhost:5000/v1";
+    private ApiClient client = new ApiClient().setBasePath(basePath);
+    private final RequestApi api = new RequestApi(client);
 
     
     /**
@@ -55,8 +62,21 @@ public class RequestApiTest {
      */
     @Test
     public void requestCreateBlockerPOSTTest() throws ApiException {
-        Request service = null;
-        // Result response = api.requestCreateBlockerPOST(service);
+
+        Request request = new Request();
+
+        request.setServiceName("string");
+
+        request.setRequestType("string");
+
+        request.setRequestUri("string");
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objectNode = mapper.createObjectNode();
+        objectNode.put("data", "String");
+        request.setRequestData(objectNode);
+
+        Result response = api.requestCreateBlockerPOST(request);
 
         // TODO: test validations
     }
@@ -71,8 +91,21 @@ public class RequestApiTest {
      */
     @Test
     public void requestCreatePOSTTest() throws ApiException {
-        Request service = null;
-        // BigDecimal response = api.requestCreatePOST(service);
+        
+        Request request = new Request();
+
+        request.setServiceName("string");
+
+        request.setRequestType("string");
+
+        request.setRequestUri("string");
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objectNode = mapper.createObjectNode();
+        objectNode.put("data", "String");
+        request.setRequestData(objectNode);
+
+        BigDecimal response = api.requestCreatePOST(request);
 
         // TODO: test validations
     }
@@ -87,10 +120,12 @@ public class RequestApiTest {
      */
     @Test
     public void requestGetresultGETTest() throws ApiException {
-        String user = null;
-        String token = null;
-        String requestId = null;
-        // Result response = api.requestGetresultGET(user, token, requestId);
+
+        String user = "string";
+        String token = "string";
+        String requestId = "string";
+
+        Result response = api.requestGetresultGET(user, token, requestId);
 
         // TODO: test validations
     }
@@ -105,9 +140,15 @@ public class RequestApiTest {
      */
     @Test
     public void requestUpdatePOSTTest() throws ApiException {
-        Result service = null;
-        String requestId = null;
-        // Result response = api.requestUpdatePOST(service, requestId);
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objectNode = mapper.createObjectNode();
+        objectNode.put("data", "String");
+        Result result = new Result().resultData(objectNode);
+
+        String requestId = "string";
+
+        Result response = api.requestUpdatePOST(result, requestId);
 
         // TODO: test validations
     }
