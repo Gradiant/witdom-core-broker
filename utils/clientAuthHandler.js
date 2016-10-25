@@ -23,7 +23,7 @@ function clientAuthHandler(request, response, next) {
 
     //console.log(request.clientIp);
 
-    
+
     var internalIPServices = ['127.0.0.1', '10.5.0.120']; //Here add a list of ips of the deployed internal services (also the untrusted broker)
     //var internalIPServices = ['10.5.1.120']; //Here add a list of ips of the deployed internal services (also the untrusted broker)
 
