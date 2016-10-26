@@ -48,6 +48,11 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/Request"
+      - name: "token"
+        in: "query"
+        description: "Token of the user"
+        required: true
+        type: "string"
       responses:
         200:
           description: "Request ID"
@@ -73,6 +78,11 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/Request"
+      - name: "token"
+        in: "query"
+        description: "Token of the user"
+        required: true
+        type: "string"
       responses:
         200:
           description: "Request result"
@@ -154,6 +164,11 @@ paths:
       description: "This request will throw as result the details of a service."
       operationId: "serviceDetailsGET"
       parameters:
+      - name: "token"
+        in: "query"
+        description: "Token of the user"
+        required: true
+        type: "string"
       - name: "service"
         in: "query"
         description: "Name of the service"
@@ -177,7 +192,12 @@ paths:
       description: "This request throws as a result the list of all the services and\
         \ modules associated with the deployment manager of the trusted domain."
       operationId: "serviceDomainlistGET"
-      parameters: []
+      parameters:
+      - name: "token"
+        in: "query"
+        description: "Token of the user"
+        required: true
+        type: "string"
       responses:
         200:
           description: "A list of all the service and module deployed inside the trusted\
@@ -199,7 +219,12 @@ paths:
       description: "This request will throw as result a list of all the services and\
         \ modules deployed in WITDOM"
       operationId: "serviceListGET"
-      parameters: []
+      parameters:
+      - name: "token"
+        in: "query"
+        description: "Token of the user"
+        required: true
+        type: "string"
       responses:
         200:
           description: "An array of all the service and module deployed in WITDOM"
@@ -220,7 +245,12 @@ paths:
       description: "This request throws as a result the list of all the services and\
         \ modules associated with the deployment manager outside the trusted domain."
       operationId: "serviceOutsidelistGET"
-      parameters: []
+      parameters:
+      - name: "token"
+        in: "query"
+        description: "Token of the user"
+        required: true
+        type: "string"
       responses:
         200:
           description: "A list of service names"

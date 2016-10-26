@@ -3,8 +3,9 @@
 exports.serviceDetailsGET = function(args, res, next) {
   /**
    * parameters expected in the args:
-  * service (String)
-  **/
+   * token (String)
+   * service (String)
+   **/
     var examples = {};
   examples['application/json'] = {
   "image" : "aeiou",
@@ -25,7 +26,8 @@ exports.serviceDetailsGET = function(args, res, next) {
 exports.serviceDomainlistGET = function(args, res, next) {
   /**
    * parameters expected in the args:
-  **/
+   * token (String)
+   **/
     var examples = {};
   examples['application/json'] = [ {
   "image" : "aeiou",
@@ -46,7 +48,8 @@ exports.serviceDomainlistGET = function(args, res, next) {
 exports.serviceListGET = function(args, res, next) {
   /**
    * parameters expected in the args:
-  **/
+   * token (String)
+   **/
     var examples = {};
   examples['application/json'] = [ {
   "image" : "aeiou",
@@ -67,7 +70,8 @@ exports.serviceListGET = function(args, res, next) {
 exports.serviceOutsidelistGET = function(args, res, next) {
   /**
    * parameters expected in the args:
-  **/
+   * token (String)
+   **/
     var examples = {};
   examples['application/json'] = [ {
   "image" : "aeiou",

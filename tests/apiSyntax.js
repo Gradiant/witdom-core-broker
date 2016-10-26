@@ -12,6 +12,7 @@ describe("Syntax : ", function() {
             server
             .get('/service/list')
             .set('Accept', /json/)
+            .query({ token: 'string'})
             .expect(200)
             .expect('Content-type', /json/)
             .end(function(error, response) {
@@ -33,6 +34,7 @@ describe("Syntax : ", function() {
             server
             .get('/service/domainlist')
             .set('Accept', /json/)
+            .query({ token: 'string'})
             .expect(200)
             .expect('Content-type', /json/)
             .end(function(error, response) {
@@ -54,6 +56,7 @@ describe("Syntax : ", function() {
             server
             .get('/service/outsidelist')
             .set('Accept', /json/)
+            .query({ token: 'string'})
             .expect(200)
             .expect('Content-type', /json/)
             .end(function(error, response) {
@@ -75,6 +78,7 @@ describe("Syntax : ", function() {
             server
             .get('/service/details')
             .set('Accept', /json/)
+            .query({ token: 'string'})
             .query({ service: 'service_id'})
             .expect(200)
             .expect('Content-type', /json/)
@@ -95,6 +99,7 @@ describe("Syntax : ", function() {
             server
             .get('/service/details')
             .set('Accept', /json/)
+            .query({ token: 'string'})
             .query({ serdice: 'service_id'})    // typo
             .expect(400)
             .expect('Content-type', /json/)
@@ -106,6 +111,7 @@ describe("Syntax : ", function() {
             server
             .get('/service/details')
             .set('Accept', /json/)
+            .query({ token: 'string'})
             .expect(400)
             .expect('Content-type', /json/)
             .end(done);
@@ -120,6 +126,7 @@ describe("Syntax : ", function() {
             .post('/request/create')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
+            .query({ token: 'string'})
             .send({
                 "service_name": "string",
                 "request_type": "string",
@@ -145,6 +152,7 @@ describe("Syntax : ", function() {
             .post('/request/create')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
+            .query({ token: 'string'})
             .expect(400)
             .expect('Content-type', /json/)
             .end(done);
@@ -156,6 +164,7 @@ describe("Syntax : ", function() {
             .post('/request/create')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
+            .query({ token: 'string'})
             .send({
                 "serdice_name": "string",   // typo
                 "request_type": "string",
@@ -173,6 +182,7 @@ describe("Syntax : ", function() {
             .post('/request/create_blocker')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
+            .query({ token: 'string'})
             .send({
                 "service_name": "string",
                 "request_type": "string",
@@ -199,6 +209,7 @@ describe("Syntax : ", function() {
             .post('/request/create_blocker')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
+            .query({ token: 'string'})
             .send({
                 "service_name": {"name": "String"},   // syntax
                 "request_type": "string",
@@ -304,7 +315,7 @@ describe("Syntax : ", function() {
             });
         });
 
-        // update request
+        // callback request
         it("callback : 400 : missing data", function(done) {
             server
             .post('/request/callback')
@@ -318,7 +329,7 @@ describe("Syntax : ", function() {
             .end(done);
         });
 
-        // update request
+        // callback request
         it("callback : 400 : missing data", function(done) {
             server
             .post('/request/callback')
