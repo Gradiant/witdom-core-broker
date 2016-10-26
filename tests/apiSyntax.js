@@ -444,7 +444,7 @@ describe("Syntax : ", function() {
         });
     });
 
-    // fordward
+    // forward
     describe("Forward : ", function() {
         // forward domain
         it("domain : OK", function(done) {
