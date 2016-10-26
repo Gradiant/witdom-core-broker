@@ -27,7 +27,7 @@ paths:
         200:
           description: "Request ID"
           schema:
-            type: "number"
+            type: "string"
         default:
           description: "Unexpected error"
           schema:
@@ -52,8 +52,7 @@ paths:
         200:
           description: "Request ID"
           schema:
-            type: "number"
-            format: "int32"
+            type: "string"
         default:
           description: "Unexpected error"
           schema:

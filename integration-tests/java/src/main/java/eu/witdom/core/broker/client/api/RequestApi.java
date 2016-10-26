@@ -82,10 +82,10 @@ public class RequestApi {
    * Forwarding a request to a service or module
    * The creation of a request just sends the request to the target service or module 
    * @param service Name of the service (required)
-   * @return BigDecimal
+   * @return String
    * @throws ApiException if fails to make API call
    */
-  public BigDecimal requestCreatePOST(Request service) throws ApiException {
+  public String requestCreatePOST(Request service) throws ApiException {
     Object localVarPostBody = service;
     
     // verify the required parameter 'service' is set
@@ -116,7 +116,7 @@ public class RequestApi {
 
     String[] localVarAuthNames = new String[] {  };
 
-    GenericType<BigDecimal> localVarReturnType = new GenericType<BigDecimal>() {};
+    GenericType<String> localVarReturnType = new GenericType<String>() {};
     return apiClient.invokeAPI(localVarPath, "POST", localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
       }
   /**

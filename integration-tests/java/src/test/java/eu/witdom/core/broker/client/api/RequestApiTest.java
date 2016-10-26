@@ -105,7 +105,7 @@ public class RequestApiTest {
         objectNode.put("data", "String");
         request.setRequestData(objectNode);
 
-        BigDecimal response = api.requestCreatePOST(request);
+        String response = api.requestCreatePOST(request);
 
         // TODO: test validations
     }
