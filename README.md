@@ -22,20 +22,38 @@ WITDOM broker component uses JSON style configurariton files. The default config
 
 ## Local deployment of the broker with nodejs
 For locally deploying the broker just run the following command:
-> npm start
+```
+$ npm start
+```
+
 It will install all the needed dependencies and start the broker. 
 
 ## Deployment of the broker with Dockerfile
 First build the docker image
-> docker build -t witdom-core-broker .
+```
+$ docker build -t witdom-core-broker .
+```
+
 Then run the docker container
-> docker run -name broker -p 5000:5000 -p 5043:5043 -d witdom-core-broker
+```
+$ docker run -name broker -p 5000:5000 -p 5043:5043 -d witdom-core-broker
+```
+
 To stop the container
-> docker stop broker
+```
+$ docker stop broker
+```
+
 To start the container again
-> docker start broker
+```
+$ docker start broker
+```
+
 To fresh start the container from the image first run (with the container stopped)
-> docker rm broker
+```
+$ docker rm broker
+```
+
 And then run it again with the 'docker run' command
 
 Prior building the docker image it is possible to change the default configuration of the broker by editing the file 'config/custom.js'.
@@ -54,7 +72,9 @@ EXPOSE <https_port>
 ```
 
 And also change the command for running the docker container as follows:
-> docker run -name broker -p <http_port>:<http_port> -p <https_port>:<https_port> -d witdom-core-broker
+```
+$ docker run -name broker -p <http_port>:<http_port> -p <https_port>:<https_port> -d witdom-core-broker
+```
 
 
 ## Launching nodejs unit tests
@@ -87,7 +107,9 @@ The library used to do the tests ('supertest') doesn't support the configuration
 In the mean time the library can be patched by editing the file 'lib/agent.js' according to what is explained in the link so the mutual identification tests pass.
 
 To launch the tests just run the following command:
-> npm test
+```
+$ npm test
+```
 
 ### Broker deployed in Docker containter
 
@@ -107,12 +129,17 @@ TBD
 
 Use the following code:
 
-> var supertest = require("supertest");
-> var server = supertest.agent("https://localhost:5043/v1", {ca: fs.readFileSync('path/to/CA_cert')})
+```javascript
+var supertest = require("supertest");
+var server = supertest.agent("https://localhost:5043/v1", {ca: fs.readFileSync('path/to/CA_cert')})
+```
 
 ## Adding a client cert to supertest (for identifying against the server)
 
-> var supertest = require("supertest");
-> var server = supertest.agent("https://localhost:5043/v1", {key: fs.readFileSync('path/to/Client_key'),cert: fs.readFileSync('path/to/Client_cert')})
+```javascript
+var supertest = require("supertest");
+var server = supertest.agent("https://localhost:5043/v1", {key: fs.readFileSync('path/to/Client_key'),cert: fs.readFileSync('path/to/Client_cert')})
+```
+
 
 Currently supertest doesn't support this feature, so the file 'lib/agent.js' of supertest lib must be modified according to this [pull request](https://github.com/visionmedia/supertest/pull/373/files)
