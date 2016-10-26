@@ -139,7 +139,7 @@ public class RequestApiTest {
      *          if the Api call fails
      */
     @Test
-    public void requestUpdatePOSTTest() throws ApiException {
+    public void requestCallbackPOSTTest() throws ApiException {
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objectNode = mapper.createObjectNode();
@@ -148,7 +148,7 @@ public class RequestApiTest {
 
         String requestId = "string";
 
-        Result response = api.requestUpdatePOST(result, requestId);
+        Result response = api.requestCallbackPOST(result, requestId);
 
         // TODO: test validations
     }

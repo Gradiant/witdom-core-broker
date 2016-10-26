@@ -18,6 +18,6 @@ module.exports.requestGetresultGET = function requestGetresultGET (req, res, nex
   Request.requestGetresultGET(req.swagger.params, res, next);
 };
 
-module.exports.requestUpdatePOST = function requestUpdatePOST (req, res, next) {
-  Request.requestUpdatePOST(req.swagger.params, res, next);
+module.exports.requestCallbackPOST = function requestUpdatePOST (req, res, next) {
+  Request.requestCallbackPOST(req.swagger.params, res, next);
 };

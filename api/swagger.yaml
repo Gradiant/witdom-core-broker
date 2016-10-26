@@ -117,13 +117,13 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Request"
-  /request/update:
+  /request/callback:
     post:
       tags:
       - "request"
       summary: "Update a request"
       description: "The forward requests just send the request\n"
-      operationId: "requestUpdatePOST"
+      operationId: "requestCallbackPOST"
       parameters:
       - in: "body"
         name: "service"
@@ -146,64 +146,6 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Request"
-  /callback/success:
-    post:
-      tags:
-      - "callback"
-      summary: "Update a request"
-      description: "Post the result of a previous request\n"
-      operationId: "callbackSuccessPOST"
-      parameters:
-      - in: "body"
-        name: "service"
-        description: "Name of the service"
-        required: true
-        schema:
-          $ref: "#/definitions/Result"
-      - name: "request_id"
-        in: "query"
-        description: "Number to identify the request referenced"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Request result"
-          schema:
-            $ref: "#/definitions/Result"
-        default:
-          description: "Unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "Callback"
-  /callback/error:
-    post:
-      tags:
-      - "callback"
-      summary: "Update a request"
-      description: "An error occurred during the execution of a previous request\n"
-      operationId: "callbackErrorPOST"
-      parameters:
-      - in: "body"
-        name: "service"
-        description: "Name of the service"
-        required: true
-        schema:
-          $ref: "#/definitions/Result"
-      - name: "request_id"
-        in: "query"
-        description: "Number to identify the request referenced"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Request result"
-          schema:
-            $ref: "#/definitions/Result"
-        default:
-          description: "Unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "Callback"
   /service/details:
     get:
       tags:

@@ -57,7 +57,7 @@ exports.requestGetresultGET = function(args, res, next) {
   
 }
 
-exports.requestUpdatePOST = function(args, res, next) {
+exports.requestCallbackPOST = function(args, res, next) {
   /**
    * parameters expected in the args:
   * service (Result)

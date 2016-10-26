@@ -183,21 +183,21 @@ public class RequestApi {
    * @return Result
    * @throws ApiException if fails to make API call
    */
-  public Result requestUpdatePOST(Result service, String requestId) throws ApiException {
+  public Result requestCallbackPOST(Result service, String requestId) throws ApiException {
     Object localVarPostBody = service;
     
     // verify the required parameter 'service' is set
     if (service == null) {
-      throw new ApiException(400, "Missing the required parameter 'service' when calling requestUpdatePOST");
+      throw new ApiException(400, "Missing the required parameter 'service' when calling requestCallbackPOST");
     }
     
     // verify the required parameter 'requestId' is set
     if (requestId == null) {
-      throw new ApiException(400, "Missing the required parameter 'requestId' when calling requestUpdatePOST");
+      throw new ApiException(400, "Missing the required parameter 'requestId' when calling requestCallbackPOST");
     }
     
     // create path and map variables
-    String localVarPath = "/request/update".replaceAll("\\{format\\}","json");
+    String localVarPath = "/request/callback".replaceAll("\\{format\\}","json");
 
     // query params
     List<Pair> localVarQueryParams = new ArrayList<Pair>();

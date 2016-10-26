@@ -278,10 +278,10 @@ describe("Syntax : ", function() {
             .end(done);
         });
 
-        // update request
-        it("update : OK", function(done) {
+        // callback request
+        it("callback : OK", function(done) {
             server
-            .post('/request/update')
+            .post('/request/callback')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
             .query({
@@ -305,9 +305,9 @@ describe("Syntax : ", function() {
         });
 
         // update request
-        it("update : 400 : missing data", function(done) {
+        it("callback : 400 : missing data", function(done) {
             server
-            .post('/request/update')
+            .post('/request/callback')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
             .send({
@@ -319,124 +319,13 @@ describe("Syntax : ", function() {
         });
 
         // update request
-        it("update : 400 : missing data", function(done) {
+        it("callback : 400 : missing data", function(done) {
             server
-            .post('/request/update')
+            .post('/request/callback')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
             .send({
                 "result_data": "string"
-            })
-            .expect(400)
-            .expect('Content-type', /json/)
-            .end(done);
-        });
-    });
-
-    // fordward
-    describe("callback : ", function() {
-        // callback success
-        it("success : OK", function(done) {
-            server
-            .post('/callback/success')
-            .set('Accept', /json/)
-            .set('Content-type', 'application/json')
-            .query({
-                request_id: "String"
-            })
-            .send({
-                "result_data": {"data": "String"}
-            })
-            .expect(200)
-            .expect('Content-type', /json/)
-            .end(function(error, response) {
-                if (error) {
-                    done(error);
-                }
-                else {
-                    response.body.should.be.an.Object;
-                    checkServiceResultFormat(response.body);
-                    done();
-                }
-            });
-        });
-
-        // callback success
-        it("success : 400 : missign data", function(done) {
-            server
-            .post('/callback/success')
-            .set('Accept', /json/)
-            .set('Content-type', 'application/json')
-            .query({
-                request_id: "String"
-            })
-            .expect(400)
-            .expect('Content-type', /json/)
-            .end(done);
-        });
-
-        // callback success
-        it("success : 400 : object instead of string", function(done) {
-            server
-            .post('/callback/success')
-            .set('Accept', /json/)
-            .set('Content-type', 'application/json')
-            .query({
-                request_id: {id: "String"}
-            })
-            .expect(400)
-            .expect('Content-type', /json/)
-            .end(done);
-        });
-
-        // callback error
-        it("error : OK", function(done) {
-            server
-            .post('/callback/error')
-            .set('Accept', /json/)
-            .set('Content-type', 'application/json')
-            .query({
-                request_id: "String"
-            })
-            .send({
-                "result_data": {"data": "String"}
-            })
-            .expect(200)
-            .expect('Content-type', /json/)
-            .end(function(error, response) {
-                if (error) {
-                    done(error);
-                }
-                else {
-                    response.body.should.be.an.Object;
-                    checkServiceResultFormat(response.body);
-                    done();
-                }
-            });
-        });
-
-        // callback error
-        it("error : 400 : missign data", function(done) {
-            server
-            .post('/callback/error')
-            .set('Accept', /json/)
-            .set('Content-type', 'application/json')
-            .query({
-                request_id: "String"
-            })
-            .expect(400)
-            .expect('Content-type', /json/)
-            .end(done);
-        });
-
-        // error error
-        it("error : 400 : object instead of string", function(done) {
-            server
-            .post('/callback/error')
-            .set('Accept', /json/)
-            .set('Content-type', 'application/json')
-            .query({
-                request_id: {id: "String"}
             })
             .expect(400)
             .expect('Content-type', /json/)
