@@ -9,8 +9,6 @@ var fs = require('fs');
 var errorHandler = require('./utils/errorHandler')
 var clientAuthHandler = require('./utils/clientAuthHandler');
 var httpAuthValidator = require('./utils/httpAuthValidator');
-var serverPort = 5000;
-var serverHttpsPort = 5043;
 
 var requestIp = require('request-ip');
 
