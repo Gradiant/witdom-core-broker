@@ -75,7 +75,7 @@ public class ForwardApiTest {
         objectNode.put("data", "String");
         request.setRequestData(objectNode);
 
-        BigDecimal response = api.forwardDomainPOST(request);
+        String response = api.forwardDomainPOST(request);
 
         // TODO: test validations
     }

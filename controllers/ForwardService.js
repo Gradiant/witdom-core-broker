@@ -6,7 +6,7 @@ exports.forwardDomainPOST = function(args, res, next) {
   * service (Request)
   **/
     var examples = {};
-  examples['application/json'] = 1.3579000000000001069366817318950779736042022705078125;
+  examples['application/json'] = "A57910A6DE9366BC81731895FF";
   if(Object.keys(examples).length > 0) {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));

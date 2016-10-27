@@ -19,6 +19,7 @@ describe("Right cert : ", function() {
         server
         .get('/service/list')
         .set('Accept', /json/)
+        .query({ token: 'string'})
         .expect('Content-type',/json/)
         .expect(200)
         .end(done);

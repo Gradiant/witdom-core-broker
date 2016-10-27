@@ -13,8 +13,10 @@ paths:
       tags:
       - "forward"
       summary: "Forward request to a WITDOM domain"
-      description: "This request is processed by a remote part of the broker in other\
-        \ domain to create a service request there."
+      description: "This request allows the broker to forward one request to the\
+      \ broker in the untrusted domain, where the target service is located.\
+      \ This path can only be accessed from a trusted component, so a valid client\
+      \ certificate must be present on the request."
       operationId: "forwardDomainPOST"
       parameters:
       - in: "body"
@@ -27,7 +29,7 @@ paths:
         200:
           description: "Request ID"
           schema:
-            type: "number"
+            type: "string"
         default:
           description: "Unexpected error"
           schema:
@@ -38,8 +40,15 @@ paths:
       tags:
       - "request"
       summary: "Forwarding a request to a service or module"
-      description: "The creation of a request just sends the request to the target\
-        \ service or module\n"
+      description: "With this request starts the forwarding process; where the broker\
+      \ will locate the target service and will perform the previous steps (like moving\
+      \ the data to the untrusted domain) needed to allow the service to do the requested\
+      \ operations.\n
+      \ The broker will answer with a request_id which should be used to later request\
+      \ the operations result or state.\n
+      \ To access this path a external client must provide a valid user token granted by\
+      \ theIAM. For an internal module/service, it's fine to provide a valid certificate\
+      \ signed by the witdom CA."
       operationId: "requestCreatePOST"
       parameters:
       - in: "body"
@@ -48,12 +57,19 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/Request"
+      - name: "user"
+        in: "query"
+        description: "user name"
+        type: "string"
+      - name: "token"
+        in: "query"
+        description: "Token of the user"
+        type: "string"
       responses:
         200:
           description: "Request ID"
           schema:
-            type: "number"
-            format: "int32"
+            type: "string"
         default:
           description: "Unexpected error"
           schema:
@@ -64,8 +80,12 @@ paths:
       tags:
       - "request"
       summary: "Forwards a request to a service or module in a blocking manner"
-      description: "The creation of a request just sends the request to the target\
-        \ service or module and blocks the return until available results\n"
+      description: "This requests works the same as \"/request/create\", the main difference\
+      \ is that this one will not answer with a request_id, but with the result of the operations\
+      \ performed by the target service. This means that the connection will be open until the\
+      \ service ends the requested operations and may reach timeout if the operations take to long.\
+      \ The access authorization remains the same, it can be accessed with a valid certificate or\
+      \ a valid token."
       operationId: "requestCreate_blockerPOST"
       parameters:
       - in: "body"
@@ -74,6 +94,14 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/Request"
+      - name: "user"
+        in: "query"
+        description: "user name"
+        type: "string"
+      - name: "token"
+        in: "query"
+        description: "Token of the user"
+        type: "string"
       responses:
         200:
           description: "Request result"
@@ -118,13 +146,13 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Request"
-  /request/update:
+  /request/callback:
     post:
       tags:
       - "request"
       summary: "Update a request"
       description: "The forward requests just send the request\n"
-      operationId: "requestUpdatePOST"
+      operationId: "requestCallbackPOST"
       parameters:
       - in: "body"
         name: "service"
@@ -147,64 +175,6 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Request"
-  /callback/success:
-    post:
-      tags:
-      - "callback"
-      summary: "Update a request"
-      description: "Post the result of a previous request\n"
-      operationId: "callbackSuccessPOST"
-      parameters:
-      - in: "body"
-        name: "service"
-        description: "Name of the service"
-        required: true
-        schema:
-          $ref: "#/definitions/Result"
-      - name: "request_id"
-        in: "query"
-        description: "Number to identify the request referenced"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Request result"
-          schema:
-            $ref: "#/definitions/Result"
-        default:
-          description: "Unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "Callback"
-  /callback/error:
-    post:
-      tags:
-      - "callback"
-      summary: "Update a request"
-      description: "An error occurred during the execution of a previous request\n"
-      operationId: "callbackErrorPOST"
-      parameters:
-      - in: "body"
-        name: "service"
-        description: "Name of the service"
-        required: true
-        schema:
-          $ref: "#/definitions/Result"
-      - name: "request_id"
-        in: "query"
-        description: "Number to identify the request referenced"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Request result"
-          schema:
-            $ref: "#/definitions/Result"
-        default:
-          description: "Unexpected error"
-          schema:
-            $ref: "#/definitions/Error"
-      x-swagger-router-controller: "Callback"
   /service/details:
     get:
       tags:
@@ -213,6 +183,14 @@ paths:
       description: "This request will throw as result the details of a service."
       operationId: "serviceDetailsGET"
       parameters:
+      - name: "user"
+        in: "query"
+        description: "user name"
+        type: "string"
+      - name: "token"
+        in: "query"
+        description: "Token of the user"
+        type: "string"
       - name: "service"
         in: "query"
         description: "Name of the service"
@@ -236,7 +214,15 @@ paths:
       description: "This request throws as a result the list of all the services and\
         \ modules associated with the deployment manager of the trusted domain."
       operationId: "serviceDomainlistGET"
-      parameters: []
+      parameters:
+      - name: "user"
+        in: "query"
+        description: "user name"
+        type: "string"
+      - name: "token"
+        in: "query"
+        description: "Token of the user"
+        type: "string"
       responses:
         200:
           description: "A list of all the service and module deployed inside the trusted\
@@ -258,7 +244,15 @@ paths:
       description: "This request will throw as result a list of all the services and\
         \ modules deployed in WITDOM"
       operationId: "serviceListGET"
-      parameters: []
+      parameters:
+      - name: "user"
+        in: "query"
+        description: "user name"
+        type: "string"
+      - name: "token"
+        in: "query"
+        description: "Token of the user"
+        type: "string"
       responses:
         200:
           description: "An array of all the service and module deployed in WITDOM"
@@ -279,7 +273,15 @@ paths:
       description: "This request throws as a result the list of all the services and\
         \ modules associated with the deployment manager outside the trusted domain."
       operationId: "serviceOutsidelistGET"
-      parameters: []
+      parameters:
+      - name: "user"
+        in: "query"
+        description: "user name"
+        type: "string"
+      - name: "token"
+        in: "query"
+        description: "Token of the user"
+        type: "string"
       responses:
         200:
           description: "A list of service names"

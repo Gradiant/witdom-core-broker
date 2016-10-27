@@ -40,10 +40,10 @@ public class ForwardApi {
    * Forward request to a WITDOM domain
    * This request is processed by a remote part of the broker in other domain to create a service request there.
    * @param service Name of the service (required)
-   * @return BigDecimal
+   * @return String
    * @throws ApiException if fails to make API call
    */
-  public BigDecimal forwardDomainPOST(Request service) throws ApiException {
+  public String forwardDomainPOST(Request service) throws ApiException {
     Object localVarPostBody = service;
     
     // verify the required parameter 'service' is set
@@ -74,7 +74,7 @@ public class ForwardApi {
 
     String[] localVarAuthNames = new String[] {  };
 
-    GenericType<BigDecimal> localVarReturnType = new GenericType<BigDecimal>() {};
+    GenericType<String> localVarReturnType = new GenericType<String>() {};
     return apiClient.invokeAPI(localVarPath, "POST", localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
       }
 }

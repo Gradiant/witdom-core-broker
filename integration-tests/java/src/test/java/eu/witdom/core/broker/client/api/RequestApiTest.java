@@ -63,6 +63,8 @@ public class RequestApiTest {
     @Test
     public void requestCreateBlockerPOSTTest() throws ApiException {
 
+        String user = "string";
+        String token = "string";
         Request request = new Request();
 
         request.setServiceName("string");
@@ -76,7 +78,7 @@ public class RequestApiTest {
         objectNode.put("data", "String");
         request.setRequestData(objectNode);
 
-        Result response = api.requestCreateBlockerPOST(request);
+        Result response = api.requestCreateBlockerPOST(user, token, request);
 
         // TODO: test validations
     }
@@ -92,6 +94,8 @@ public class RequestApiTest {
     @Test
     public void requestCreatePOSTTest() throws ApiException {
         
+        String user = "string";
+        String token = "string";
         Request request = new Request();
 
         request.setServiceName("string");
@@ -105,7 +109,7 @@ public class RequestApiTest {
         objectNode.put("data", "String");
         request.setRequestData(objectNode);
 
-        BigDecimal response = api.requestCreatePOST(request);
+        String response = api.requestCreatePOST(user, token, request);
 
         // TODO: test validations
     }
@@ -139,7 +143,7 @@ public class RequestApiTest {
      *          if the Api call fails
      */
     @Test
-    public void requestUpdatePOSTTest() throws ApiException {
+    public void requestCallbackPOSTTest() throws ApiException {
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objectNode = mapper.createObjectNode();
@@ -148,7 +152,7 @@ public class RequestApiTest {
 
         String requestId = "string";
 
-        Result response = api.requestUpdatePOST(result, requestId);
+        Result response = api.requestCallbackPOST(result, requestId);
 
         // TODO: test validations
     }

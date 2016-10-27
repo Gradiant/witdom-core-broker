@@ -3,10 +3,12 @@
 exports.requestCreatePOST = function(args, res, next) {
   /**
    * parameters expected in the args:
-  * service (Request)
-  **/
+   * user (String)
+   * token (String)
+   * service (Request)
+   **/
     var examples = {};
-  examples['application/json'] = 1.3579000000000001069366817318950779736042022705078125;
+  examples['application/json'] = "A57910A6DE9366BC81731895FF";
   if(Object.keys(examples).length > 0) {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
@@ -20,8 +22,10 @@ exports.requestCreatePOST = function(args, res, next) {
 exports.requestCreate_blockerPOST = function(args, res, next) {
   /**
    * parameters expected in the args:
-  * service (Request)
-  **/
+   * user (String)
+   * token (String)
+   * service (Request)
+   **/
     var examples = {};
   examples['application/json'] = {
   "result_data" : "aeiou"
@@ -39,10 +43,10 @@ exports.requestCreate_blockerPOST = function(args, res, next) {
 exports.requestGetresultGET = function(args, res, next) {
   /**
    * parameters expected in the args:
-  * user (String)
-  * token (String)
-  * request_id (String)
-  **/
+   * user (String)
+   * token (String)
+   * request_id (String)
+   **/
     var examples = {};
   examples['application/json'] = {
   "result_data" : "aeiou"
@@ -57,12 +61,12 @@ exports.requestGetresultGET = function(args, res, next) {
   
 }
 
-exports.requestUpdatePOST = function(args, res, next) {
+exports.requestCallbackPOST = function(args, res, next) {
   /**
    * parameters expected in the args:
-  * service (Result)
-  * request_id (String)
-  **/
+   * service (Result)
+   * request_id (String)
+   **/
     var examples = {};
   examples['application/json'] = {
   "result_data" : "aeiou"

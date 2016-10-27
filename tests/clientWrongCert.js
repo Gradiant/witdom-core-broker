@@ -19,12 +19,14 @@ describe("Wrong cert : ", function() {
         server
         .get('/service/list')
         .set('Accept', /json/)
+        .query({ token: 'string'})
         .expect('Content-type',/json/)
         .expect(401, {
                  "message":[{
                      "code":"401",
                      "status":"denied",
-                     "message":"Authorization failed: wrong certificate provided"
+                     "message":"Authorization failed: must provide valid certificate or correct user token",
+                     "path":["/v1/service/list"]
                     }]
         }, done);
     });

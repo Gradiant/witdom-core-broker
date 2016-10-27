@@ -39,12 +39,13 @@ public class RequestApi {
 
   /**
    * Forwards a request to a service or module in a blocking manner
-   * The creation of a request just sends the request to the target service or module and blocks the return until available results 
+   * The creation of a request just sends the request to the target service or module and blocks the return until available results
+   * @param token Token of the user (required) 
    * @param service Name of the service (required)
    * @return Result
    * @throws ApiException if fails to make API call
    */
-  public Result requestCreateBlockerPOST(Request service) throws ApiException {
+  public Result requestCreateBlockerPOST(String user, String token, Request service) throws ApiException {
     Object localVarPostBody = service;
     
     // verify the required parameter 'service' is set
@@ -60,6 +61,8 @@ public class RequestApi {
     Map<String, String> localVarHeaderParams = new HashMap<String, String>();
     Map<String, Object> localVarFormParams = new HashMap<String, Object>();
 
+    localVarQueryParams.addAll(apiClient.parameterToPairs("", "user", user));
+    localVarQueryParams.addAll(apiClient.parameterToPairs("", "token", token));
 
     
     
@@ -81,11 +84,12 @@ public class RequestApi {
   /**
    * Forwarding a request to a service or module
    * The creation of a request just sends the request to the target service or module 
+   * @param token Token of the user (required)
    * @param service Name of the service (required)
-   * @return BigDecimal
+   * @return String
    * @throws ApiException if fails to make API call
    */
-  public BigDecimal requestCreatePOST(Request service) throws ApiException {
+  public String requestCreatePOST(String user, String token, Request service) throws ApiException {
     Object localVarPostBody = service;
     
     // verify the required parameter 'service' is set
@@ -101,6 +105,8 @@ public class RequestApi {
     Map<String, String> localVarHeaderParams = new HashMap<String, String>();
     Map<String, Object> localVarFormParams = new HashMap<String, Object>();
 
+    localVarQueryParams.addAll(apiClient.parameterToPairs("", "user", user));
+    localVarQueryParams.addAll(apiClient.parameterToPairs("", "token", token));
 
     
     
@@ -116,14 +122,14 @@ public class RequestApi {
 
     String[] localVarAuthNames = new String[] {  };
 
-    GenericType<BigDecimal> localVarReturnType = new GenericType<BigDecimal>() {};
+    GenericType<String> localVarReturnType = new GenericType<String>() {};
     return apiClient.invokeAPI(localVarPath, "POST", localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
       }
   /**
    * Try to get the result of a previous request if available
    * If the request_id is finished then returns the result if not returns an error. 
    * @param user user name (required)
-   * @param token Token of the user (required)
+   * @param token Token of the user
    * @param requestId Number to identify the request referenced (required)
    * @return Result
    * @throws ApiException if fails to make API call
@@ -183,21 +189,21 @@ public class RequestApi {
    * @return Result
    * @throws ApiException if fails to make API call
    */
-  public Result requestUpdatePOST(Result service, String requestId) throws ApiException {
+  public Result requestCallbackPOST(Result service, String requestId) throws ApiException {
     Object localVarPostBody = service;
     
     // verify the required parameter 'service' is set
     if (service == null) {
-      throw new ApiException(400, "Missing the required parameter 'service' when calling requestUpdatePOST");
+      throw new ApiException(400, "Missing the required parameter 'service' when calling requestCallbackPOST");
     }
     
     // verify the required parameter 'requestId' is set
     if (requestId == null) {
-      throw new ApiException(400, "Missing the required parameter 'requestId' when calling requestUpdatePOST");
+      throw new ApiException(400, "Missing the required parameter 'requestId' when calling requestCallbackPOST");
     }
     
     // create path and map variables
-    String localVarPath = "/request/update".replaceAll("\\{format\\}","json");
+    String localVarPath = "/request/callback".replaceAll("\\{format\\}","json");
 
     // query params
     List<Pair> localVarQueryParams = new ArrayList<Pair>();
