@@ -8,8 +8,10 @@ var fs = require('fs');
 function clientAuthHandler(request, response, next) {
     //var ip_info = get_ip(request);
     //console.log(ip_info);
+    //console.log(request);
 
     if (!request.client.encrypted) {// Don't require authorization for http requests
+        //request.client.authorized = true;
         next();
         return;
     }

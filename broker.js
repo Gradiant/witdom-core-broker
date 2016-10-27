@@ -7,7 +7,8 @@ var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
 var fs = require('fs');
 var errorHandler = require('./utils/errorHandler')
-var clientAuthHandler = require('./utils/clientAuthHandler.js');
+var clientAuthHandler = require('./utils/clientAuthHandler');
+var httpAuthValidator = require('./utils/httpAuthValidator');
 var serverPort = 5000;
 var serverHttpsPort = 5043;
 
@@ -39,7 +40,10 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
     app.use(requestIp.mw())
 
     // Register a client auth validator
-    app.use(clientAuthHandler);
+    //app.use(clientAuthHandler);
+
+    // FIXME only for dev!!
+    app.use(httpAuthValidator);
 
     // Interpret Swagger resources and attach metadata to request - must be first in swagger-tools middleware chain
     app.use(middleware.swaggerMetadata());

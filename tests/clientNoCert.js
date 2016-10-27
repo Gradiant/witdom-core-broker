@@ -22,7 +22,8 @@ describe("No cert : ", function() {
                  "message":[{
                      "code":"401",
                      "status":"denied",
-                     "message":"Authorization failed: a client certificate is needed"
+                     "message":"Authorization failed: must provide valid certificate or correct user token",
+                     "path":["/v1/service/list"]
                     }]
             }, done);
         });
