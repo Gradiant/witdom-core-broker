@@ -57,9 +57,11 @@ public class ServicesApiTest {
     @Test
     public void serviceDetailsGETTest() throws ApiException {
 
+        String user = "string";        
+        String token = "string";
         String service = "service_id";
 
-        Service response = api.serviceDetailsGET(service);
+        Service response = api.serviceDetailsGET(user, token, service);
 
         // TODO: test validations
     }
@@ -75,7 +77,10 @@ public class ServicesApiTest {
     @Test
     public void serviceDomainlistGETTest() throws ApiException {
         
-        List<Service> response = api.serviceDomainlistGET();
+        String user = "string";
+        String token = "string";
+
+        List<Service> response = api.serviceDomainlistGET(user, token);
 
         // TODO: test validations
     }
@@ -91,7 +96,10 @@ public class ServicesApiTest {
     @Test
     public void serviceListGETTest() throws ApiException {
         
-        List<Service> response = api.serviceListGET();
+        String user = "string";
+        String token = "string";
+
+        List<Service> response = api.serviceListGET(user, token);
 
         // TODO: test validations
     }
@@ -107,7 +115,10 @@ public class ServicesApiTest {
     @Test
     public void serviceOutsidelistGETTest() throws ApiException {
         
-        List<Service> response = api.serviceOutsidelistGET();
+        String user = "string";
+        String token = "string";
+
+        List<Service> response = api.serviceOutsidelistGET(user, token);
 
         // TODO: test validations
     }

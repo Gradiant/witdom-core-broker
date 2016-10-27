@@ -12,7 +12,10 @@ describe("Syntax : ", function() {
             server
             .get('/service/list')
             .set('Accept', /json/)
-            .query({ token: 'string'})
+            .query({ 
+                user: "string",
+                token: 'string'
+            })
             .expect(200)
             .expect('Content-type', /json/)
             .end(function(error, response) {
@@ -34,7 +37,10 @@ describe("Syntax : ", function() {
             server
             .get('/service/domainlist')
             .set('Accept', /json/)
-            .query({ token: 'string'})
+            .query({
+                user: "string",
+                token: 'string'
+            })
             .expect(200)
             .expect('Content-type', /json/)
             .end(function(error, response) {
@@ -56,7 +62,10 @@ describe("Syntax : ", function() {
             server
             .get('/service/outsidelist')
             .set('Accept', /json/)
-            .query({ token: 'string'})
+            .query({
+                user: "string",
+                token: 'string'
+            })
             .expect(200)
             .expect('Content-type', /json/)
             .end(function(error, response) {
@@ -78,8 +87,11 @@ describe("Syntax : ", function() {
             server
             .get('/service/details')
             .set('Accept', /json/)
-            .query({ token: 'string'})
-            .query({ service: 'service_id'})
+            .query({
+                user: "string",
+                token: 'string',
+                service: 'service_id'
+            })
             .expect(200)
             .expect('Content-type', /json/)
             .end(function(error, response) {
@@ -99,8 +111,11 @@ describe("Syntax : ", function() {
             server
             .get('/service/details')
             .set('Accept', /json/)
-            .query({ token: 'string'})
-            .query({ serdice: 'service_id'})    // typo
+            .query({
+                user: "string",
+                token: 'string',
+                serdice: 'service_id'    // typo
+            })
             .expect(400)
             .expect('Content-type', /json/)
             .end(done);
@@ -111,7 +126,10 @@ describe("Syntax : ", function() {
             server
             .get('/service/details')
             .set('Accept', /json/)
-            .query({ token: 'string'})
+            .query({
+                user: "string",
+                token: 'string'
+            })
             .expect(400)
             .expect('Content-type', /json/)
             .end(done);
@@ -126,7 +144,10 @@ describe("Syntax : ", function() {
             .post('/request/create')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
-            .query({ token: 'string'})
+            .query({
+                user: "string",
+                token: 'string'
+            })
             .send({
                 "service_name": "string",
                 "request_type": "string",
@@ -152,7 +173,10 @@ describe("Syntax : ", function() {
             .post('/request/create')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
-            .query({ token: 'string'})
+            .query({
+                user: "string",
+                token: 'string'
+            })
             .expect(400)
             .expect('Content-type', /json/)
             .end(done);
@@ -164,7 +188,10 @@ describe("Syntax : ", function() {
             .post('/request/create')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
-            .query({ token: 'string'})
+            .query({
+                user: "string",
+                token: 'string'
+            })
             .send({
                 "serdice_name": "string",   // typo
                 "request_type": "string",
@@ -182,7 +209,10 @@ describe("Syntax : ", function() {
             .post('/request/create_blocker')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
-            .query({ token: 'string'})
+            .query({
+                user: "string",
+                token: 'string'
+            })
             .send({
                 "service_name": "string",
                 "request_type": "string",
@@ -209,7 +239,10 @@ describe("Syntax : ", function() {
             .post('/request/create_blocker')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
-            .query({ token: 'string'})
+            .query({
+                user: "string",
+                token: 'string'
+            })
             .send({
                 "service_name": {"name": "String"},   // syntax
                 "request_type": "string",

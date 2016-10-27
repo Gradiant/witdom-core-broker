@@ -38,11 +38,12 @@ public class ServicesApi {
   /**
    * Details like location of a specific services
    * This request will throw as result the details of a service.
+   * @param token Token of the user (required)
    * @param service Name of the service (required)
    * @return Service
    * @throws ApiException if fails to make API call
    */
-  public Service serviceDetailsGET(String service) throws ApiException {
+  public Service serviceDetailsGET(String user, String token, String service) throws ApiException {
     Object localVarPostBody = null;
     
     // verify the required parameter 'service' is set
@@ -58,6 +59,8 @@ public class ServicesApi {
     Map<String, String> localVarHeaderParams = new HashMap<String, String>();
     Map<String, Object> localVarFormParams = new HashMap<String, Object>();
 
+    localVarQueryParams.addAll(apiClient.parameterToPairs("", "user", user));
+    localVarQueryParams.addAll(apiClient.parameterToPairs("", "token", token));
     localVarQueryParams.addAll(apiClient.parameterToPairs("", "service", service));
 
     
@@ -80,10 +83,11 @@ public class ServicesApi {
   /**
    * List of services available in the domain
    * This request throws as a result the list of all the services and modules associated with the deployment manager of the trusted domain.
+   * @param token Token of the user (required)
    * @return List<Service>
    * @throws ApiException if fails to make API call
    */
-  public List<Service> serviceDomainlistGET() throws ApiException {
+  public List<Service> serviceDomainlistGET(String user, String token) throws ApiException {
     Object localVarPostBody = null;
     
     // create path and map variables
@@ -94,9 +98,11 @@ public class ServicesApi {
     Map<String, String> localVarHeaderParams = new HashMap<String, String>();
     Map<String, Object> localVarFormParams = new HashMap<String, Object>();
 
+    localVarQueryParams.addAll(apiClient.parameterToPairs("", "user", user));
+    localVarQueryParams.addAll(apiClient.parameterToPairs("", "token", token));
 
-    
-    
+
+        
     final String[] localVarAccepts = {
       "application/json"
     };
@@ -115,10 +121,11 @@ public class ServicesApi {
   /**
    * List of services available in WITDOM
    * This request will throw as result a list of all the services and modules deployed in WITDOM
+   * @param token Token of the user (required)
    * @return List<Service>
    * @throws ApiException if fails to make API call
    */
-  public List<Service> serviceListGET() throws ApiException {
+  public List<Service> serviceListGET(String user, String token) throws ApiException {
     Object localVarPostBody = null;
     
     // create path and map variables
@@ -129,6 +136,8 @@ public class ServicesApi {
     Map<String, String> localVarHeaderParams = new HashMap<String, String>();
     Map<String, Object> localVarFormParams = new HashMap<String, Object>();
 
+    localVarQueryParams.addAll(apiClient.parameterToPairs("", "user", user));
+    localVarQueryParams.addAll(apiClient.parameterToPairs("", "token", token));
 
     
     
@@ -150,10 +159,11 @@ public class ServicesApi {
   /**
    * Time Estimates
    * This request throws as a result the list of all the services and modules associated with the deployment manager outside the trusted domain.
+   * @param token Token of the user (required)
    * @return List<Service>
    * @throws ApiException if fails to make API call
    */
-  public List<Service> serviceOutsidelistGET() throws ApiException {
+  public List<Service> serviceOutsidelistGET(String user, String token) throws ApiException {
     Object localVarPostBody = null;
     
     // create path and map variables
@@ -164,6 +174,8 @@ public class ServicesApi {
     Map<String, String> localVarHeaderParams = new HashMap<String, String>();
     Map<String, Object> localVarFormParams = new HashMap<String, Object>();
 
+    localVarQueryParams.addAll(apiClient.parameterToPairs("", "user", user));
+    localVarQueryParams.addAll(apiClient.parameterToPairs("", "token", token));
 
     
     

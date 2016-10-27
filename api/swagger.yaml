@@ -48,10 +48,13 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/Request"
+      - name: "user"
+        in: "query"
+        description: "user name"
+        type: "string"
       - name: "token"
         in: "query"
         description: "Token of the user"
-        required: true
         type: "string"
       responses:
         200:
@@ -78,10 +81,13 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/Request"
+      - name: "user"
+        in: "query"
+        description: "user name"
+        type: "string"
       - name: "token"
         in: "query"
         description: "Token of the user"
-        required: true
         type: "string"
       responses:
         200:
@@ -164,10 +170,13 @@ paths:
       description: "This request will throw as result the details of a service."
       operationId: "serviceDetailsGET"
       parameters:
+      - name: "user"
+        in: "query"
+        description: "user name"
+        type: "string"
       - name: "token"
         in: "query"
         description: "Token of the user"
-        required: true
         type: "string"
       - name: "service"
         in: "query"
@@ -193,10 +202,13 @@ paths:
         \ modules associated with the deployment manager of the trusted domain."
       operationId: "serviceDomainlistGET"
       parameters:
+      - name: "user"
+        in: "query"
+        description: "user name"
+        type: "string"
       - name: "token"
         in: "query"
         description: "Token of the user"
-        required: true
         type: "string"
       responses:
         200:
@@ -220,10 +232,13 @@ paths:
         \ modules deployed in WITDOM"
       operationId: "serviceListGET"
       parameters:
+      - name: "user"
+        in: "query"
+        description: "user name"
+        type: "string"
       - name: "token"
         in: "query"
         description: "Token of the user"
-        required: true
         type: "string"
       responses:
         200:
@@ -246,10 +261,13 @@ paths:
         \ modules associated with the deployment manager outside the trusted domain."
       operationId: "serviceOutsidelistGET"
       parameters:
+      - name: "user"
+        in: "query"
+        description: "user name"
+        type: "string"
       - name: "token"
         in: "query"
         description: "Token of the user"
-        required: true
         type: "string"
       responses:
         200:

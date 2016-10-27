@@ -63,6 +63,8 @@ public class RequestApiTest {
     @Test
     public void requestCreateBlockerPOSTTest() throws ApiException {
 
+        String user = "string";
+        String token = "string";
         Request request = new Request();
 
         request.setServiceName("string");
@@ -76,7 +78,7 @@ public class RequestApiTest {
         objectNode.put("data", "String");
         request.setRequestData(objectNode);
 
-        Result response = api.requestCreateBlockerPOST(request);
+        Result response = api.requestCreateBlockerPOST(user, token, request);
 
         // TODO: test validations
     }
@@ -92,6 +94,8 @@ public class RequestApiTest {
     @Test
     public void requestCreatePOSTTest() throws ApiException {
         
+        String user = "string";
+        String token = "string";
         Request request = new Request();
 
         request.setServiceName("string");
@@ -105,7 +109,7 @@ public class RequestApiTest {
         objectNode.put("data", "String");
         request.setRequestData(objectNode);
 
-        String response = api.requestCreatePOST(request);
+        String response = api.requestCreatePOST(user, token, request);
 
         // TODO: test validations
     }

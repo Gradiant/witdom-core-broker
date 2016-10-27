@@ -3,6 +3,7 @@
 exports.requestCreatePOST = function(args, res, next) {
   /**
    * parameters expected in the args:
+   * user (String)
    * token (String)
    * service (Request)
    **/
@@ -21,6 +22,7 @@ exports.requestCreatePOST = function(args, res, next) {
 exports.requestCreate_blockerPOST = function(args, res, next) {
   /**
    * parameters expected in the args:
+   * user (String)
    * token (String)
    * service (Request)
    **/

@@ -14,8 +14,9 @@ describe("Syntax (https): ", function() {
             server
             .get('/service/list')
             .set('Accept', /json/)
-            .expect('Content-type',/json/)
+            .query({ token: 'string'})
             .expect(200)
+            .expect('Content-type',/json/)
             .end(function(error, response) {
                 if (error) {
                     done(error);
@@ -38,8 +39,9 @@ describe("Syntax (https): ", function() {
             server
             .get('/service/domainlist')
             .set('Accept', /json/)
-            .expect('Content-type',/json/)
+            .query({ token: 'string'})
             .expect(200)
+            .expect('Content-type',/json/)
             .end(function(error, response) {
                 if (error) {
                     done(error);
@@ -62,8 +64,9 @@ describe("Syntax (https): ", function() {
             server
             .get('/service/outsidelist')
             .set('Accept', /json/)
-            .expect('Content-type',/json/)
+            .query({ token: 'string'})
             .expect(200)
+            .expect('Content-type',/json/)
             .end(function(error, response) {
                 if (error) {
                     done(error);
@@ -87,8 +90,9 @@ describe("Syntax (https): ", function() {
             .get('/service/details')
             .set('Accept', /json/)
             .query({ service: 'service_id'})
-            .expect('Content-type',/json/)
+            .query({ token: 'string'})
             .expect(200)
+            .expect('Content-type',/json/)
             .end(function(error, response) {
                 if (error) {
                     done(error);

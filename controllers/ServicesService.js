@@ -3,6 +3,7 @@
 exports.serviceDetailsGET = function(args, res, next) {
   /**
    * parameters expected in the args:
+   * user (String)
    * token (String)
    * service (String)
    **/
@@ -26,6 +27,7 @@ exports.serviceDetailsGET = function(args, res, next) {
 exports.serviceDomainlistGET = function(args, res, next) {
   /**
    * parameters expected in the args:
+   * user (String)
    * token (String)
    **/
     var examples = {};
@@ -48,6 +50,7 @@ exports.serviceDomainlistGET = function(args, res, next) {
 exports.serviceListGET = function(args, res, next) {
   /**
    * parameters expected in the args:
+   * user (String)
    * token (String)
    **/
     var examples = {};
@@ -70,6 +73,7 @@ exports.serviceListGET = function(args, res, next) {
 exports.serviceOutsidelistGET = function(args, res, next) {
   /**
    * parameters expected in the args:
+   * user (String)
    * token (String)
    **/
     var examples = {};
