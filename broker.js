@@ -9,6 +9,7 @@ var fs = require('fs');
 var errorHandler = require('./utils/errorHandler')
 var clientAuthHandler = require('./utils/clientAuthHandler');
 var httpAuthValidator = require('./utils/httpAuthValidator');
+var brokerConfig = require('./config');
 
 var requestIp = require('request-ip');
 
