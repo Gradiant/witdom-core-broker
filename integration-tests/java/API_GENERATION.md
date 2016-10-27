@@ -12,4 +12,4 @@ Create a config file with the following content and extension .json
 
 Invoke the swagger code generator to generate the API client for Java:
 
-> java -jar modules/swagger-codegen-cli/target/swagger-codegen-cli.jar generate -i ~/path/to//swagger.yaml -l java -o ~/output/path -c config_file.json
+> java -jar modules/swagger-codegen-cli/target/swagger-codegen-cli.jar generate -i /path/to/swagger.yaml -l java -o /output/path -c config_file.json

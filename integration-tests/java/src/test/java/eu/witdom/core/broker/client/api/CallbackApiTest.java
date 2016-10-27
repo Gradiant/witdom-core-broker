@@ -45,7 +45,7 @@ import java.util.Objects;
  */
 public class CallbackApiTest {
 
-    String basePath = "https://localhost:5043/v1";
+    String basePath = "http://localhost:5000/v1";
     private ApiClient client = new ApiClient().setBasePath(basePath);
     private final CallbackApi api = new CallbackApi(client);
 
