@@ -13,8 +13,10 @@ paths:
       tags:
       - "forward"
       summary: "Forward request to a WITDOM domain"
-      description: "This request is processed by a remote part of the broker in other\
-        \ domain to create a service request there."
+      description: "This request allows the broker to forward one request to the\
+      \ broker in the untrusted domain, where the target service is located.\
+      \ This path can only be accessed from a trusted component, so a valid client\
+      \ certificate must be present on the request."
       operationId: "forwardDomainPOST"
       parameters:
       - in: "body"
@@ -38,8 +40,15 @@ paths:
       tags:
       - "request"
       summary: "Forwarding a request to a service or module"
-      description: "The creation of a request just sends the request to the target\
-        \ service or module\n"
+      description: "With this request starts the forwarding process; where the broker\
+      \ will locate the target service and will perform the previous steps (like moving\
+      \ the data to the untrusted domain) needed to allow the service to do the requested\
+      \ operations.\n
+      \ The broker will answer with a request_id which should be used to later request\
+      \ the operations result or state.\n
+      \ To access this path a external client must provide a valid user token granted by\
+      \ theIAM. For an internal module/service, it's fine to provide a valid certificate\
+      \ signed by the witdom CA."
       operationId: "requestCreatePOST"
       parameters:
       - in: "body"
@@ -71,8 +80,12 @@ paths:
       tags:
       - "request"
       summary: "Forwards a request to a service or module in a blocking manner"
-      description: "The creation of a request just sends the request to the target\
-        \ service or module and blocks the return until available results\n"
+      description: "This requests works the same as \"/request/create\", the main difference\
+      \ is that this one will not answer with a request_id, but with the result of the operations\
+      \ performed by the target service. This means that the connection will be open until the\
+      \ service ends the requested operations and may reach timeout if the operations take to long.\
+      \ The access authorization remains the same, it can be accessed with a valid certificate or\
+      \ a valid token."
       operationId: "requestCreate_blockerPOST"
       parameters:
       - in: "body"
