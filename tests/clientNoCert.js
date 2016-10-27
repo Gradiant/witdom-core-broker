@@ -1,13 +1,14 @@
 var supertest = require("supertest");
 var should = require("should");
 var fs = require('fs');
+var config = require('./config');
 
 var options = {
-    ca: fs.readFileSync('witdomCA/witdomcacert.pem')
+    ca: fs.readFileSync(config.https.ca_cert)
 };
 
 // server to test
-var server = supertest.agent("https://localhost:5043/v1", options)
+var server = supertest.agent("https://localhost:" + config.https.port +"/v1", options)
 
 
 describe("No cert : ", function() {

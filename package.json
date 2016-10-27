@@ -20,7 +20,8 @@
     "swagger-tools": "0.10.1",
     "ipware" : "^1.0.0",
     "request-ip" : "^1.2.2",
-    "array-includes" : "^3.0.2"
+    "array-includes" : "^3.0.2",
+    "lodash" : "^4.16.4"
   },
   "devDependencies": {
     "should": "~11.1.1",

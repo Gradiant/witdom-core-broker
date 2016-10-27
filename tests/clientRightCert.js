@@ -1,11 +1,12 @@
 var supertest = require("supertest");
 var should = require("should");
 var fs = require('fs');
+var config = require('./config');
 
 var options = {
-    ca: fs.readFileSync('witdomCA/witdomcacert.pem'),
-    key: fs.readFileSync('witdomCA/client1_key.pem'),
-    cert: fs.readFileSync('witdomCA/client1_crt.pem')
+    ca: fs.readFileSync(config.https.ca_cert),
+    key: fs.readFileSync(config.https.right_client_key),
+    cert: fs.readFileSync(config.https.right_client_cert)
 };
 
 // server to test

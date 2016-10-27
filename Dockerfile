@@ -11,6 +11,7 @@ RUN npm install
 # Bundle app source
 COPY broker.js ./
 COPY api/. api/
+COPY config/. config/
 COPY controllers/. controllers/
 COPY utils/. utils/
 COPY witdomCA/broker_key.pem witdomCA/broker_crt.pem witdomCA/witdomcacert.pem witdomCA/

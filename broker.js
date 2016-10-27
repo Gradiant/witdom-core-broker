@@ -25,10 +25,10 @@ var spec = fs.readFileSync('./api/swagger.yaml', 'utf8');
 var swaggerDoc = jsyaml.safeLoad(spec);
 
 var httpsOptions = {
-    key: fs.readFileSync('witdomCA/broker_key.pem'), 
-    passphrase: 'W1td0mBr0k3r',
-    cert: fs.readFileSync('witdomCA/broker_crt.pem'), 
-    ca: fs.readFileSync('witdomCA/witdomcacert.pem'),
+    key: fs.readFileSync(brokerConfig.https.broker_key), 
+    passphrase: brokerConfig.https.broker_key_passphrase,
+    cert: fs.readFileSync(brokerConfig.https.broker_cert), 
+    ca: fs.readFileSync(brokerConfig.https.ca_cert),
     requestCert: true, 
     rejectUnauthorized: false
 };
@@ -60,14 +60,14 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
     app.use(errorHandler);
 
     // Start the server
-    http.createServer(app).listen(serverPort, function () {
-        console.log('Your server is listening on port %d (http://localhost:%d)', serverPort, serverPort);
-        console.log('Swagger-ui is available on http://localhost:%d/docs', serverPort);
+    http.createServer(app).listen(brokerConfig.http.port, function () {
+        console.log('Your server is listening on port %d (http://localhost:%d)', brokerConfig.http.port, brokerConfig.http.port);
+        console.log('Swagger-ui is available on http://localhost:%d/docs', brokerConfig.http.port);
     });
 
     // Start the https server
-    https.createServer(httpsOptions,app).listen(serverHttpsPort, function () {
-        console.log('Your server is listening on port %d (https://localhost:%d)', serverHttpsPort, serverHttpsPort);
-        console.log('Swagger-ui is available on https://localhost:%d/docs', serverHttpsPort);
+    https.createServer(httpsOptions,app).listen(brokerConfig.https.port, function () {
+        console.log('Your server is listening on port %d (https://localhost:%d)', brokerConfig.https.port, brokerConfig.https.port);
+        console.log('Swagger-ui is available on https://localhost:%d/docs', brokerConfig.https.port);
     });
 });
