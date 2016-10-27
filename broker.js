@@ -7,7 +7,7 @@ var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
 var fs = require('fs');
 var errorHandler = require('./utils/errorHandler')
-var clientAuthHandler = require('./utils/clientAuthHandler.js');
+var clientAuthHandler = require('./utils/clientAuthHandler');
 var brokerConfig = require('./config');
 
 var requestIp = require('request-ip');
