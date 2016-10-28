@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   description: "API to use services from the Broker"
-  version: "1.0.0"
+  version: "1.2.0"
   title: "WITDOM Broker API"
 basePath: "/v1"
 produces:
@@ -13,10 +13,12 @@ paths:
       tags:
       - "forward"
       summary: "Forward request to a WITDOM domain"
-      description: "This request allows the broker to forward one request to the\
-      \ broker in the untrusted domain, where the target service is located.\
-      \ This path can only be accessed from a trusted component, so a valid client\
-      \ certificate must be present on the request."
+      description: |
+        This request allows the broker to forward one request to the 
+        broker in the untrusted domain, where the target service is located.
+
+        This path can only be accessed from a trusted component, so a valid client 
+        certificate must be present on the request.
       operationId: "forwardDomainPOST"
       parameters:
       - in: "body"
@@ -29,7 +31,7 @@ paths:
         200:
           description: "Request ID"
           schema:
-            type: "string"
+            type: string
         default:
           description: "Unexpected error"
           schema:
@@ -40,15 +42,18 @@ paths:
       tags:
       - "request"
       summary: "Forwarding a request to a service or module"
-      description: "With this request starts the forwarding process; where the broker\
-      \ will locate the target service and will perform the previous steps (like moving\
-      \ the data to the untrusted domain) needed to allow the service to do the requested\
-      \ operations.\n
-      \ The broker will answer with a request_id which should be used to later request\
-      \ the operations result or state.\n
-      \ To access this path a external client must provide a valid user token granted by\
-      \ theIAM. For an internal module/service, it's fine to provide a valid certificate\
-      \ signed by the witdom CA."
+      description: |
+        With this request starts the forwarding process; where the broker 
+        will locate the target service and will perform the previous steps (like moving 
+        the data to the untrusted domain) needed to allow the service to do the requested 
+        operations.
+
+        The broker will answer with a request_id which should be used to later request 
+        the operations result or state.
+
+        To access this path a external client must provide a valid user token granted by 
+        the IAM. For an internal module/service, it's fine to provide a valid certificate 
+        signed by the witdom CA.
       operationId: "requestCreatePOST"
       parameters:
       - in: "body"
@@ -80,12 +85,14 @@ paths:
       tags:
       - "request"
       summary: "Forwards a request to a service or module in a blocking manner"
-      description: "This requests works the same as \"/request/create\", the main difference\
-      \ is that this one will not answer with a request_id, but with the result of the operations\
-      \ performed by the target service. This means that the connection will be open until the\
-      \ service ends the requested operations and may reach timeout if the operations take to long.\
-      \ The access authorization remains the same, it can be accessed with a valid certificate or\
-      \ a valid token."
+      description: |
+        This requests works the same as /request/create, the main difference 
+        is that this one will not answer with a request_id, but with the result of the operations 
+        performed by the target service. This means that the connection will be open until the 
+        service ends the requested operations and may reach timeout if the operations take to long.
+
+        The access authorization remains the same, it can be accessed with a valid certificate or 
+        a valid token.
       operationId: "requestCreate_blockerPOST"
       parameters:
       - in: "body"
@@ -117,8 +124,14 @@ paths:
       tags:
       - "request"
       summary: "Try to get the result of a previous request if available"
-      description: "If the request_id is finished then returns the result if not returns\
-        \ an error.\n"
+      description: | 
+        Recovers the result of the request identified by the provided request_id. If the request 
+        still being processed by the service, the broker will send a response with the actual status 
+        of the request; ie, the service which is processing the data in that moment. The client 
+        aplication will need to periodically request this info until if gets the result.
+
+        To access this data the client will need to present its credentials; a valid user and token 
+        pair or a certificate signed by the witdom CA.
       operationId: "requestGetresultGET"
       parameters:
       - name: "user"
@@ -151,7 +164,13 @@ paths:
       tags:
       - "request"
       summary: "Update a request"
-      description: "The forward requests just send the request\n"
+      description: |
+        The broker expects the service to send the results of the request started by the client here.
+        Once the service ends an asyncronous request started by the broker, it will need to send the 
+        result through this method to allow the broker to forward it to the client application.
+
+        This method can only be accesed by internal services, so it's required to provide a valid 
+        certificate signed by the witdom CA.
       operationId: "requestCallbackPOST"
       parameters:
       - in: "body"
@@ -180,7 +199,12 @@ paths:
       tags:
       - "services"
       summary: "Details like location of a specific services"
-      description: "This request will throw as result the details of a service."
+      description: |
+        With this request the client can get the details of the service identified by the given service 
+        name, if exists.
+
+        This method can be accessed by client apps and internal services or even by the broker on 
+        the other domain, so both a valid certificate and a valid token can be used to get access authorization.
       operationId: "serviceDetailsGET"
       parameters:
       - name: "user"
@@ -211,8 +235,10 @@ paths:
       tags:
       - "services"
       summary: "List of services available in the domain"
-      description: "This request throws as a result the list of all the services and\
-        \ modules associated with the deployment manager of the trusted domain."
+      description: |
+        This lists all the services located in the asked boker's domain and their data.
+
+        As the \"/service/details\" method, it accepts both a valid certificate and a valid token to grant access.
       operationId: "serviceDomainlistGET"
       parameters:
       - name: "user"
@@ -241,8 +267,10 @@ paths:
       tags:
       - "services"
       summary: "List of services available in WITDOM"
-      description: "This request will throw as result a list of all the services and\
-        \ modules deployed in WITDOM"
+      description: |
+        This lists all the services deployed in the WITDOM domains and their data.
+
+        As the other service methods, it accepts both a valid certificate and a valid token to grant access.
       operationId: "serviceListGET"
       parameters:
       - name: "user"
@@ -270,8 +298,10 @@ paths:
       tags:
       - "services"
       summary: "Time Estimates"
-      description: "This request throws as a result the list of all the services and\
-        \ modules associated with the deployment manager outside the trusted domain."
+      description: |
+        This lists all the services located outside the asked boker's domain and their data.
+
+        Like the other service methods, it accepts both a valid certificate and a valid token to grant access.
       operationId: "serviceOutsidelistGET"
       parameters:
       - name: "user"
