@@ -38,7 +38,7 @@ public class RequestApi {
 
   /**
    * Update a request
-   * The forward requests just send the request 
+   * The broker expects the service to send the results of the request started by the client here. Once the service ends an asyncronous request started by the broker, it will need to send the  result through this method to allow the broker to forward it to the client application.  This method can only be accesed by internal services, so it&#39;s required to provide a valid  certificate signed by the witdom CA. 
    * @param service Name of the service (required)
    * @param requestId Number to identify the request referenced (required)
    * @return Result
@@ -86,7 +86,7 @@ public class RequestApi {
       }
   /**
    * Forwards a request to a service or module in a blocking manner
-   * This requests works the same as \&quot;/request/create\&quot;, the main difference is that this one will not answer with a request_id, but with the result of the operations performed by the target service. This means that the connection will be open until the service ends the requested operations and may reach timeout if the operations take to long. The access authorization remains the same, it can be accessed with a valid certificate or a valid token.
+   * This requests works the same as /request/create, the main difference  is that this one will not answer with a request_id, but with the result of the operations  performed by the target service. This means that the connection will be open until the  service ends the requested operations and may reach timeout if the operations take to long.  The access authorization remains the same, it can be accessed with a valid certificate or  a valid token. 
    * @param service Name of the service (required)
    * @param user user name (optional)
    * @param token Token of the user (optional)
@@ -176,7 +176,7 @@ public class RequestApi {
       }
   /**
    * Try to get the result of a previous request if available
-   * If the request_id is finished then returns the result if not returns an error. 
+   * Recovers the result of the request identified by the provided request_id. If the request  still being processed by the service, the broker will send a response with the actual status  of the request; ie, the service which is processing the data in that moment. The client  aplication will need to periodically request this info until if gets the result.  To access this data the client will need to present its credentials; a valid user and token  pair or a certificate signed by the witdom CA. 
    * @param user user name (required)
    * @param token Token of the user (required)
    * @param requestId Number to identify the request referenced (required)

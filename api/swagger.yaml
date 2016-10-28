@@ -234,7 +234,7 @@ paths:
       - "services"
       summary: "List of services available in the domain"
       description: |
-        This lists all the services located in the asked boker's domain and their data.
+        This lists all the services located in the asked broker's domain and their data.
 
         As the \"/service/details\" method, it accepts both a valid certificate and a valid token to grant access.
       operationId: "serviceDomainlistGET"

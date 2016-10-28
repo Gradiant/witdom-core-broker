@@ -37,7 +37,7 @@ public class ServicesApi {
 
   /**
    * Details like location of a specific services
-   * This request will throw as result the details of a service.
+   * With this request the client can get the details of the service identified by the given service  name, if exists.  This method can be accessed by client apps and internal services or even by the broker on  the other domain, so both a valid certificate and a valid token can be used to get access authorization.
    * @param service Name of the service (required)
    * @param user user name (optional)
    * @param token Token of the user (optional)
@@ -83,7 +83,7 @@ public class ServicesApi {
       }
   /**
    * List of services available in the domain
-   * This request throws as a result the list of all the services and modules associated with the deployment manager of the trusted domain.
+   * This lists all the services located in the asked boker&#39;s domain and their data.  As the \\\&quot;/service/details\\\&quot; method, it accepts both a valid certificate and a valid token to grant access.
    * @param user user name (optional)
    * @param token Token of the user (optional)
    * @return List<Service>
@@ -122,7 +122,7 @@ public class ServicesApi {
       }
   /**
    * List of services available in WITDOM
-   * This request will throw as result a list of all the services and modules deployed in WITDOM
+   * This lists all the services deployed in the WITDOM domains and their data.  As the other service methods, it accepts both a valid certificate and a valid token to grant access.
    * @param user user name (optional)
    * @param token Token of the user (optional)
    * @return List<Service>
@@ -161,7 +161,7 @@ public class ServicesApi {
       }
   /**
    * Time Estimates
-   * This request throws as a result the list of all the services and modules associated with the deployment manager outside the trusted domain.
+   * This lists all the services located outside the asked boker&#39;s domain and their data.  Like the other service methods, it accepts both a valid certificate and a valid token to grant access.
    * @param user user name (optional)
    * @param token Token of the user (optional)
    * @return List<Service>

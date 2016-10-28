@@ -6,7 +6,6 @@
   "scripts": {
     "prestart": "npm install",
     "start": "node broker.js",
-    "docker-pretest": "sudo docker exec -it `sudo docker ps | awk '/witdom-core-broker/ { print $1 }'` /bin/sh -c \"echo `ifconfig docker | awk '/inet:/ { print $2 }' | cut -d\":\" -f2` > /usr/src/broker/docker_host_ip.txt\"",
     "test": "./node_modules/.bin/mocha tests/nodejs/"
   },
   "keywords": [
@@ -18,7 +17,6 @@
     "connect": "^3.2.0",
     "js-yaml": "^3.3.0",
     "swagger-tools": "0.10.1",
-    "ipware" : "^1.0.0",
     "request-ip" : "^1.2.2",
     "array-includes" : "^3.0.2",
     "lodash" : "^4.16.4"

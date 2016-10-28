@@ -1,3 +1,5 @@
+# Generation of the API Client library from swagger.yaml with swagger-codegen
+
 Create a config file with the following content and extension .json
 
 ```javascript

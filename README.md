@@ -81,7 +81,7 @@ $ docker run -name broker -p <http_port>:<http_port> -p <https_port>:<https_port
 ## Launching nodejs unit tests
 
 ### Broker deployed locally
-Prior to launching the tests the HTTP and HTTPS ports must be configured if the default ports have been changed in the running broker. To do this edit the file 'tests/nodejs/config/custom.js' with the following content, changing the ports to the right values:
+Prior to launching the tests the HTTP and HTTPS ports must be configured if the default ports have been changed in the running broker. To do this edit the file `tests/nodejs/config/custom.js` with the following content, changing the ports to the right values:
 
 ```javascript
 module.exports = {
@@ -91,16 +91,16 @@ module.exports = {
     }
 };
 ```
-These test also check the functionality of mutual identification with client and server certificates. The CA and client certs to use in the tests can also be configured in the file 'tests/config/custom.js' this way:
+These tests also check the functionality of mutual identification with client and server certificates. The CA and client certs to use in the tests can also be configured in the file `tests/config/custom.js` this way:
 
 ```javascript
 module.exports = {
     https: {
-        ca_cert: 'witdomCA/witdomcacert.pem' // The CA certificate used to verify the server certificate
-        right_client_key: 'witdomCA/client1_key.pem', // The key of valid client in the CA
-        right_client_cert: 'witdomCA/client1_crt.pem', // The certificate of a valid client in the CA
-        wrong_client_key: 'untrustedCA/untrusted_client_key.pem', // The key of an invalid client in CA
-        wrong_client_cert: 'untrustedCA/untrusted_client_crt.pem', // The certificate of a invalid client in the CA
+        ca_cert: 'CAs/witdomCA/witdomcacert.pem' // The CA certificate used to verify the server certificate
+        right_client_key: 'CAs/witdomCA/client1_key.pem', // The key of valid client in the CA
+        right_client_cert: 'CAs/witdomCA/client1_crt.pem', // The certificate of a valid client in the CA
+        wrong_client_key: 'CAs/untrustedCA/untrusted_client_key.pem', // The key of an invalid client in CA
+        wrong_client_cert: 'CAs/untrustedCA/untrusted_client_crt.pem', // The certificate of a invalid client in the CA
     }
 };
 ``` 
@@ -114,13 +114,7 @@ $ npm test
 
 ### Broker deployed in Docker containter
 
-To launch the nodejs test using the broker in the docker container use the same procedure as in the locally deployed broker but run the following command before launching the tests:
-```
-$ npm run docker-pretest
-```
-
-This command will inject the Docker host IP into the broker container, making it recognize the requests made from the Docker host as if it they were made by a witdom internal service, requiring the requests made using HTTPS protocol provide a client certificate.
-After that run the following command to do the tests:
+To launch the nodejs test using the broker in the docker container use the same procedure as in the locally deployed broker, that is, change the default test configuration in `tests/config/custom.js` and run the command:
 ```
 $ npm test
 ``` 
@@ -225,6 +219,9 @@ $ mvn test -Djavax.net.ssl.trustStore=truststore/truststore.jks -Djavax.net.ssl.
 ```
 This time the test of the `HTTPsApiTest` will succeed.
 
+## Using HTTP for testing
+
+For testing and developing purposes, we allow communication over non-secured http protocol on port 5000 instead of 5043 (default configuration). When the broker receives an http connection acts as if the client had provided a valid certificate, so the request will allways be authorized. This means that in order to test token validation an https connection is needed.
 
 
-For further information refer to the file `tests/java/README.md`.
+For further information refer to the file [tests/java/README.md](tests/java/README.md).
