@@ -7,7 +7,7 @@
     "prestart": "npm install",
     "start": "node broker.js",
     "docker-pretest": "sudo docker exec -it `sudo docker ps | awk '/witdom-core-broker/ { print $1 }'` /bin/sh -c \"echo `ifconfig docker | awk '/inet:/ { print $2 }' | cut -d\":\" -f2` > /usr/src/broker/docker_host_ip.txt\"",
-    "test": "./node_modules/.bin/mocha tests/"
+    "test": "./node_modules/.bin/mocha tests/nodejs/"
   },
   "keywords": [
     "swagger"
