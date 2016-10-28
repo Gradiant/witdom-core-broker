@@ -4,12 +4,13 @@
 The broker repository contains the following directories and files (not all the files in subdirectories are listed):
  - api
    - swagger.yaml (Api specification in swagger format)
+ - CAs (several self-signed CAs (along signed server and client certificates) created with testing purposes, and also instructions to create new ones)
+ - certs (server and ca certificates for testing)
  - config (broker configuration)
  - controllers (nodejs controllers for servicing request to the broker)
  - tests (nodejs tests and java api client library with example calls)
    - nodejs
    - java
- - CAs (several self-signed CAs (along signed server and client certificates) created with testing purposes, and also instructions to create new ones)
  - utils (nodejs server handlers)
  - broker.js
  - Dockerfile
@@ -198,7 +199,7 @@ $ mvn test -Djavax.net.ssl.trustStore=truststore/truststore.jks -Djavax.net.ssl.
 ```
 Again the test of the class `HTTPSApiTest` will fail, but this time with the message:
 ```java
-{"message":[{"code":"401","status":"denied","message":"Authorization failed: a client certificate is needed"}]}
+{"message":[{"code":"401","status":"denied","message":"Authorization failed: a client certificate is needed","path":["/v1/forward/domain"]}]}
 ```
 Because the keystore where the client certificate is stored is not passed to the application. To run again the tests but this time passing the key store information use one of the following commands depending of the type of chosen keystore, 'JKS' or 'PKCS12':
 ```
@@ -211,7 +212,7 @@ $ mvn test -Djavax.net.ssl.trustStore=truststore/truststore.jks -Djavax.net.ssl.
 The parameter `clientCertificateAlias` is a custom parameter to tell the SSLEngine to pick the certificate with the provided alias from the key store. This parameter is needed because the Java default implementation of the SSLEngine picks the first certificate from the key store that is valid against the same CA that signed the server certificate, for this reason a client certificate signed by a different CA wouldn't be picked by the default SSLEngine. This parameter can also be used to choose which certificate to use when there is more than one in the key store.
 The test of the `HTTPsApiTest` will continue failing, but again with a different message:
 ```java
-{"message":[{"code":"401","status":"denied","message":"Authorization failed: a client certificate is needed"}]}
+{"message":[{"code":"401","status":"denied","message":"Authorization failed: wrong certificate provided","path":["/v1/forward/domain"]}]}
 ```
 Because the passed key store contains a client certificate that is not trusted by the broker CA. Finally to run the tests passing a key store that contains a trusted client, use one of the following commands depending of the type of chosen keystore, 'JKS' or 'PKCS12': 
 
