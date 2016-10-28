@@ -137,12 +137,10 @@ paths:
       - name: "user"
         in: "query"
         description: "user name"
-        required: true
         type: "string"
       - name: "token"
         in: "query"
         description: "Token of the user"
-        required: true
         type: "string"
       - name: "request_id"
         in: "query"
