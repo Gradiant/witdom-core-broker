@@ -280,43 +280,11 @@ describe("Syntax : ", function() {
         });
 
         // get request result
-        it("get result : 400 : typo in data", function(done) {
-            server
-            .get('/request/getresult')
-            .set('Accept', /json/)
-            .set('Content-type', 'application/json')
-            .query({
-                used: "string",     // typo
-                token: "string",
-                request_id: "string"
-            })
-            .expect(400)
-            .expect('Content-type', /json/)
-            .end(done);
-        });
-
-        // get request result
         it("get result : 400 : missing data", function(done) {
             server
             .get('/request/getresult')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
-            .expect(400)
-            .expect('Content-type', /json/)
-            .end(done);
-        });
-
-        // get request result
-        it("get result : 400 : object instead of string", function(done) {
-            server
-            .get('/request/getresult')
-            .set('Accept', /json/)
-            .set('Content-type', 'application/json')
-            .query({
-                user: {name: "string"},     // syntax
-                token: "string",
-                request_id: "string"
-            })
             .expect(400)
             .expect('Content-type', /json/)
             .end(done);
