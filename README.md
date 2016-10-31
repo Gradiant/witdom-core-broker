@@ -121,7 +121,7 @@ $ npm test
 
 ## Launching java API tests
 
-The Java test are inside the directory tests/java. This directory contains a maven script 'pom.xml' that can be used to compile and package the API client library and to run the example tests.
+The Java tests are inside the directory tests/java. This directory contains a maven script 'pom.xml' that can be used to compile and package the API client library and to run the example tests.
 Apache maven 3.3.3 or greater is needed to build the API client library and run the tests.
 To build the API client library run the following command:
 ```
@@ -147,7 +147,7 @@ System.setProperty("javax.net.ssl.trustStorePassword",truststorepassword);
 ```
 
 ### Key store creation
-For the mutual authentication a client certificate must be provided to the broker along the request. This certificate is read by a Java application from the selected key store. The java 'keytool' command can't be used to directly create this key store because it doen't allow to import a key when generating the key store, the only option is to create a new key along the key stotre creation. So the openssl tool is used to create the new key store in PKCS12 format and to import into it the client key and certificate. First the client key and the client certificate must be concatenated in one file:
+For the mutual authentication a client certificate must be provided to the broker along the request. This certificate is read by a Java application from the selected key store. The java 'keytool' command can't be used to directly create this key store because it doesn't allow to import a key when generating the key store, the only option is to create a new key along the key stotre creation. So the openssl tool is used to create the new key store in PKCS12 format and to import into it the client key and certificate. First the client key and the client certificate must be concatenated in one file:
 ```
 $ cat <client_key_file> <client_crt_file> > client_key_crt.pem
 ```
@@ -159,7 +159,7 @@ Where `-name client` indicates an alias for the key_cert inside the key store. A
 ```
 $ keytool -importkeystore -deststorepass <password_of_jks_keystore> -destkeypass <password_of_the_key_in_jks> -destkeystore <jks_file> -srckeystore <pkcs12_file> -srcstoretype PKCS12 -srcstorepass <pkcs12_passwrod> -alias client
 ```
-Use the same password for `-deststorepass`  and `-destkeypass`, and for `-alias` use the same value as in `-name` for the 'openssl' command. To use the created trust store in a Java application the JVM must be invoked with the following params for the case of the PKCS12 format:
+Use the same password for `-deststorepass`  and `-destkeypass`, and for `-alias` use the same value as in `-name` for the 'openssl' command. To use the created key store in a Java application the JVM must be invoked with the following params for the case of the PKCS12 format:
 ```
 $ -Djavax.net.ssl.keyStore=<path/to/keystorefile.pkcs12> -Djavax.net.ssl.keyStorePassword=<keystorepassword> -Djavax.net.ssl.keyStoreType=PKCS12
 ```
@@ -219,9 +219,8 @@ $ mvn test -Djavax.net.ssl.trustStore=truststore/truststore.jks -Djavax.net.ssl.
 ```
 This time the test of the `HTTPsApiTest` will succeed.
 
+For further information regarding the Java test refer to the file [tests/java/README.md](tests/java/README.md).
+
 ## Using HTTP for testing
 
 For testing and developing purposes, we allow communication over non-secured http protocol on port 5000 instead of 5043 (default configuration). When the broker receives an http connection acts as if the client had provided a valid certificate, so the request will allways be authorized. This means that in order to test token validation an https connection is needed.
-
-
-For further information refer to the file [tests/java/README.md](tests/java/README.md).
