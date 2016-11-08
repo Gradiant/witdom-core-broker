@@ -6,5 +6,12 @@ module.exports = {
         broker_key_passphrase: 'W1td0mBr0k3r',
         broker_cert: 'certs/broker_crt.pem',
         ca_cert: 'certs/witdomcacert.pem'
+    },
+    keystone: {
+        admin: {
+            user: "admin",
+            pass: "adminpw"
+        },
+        endpoint: "http://127.0.0.1:5001/v3"
     }
 };

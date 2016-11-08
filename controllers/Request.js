@@ -7,33 +7,36 @@ var Request = require('./RequestService');
 var validator = require('../utils/tokenValidator');
 
 module.exports.requestCreatePOST = function requestCreatePOST (req, res, next) {
-    if(req.client.authorized || 
-    validator.validateToken(req.swagger.params.user.value, req.swagger.params.token.value)) {
+    if(req.client.authorized) { 
         Request.requestCreatePOST(req.swagger.params, res, next);
     } else {
-        throw new BrokerError('INVALID_CERTIFICATE_OR_TOKEN');
+        validator.validateToken(req.swagger.params.user.value, req.swagger.params.token.value, function() {
+            Request.requestCreatePOST(req.swagger.params, res, next);
+        }, next, new BrokerError('INVALID_CERTIFICATE_OR_TOKEN'));
     }
 };
 
 module.exports.requestCreate_blockerPOST = function requestCreate_blockerPOST (req, res, next) {
-    if(req.client.authorized || 
-    validator.validateToken(req.swagger.params.user.value, req.swagger.params.token.value)) {
+    if(req.client.authorized) {
         Request.requestCreate_blockerPOST(req.swagger.params, res, next);
     } else {
-        throw new BrokerError('INVALID_CERTIFICATE_OR_TOKEN');
+        validator.validateToken(req.swagger.params.user.value, req.swagger.params.token.value, function() {
+            Request.requestCreate_blockerPOST(req.swagger.params, res, next);
+        }, next,  new BrokerError('INVALID_CERTIFICATE_OR_TOKEN'));
     }
 };
 
 module.exports.requestGetresultGET = function requestGetresultGET (req, res, next) {
-    if(req.client.authorized || 
-    validator.validateToken(req.swagger.params.user.value, req.swagger.params.token.value)) {
+    if(req.client.authorized) {
         Request.requestGetresultGET(req.swagger.params, res, next);
     } else {
-        throw new BrokerError('INVALID_CERTIFICATE_OR_TOKEN');
+        validator.validateToken(req.swagger.params.user.value, req.swagger.params.token.value, function() {
+            Request.requestGetresultGET(req.swagger.params, res, next);
+        }, next,  new BrokerError('INVALID_CERTIFICATE_OR_TOKEN'));
     }
 };
 
-module.exports.requestCallbackPOST = function requestUpdatePOST (req, res, next) {
+module.exports.requestCallbackPOST = function requestCallbackPOST (req, res, next) {
     if(!req.client.authorized) {
         throw new BrokerError('INVALID_CERTIFICATE');
     } else {
