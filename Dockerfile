@@ -13,6 +13,7 @@ COPY broker.js ./
 COPY api/. api/
 COPY config/. config/
 COPY controllers/. controllers/
+COPY models/. models/
 COPY utils/. utils/
 COPY certs/. certs/
 
