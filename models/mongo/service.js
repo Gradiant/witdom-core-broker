@@ -1,13 +1,21 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+/**
+ * mongoose Schema
+ * _id: service name provided by cloudify
+ * host_data: json containing the needed information about the service
+ */
 var ServiceSchema = new Schema({
     _id: String,
     host_data: Object
 },
-{ _id: false },
-{ timestamps: true}); // adds createdAt and updatedAt fields
+{ _id: false },         // tells mongo not to create default id, so it will use our _id field
+{ timestamps: true});   // adds createdAt and updatedAt fields
 
+/**
+ * Updates host_data
+ */
 ServiceSchema.methods.update = function update(host_data, callback) {
     this.host_data = host_data;
     this.markModified('host_data');
@@ -16,6 +24,9 @@ ServiceSchema.methods.update = function update(host_data, callback) {
     });
 };
 
+/**
+ * Tries to create a new service, if it exists updates it
+ */
 ServiceSchema.statics.saveOrUpdate = function saveOrUpdate(name, host_data, callback) {
     var Service = mongoose.model('Service', ServiceSchema);
     var service = new Service({_id: name, host_data: host_data});
@@ -26,7 +37,7 @@ ServiceSchema.statics.saveOrUpdate = function saveOrUpdate(name, host_data, call
                     if(error) {
                         callback(error, null);
                     } else {
-                        // Update ship data
+                        // Update service data
                         oldService.update(host_data, function(error) {
                             callback(error, service);
                         });

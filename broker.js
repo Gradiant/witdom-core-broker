@@ -15,7 +15,7 @@ var mongoose = require('mongoose');
 var requestIp = require('request-ip');
 
 // database connection
-mongoose.connect('mongodb://mongo:27017');
+mongoose.connect('mongodb://' + brokerConfig.database.host + ':' + brokerConfig.database.port);
 
 // swaggerRouter configuration
 var options = {

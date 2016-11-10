@@ -6,5 +6,9 @@ module.exports = {
         broker_key_passphrase: 'W1td0mBr0k3r',
         broker_cert: 'certs/broker_crt.pem',
         ca_cert: 'certs/witdomcacert.pem'
+    },
+    database: {
+        host: 'mongo',
+        port: '27017'
     }
 };

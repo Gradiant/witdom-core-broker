@@ -4,6 +4,7 @@ var should = require("should");
 var Service = require('../../../models/mongo/service')
 var Request = require('../../../models/mongo/request')
 var mongoose = require('mongoose');
+var brokerConfig = require('../../../config');
 
 
 before(function (done) {
@@ -18,7 +19,7 @@ before(function (done) {
 
 
   if (mongoose.connection.readyState === 0) {
-    mongoose.connect('mongodb://mongo:27017', function (err) {
+    mongoose.connect('mongodb://' + brokerConfig.database.host + ':' + brokerConfig.database.port, function (err) {
       if (err) {
         throw err;
       }
