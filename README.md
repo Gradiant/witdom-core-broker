@@ -8,6 +8,7 @@ The broker repository contains the following directories and files (not all the 
  - certs (server and ca certificates for testing)
  - config (broker configuration)
  - controllers (nodejs controllers for servicing request to the broker)
+ - models (mongoose database models)
  - tests (nodejs tests and java api client library with example calls)
    - nodejs
    - java
@@ -20,6 +21,14 @@ The broker repository contains the following directories and files (not all the 
 
 ## Broker configuration
 WITDOM broker component uses JSON style configurariton files. The default configuration is inside 'config/default.js', a custom configuration can be entered by providing the desired fields in the file 'config/custom.js'.
+### Database
+The database must be up and running before launching the broker. By default it points to 'mongo:27017', as this is the way it works on docker by linking containers. You can enter different configuration in the 'config/custom.js' file.
+```
+database: {
+    host: 'mongo',
+    port: '27017'
+}
+```
 
 ## Local deployment of the broker with nodejs
 For locally deploying the broker just run the following command:
@@ -35,9 +44,14 @@ First build the docker image
 $ docker build -t witdom-core-broker .
 ```
 
+Then run the mongo container
+```
+$ docker run --name mongo-broker -d mongo
+```
+
 Then run the docker container
 ```
-$ docker run --name broker -p 5000:5000 -p 5043:5043 -d witdom-core-broker
+$ docker run --name broker -p 5000:5000 -p 5043:5043 --link mongo-broker:mongo -d witdom-core-broker
 ```
 
 To stop the container
