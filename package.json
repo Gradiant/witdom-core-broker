@@ -6,7 +6,8 @@
   "scripts": {
     "prestart": "npm install",
     "start": "node broker.js",
-    "test": "./node_modules/.bin/mocha tests/nodejs/"
+    "test": "./node_modules/.bin/mocha tests/nodejs/integration",
+    "db_test": "./node_modules/.bin/mocha tests/nodejs/unit/database.js"
   },
   "keywords": [
     "swagger"
