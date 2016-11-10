@@ -10,8 +10,12 @@ var errorHandler = require('./utils/errorHandler')
 var clientAuthHandler = require('./utils/clientAuthHandler');
 var httpAuthValidator = require('./utils/httpAuthValidator');
 var brokerConfig = require('./config');
+var mongoose = require('mongoose');
 
 var requestIp = require('request-ip');
+
+// database connection
+mongoose.connect('mongodb://mongo:27017');
 
 // swaggerRouter configuration
 var options = {
