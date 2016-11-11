@@ -19,6 +19,7 @@
     "connect": "^3.2.0",
     "js-yaml": "^3.3.0",
     "lodash": "^4.16.4",
+    "mock_example": "file:orchestration/mock_example",
     "mongoose": "^4.6.6",
     "request-ip": "^1.2.2",
     "swagger-tools": "0.10.1"

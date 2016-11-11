@@ -12,12 +12,19 @@ var httpAuthValidator = require('./utils/httpAuthValidator');
 var brokerConfig = require('./config');
 var mongoose = require('mongoose');
 
+// Safe load of orchestrator module from configuration
+try {
+    var orchestration = require(brokerConfig.orchestrator.name);
+} catch(error) {
+    throw 'Can not load orchestator module: ' + error;
+}
+
 var requestIp = require('request-ip');
 
-// database connection
+// Database connection
 mongoose.connect('mongodb://' + brokerConfig.database.host + ':' + brokerConfig.database.port);
 
-// swaggerRouter configuration
+// SwaggerRouter configuration
 var options = {
     swaggerUi: '/swagger.json',
     controllers: './controllers',
@@ -28,6 +35,7 @@ var options = {
 var spec = fs.readFileSync('./api/swagger.yaml', 'utf8');
 var swaggerDoc = jsyaml.safeLoad(spec);
 
+// Https server configuration
 var httpsOptions = {
     key: fs.readFileSync(brokerConfig.https.broker_key), 
     passphrase: brokerConfig.https.broker_key_passphrase,
@@ -36,6 +44,9 @@ var httpsOptions = {
     requestCert: true, 
     rejectUnauthorized: false
 };
+
+// Orchestrator connection
+var orchestrator = new orchestration.Orchestrator(brokerConfig.orchestrator.config);
 
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {

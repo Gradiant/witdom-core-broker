@@ -10,5 +10,13 @@ module.exports = {
     database: {
         host: 'mongo',
         port: '27017'
+    },
+    orchestrator: {
+        name: 'mock_example',
+        config: {
+            host: '127.0.0.1',
+            port: '1234',
+            auth_token: 'some token'
+        }
     }
 };
