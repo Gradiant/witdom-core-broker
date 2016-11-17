@@ -16,6 +16,7 @@
   "private": true,
   "dependencies": {
     "array-includes": "^3.0.2",
+    "cloudify_provider_connector": "file:orchestration/cloudify_provider_connector",
     "connect": "^3.2.0",
     "js-yaml": "^3.3.0",
     "lodash": "^4.16.4",
