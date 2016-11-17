@@ -12,15 +12,11 @@ module.exports = {
         port: '27017'
     },
     orchestrator: {
-        name: 'cloudify_provider_connector',
+        name: 'mock_example',
         config: {
-            protocol: 'http',
-            host: 'localhost',
+            host: '127.0.0.1',
             port: '1234',
-            auth_token: 'some token',
-            certificate_key: './CAs/witdomCA/client1_key.pem',
-            certificate: './CAs/witdomCA/client1_crt.pem',
-            ca: './CAs/witdomCA/witdomcacert.pem'
+            auth_token: 'some token'
         }
     }
 };

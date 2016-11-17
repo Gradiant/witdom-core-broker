@@ -30,10 +30,14 @@ Connector.prototype.connect = function(config, callback) {
     this.host = config.host;
     this.port = config.port;
     this.auth_token = config.auth_token;
-    this.ca = fs.readFileSync(config.ca);
-    this.certificate_key = fs.readFileSync(config.certificate_key);
-    this.certificate = fs.readFileSync(config.certificate);
-    callback(null); // no error
+    try {
+        this.ca = fs.readFileSync(config.ca);
+        this.certificate_key = fs.readFileSync(config.certificate_key);
+        this.certificate = fs.readFileSync(config.certificate);
+        callback(null); // no error
+    } catch (error) {
+        callback(error);
+    }
 }
 
 /**
