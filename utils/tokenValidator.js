@@ -1,13 +1,21 @@
-var auth = require('./node-openstack-token-utils');
 var brokerConfig = require('../config');
 
-var authService = new auth.TokenValidationService(brokerConfig.keystone.endpoint, brokerConfig.keystone.admin.user, brokerConfig.keystone.admin.pass);
+var auth = require(brokerConfig.tokenValidationModule);
+
+var BrokerError = require('./brokerError');
+
+var authService = new auth.TokenValidationService(brokerConfig.tokenValidationService.endpoint, brokerConfig.tokenValidationService.admin.user, brokerConfig.tokenValidationService.admin.pass);
 
 
 module.exports.validateToken = function(user, token, callback, next, throwerror) {
-    authService.validateAuthenticationToken(token, function(error, tokenValid, adminToken, tokenUser) {
+    if (user == undefined || token == undefined) {
+        next(throwerror);
+        return;
+    }
+    authService.validateAuthenticationToken(token, function(error, tokenValid, tokenUser) {
         if (error) {
-            console.log("Keystone error:", error.status, error.message);
+            console.log("Validation service error:", error.status, error.message);
+            next(new BrokerError("COULDNT_VALIDATE_TOKEN"));
         } else {
             if (tokenValid) {
                 if (tokenUser == user) {
@@ -25,7 +33,4 @@ module.exports.validateToken = function(user, token, callback, next, throwerror)
             }
         }
     });
-    if (user == undefined) return false;
-    else if (user == token) return true;
-    return false;
 }

@@ -7,11 +7,12 @@ module.exports = {
         broker_cert: 'certs/broker_crt.pem',
         ca_cert: 'certs/witdomcacert.pem'
     },
-    keystone: {
+    tokenValidationService: {
         admin: {
             user: "admin",
             pass: "adminpw"
         },
         endpoint: "http://127.0.0.1:5001/v3"
-    }
+    },
+    tokenValidationModule: "openstack-token-utils"
 };

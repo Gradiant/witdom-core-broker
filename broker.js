@@ -1,5 +1,7 @@
 'use strict';
 
+global.__base = __dirname + '/'; //Save the broker base directory
+
 var app = require('connect')();
 var http = require('http');
 var https = require('https');
@@ -8,6 +10,7 @@ var jsyaml = require('js-yaml');
 var fs = require('fs');
 var errorHandler = require('./utils/errorHandler')
 var clientAuthHandler = require('./utils/clientAuthHandler');
+var authHandler = require('./utils/authHandler');
 var httpAuthValidator = require('./utils/httpAuthValidator');
 var brokerConfig = require('./config');
 
@@ -36,16 +39,17 @@ var httpsOptions = {
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
     // Register the middleware that gets the client ip
-    app.use(requestIp.mw())
-
-    // Register a client auth validator
-    //app.use(clientAuthHandler);
+    //app.use(requestIp.mw()) // Not needed now, was used for clientAuthHandler
 
     // FIXME only for dev!!
     app.use(httpAuthValidator);
 
     // Interpret Swagger resources and attach metadata to request - must be first in swagger-tools middleware chain
     app.use(middleware.swaggerMetadata());
+
+    // Register a client auth validator
+    //app.use(clientAuthHandler);
+    app.use(authHandler);
 
     // Validate Swagger requests
     app.use(middleware.swaggerValidator());

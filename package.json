@@ -15,6 +15,7 @@
   "private": true,
   "dependencies": {
     "openstack-wrapper": "mancabizjak/node-openstack-wrapper",
+    "openstack-token-utils":"./dependencies/iam/keystone-clients/javascript-wrappers/node-openstack-token-utils",
     "connect": "^3.2.0",
     "js-yaml": "^3.3.0",
     "swagger-tools": "0.10.1",
