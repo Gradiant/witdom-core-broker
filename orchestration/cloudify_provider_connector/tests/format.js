@@ -12,7 +12,7 @@ var config = {
         certificate: '../../CAs/witdomCA/client1_crt.pem',
         ca: '../../CAs/witdomCA/witdomcacert.pem'}
 
-var orchestrator = new orchestration.Orchestrator();
+var orchestrator = orchestration.Orchestrator;
 
 before(function(done) {
     orchestrator.connect(config, function (error) {

@@ -6,7 +6,7 @@ var config = {host: '127.0.0.1',
               port: '1234',
               auth_token: 'some token'}
 
-var orchestrator = new orchestration.Orchestrator();
+var orchestrator = orchestration.Orchestrator;
 
 before(function(done) {
     orchestrator.connect(config, function (error) {
@@ -41,7 +41,7 @@ describe("Services : ", function() {
             should.not.exist(error);
             should.exist(services);
             services.length.should.equal(9);
-            for(i=1; i<services.lenght; i++) {
+            for(i=1; i<=services.lenght; i++) {
                 services[i].name.should.equal("service" + i);
                 services[i].image.should.equal("image_url");
                 services[i].host.should.equal("127.0.0." + i);

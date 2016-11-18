@@ -23,6 +23,8 @@ Connector.prototype.connect = function(config, callback) {
     this.host = config.host;
     this.port = config.port;
     this.auth_token = config.auth_token;
+    this.base_name = "service";
+    this.base_ip = "127.0.0.";
     callback(null); // no error
 }
 
@@ -37,7 +39,7 @@ Connector.prototype.getServiceData = function(service, callback) {
     var error = null;
     var service_data = {
             "image": "image_url",
-            "host": "127.0.0.1",
+            "host": this.base_ip + "1",
             "port": "1234",
             "description": "service_description"
         };
@@ -52,8 +54,8 @@ Connector.prototype.getServiceList = function(callback) {
     var error = null;
     var services = [];
     for(var i=1; i< 10; i++) {
-        var name = "service" + i;
-        var ip = "127.0.0." + i;
+        var name = this.base_name + i;
+        var ip = this.base_ip + i;
         services.push({
             "name": name,
             "image": "image_url",
@@ -65,4 +67,4 @@ Connector.prototype.getServiceList = function(callback) {
     callback(error, services);
 };
 
-module.exports = Connector;
+var connector = module.exports = exports = new Connector;

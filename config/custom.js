@@ -1,5 +1,5 @@
 module.exports = {
-    orchestrator: {
+    /*orchestrator: {
         name: 'cloudify_provider_connector',
         config: {
             protocol: 'http',
@@ -10,5 +10,5 @@ module.exports = {
             certificate: './CAs/witdomCA/client1_crt.pem',
             ca: './CAs/witdomCA/witdomcacert.pem'
         }
-    }
+    }*/
 };

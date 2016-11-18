@@ -90,7 +90,7 @@ describe("Syntax : ", function() {
             .query({
                 user: "string",
                 token: 'string',
-                service: 'service_id'
+                service: 'service1'
             })
             .expect(200)
             .expect('Content-type', /json/)

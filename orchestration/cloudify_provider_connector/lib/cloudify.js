@@ -133,4 +133,4 @@ Connector.prototype.getServiceList = function(callback) {
         });
 };
 
-module.exports = Connector;
+var connector = module.exports = exports = new Connector;

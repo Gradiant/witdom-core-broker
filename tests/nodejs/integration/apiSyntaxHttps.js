@@ -88,13 +88,9 @@ describe("Syntax (https): ", function() {
                     done(error);
                 }
                 else {
+                    // No untrusted domain for now
                     response.body.should.be.an.Array;
-                    service1 = response.body[0];
-                    Object.keys(service1).should.have.length(4);
-                    service1.should.have.property('image').which.is.a.String;
-                    service1.should.have.property('service_id').which.is.a.String;
-                    service1.should.have.property('description').which.is.a.String;
-                    service1.should.have.property('uri').which.is.a.String;
+                    response.body.should.have.length(0);
                     done();
                 }
             });
@@ -108,7 +104,7 @@ describe("Syntax (https): ", function() {
             .query({
                 user: "string",
                 token: 'string',
-                service: 'service_id'
+                service: 'service1'
             })
             .expect(200)
             .expect('Content-type',/json/)

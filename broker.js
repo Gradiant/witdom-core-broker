@@ -46,8 +46,8 @@ var httpsOptions = {
 };
 
 // Orchestrator connection
-var orchestrator = new orchestration.Orchestrator();
-orchestator.connect(brokerConfig.orchestrator.config, function(error) {
+var orchestrator = orchestration.Orchestrator;
+orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
     if(!error) {
         // Initialize the Swagger middleware
         swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
