@@ -8,7 +8,7 @@ var Schema = mongoose.Schema;
  */
 var ServiceSchema = new Schema({
     _id: String,
-    host_data: Object
+    service_data: Object
 },
 { _id: false },         // tells mongo not to create default id, so it will use our _id field
 { timestamps: true});   // adds createdAt and updatedAt fields
