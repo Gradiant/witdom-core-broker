@@ -4,16 +4,19 @@
 The broker repository contains the following directories and files (not all the files in subdirectories are listed):
  - api
    - swagger.yaml (Api specification in swagger format)
- - CAs (several self-signed CAs (along signed server and client certificates) created with testing purposes, and also instructions to create new ones)
  - certs (server and ca certificates for testing)
+ - CAs (several self-signed CAs (along signed server and client certificates) created with testing purposes, and also instructions to create new ones)
  - config (broker configuration)
  - controllers (nodejs controllers for servicing request to the broker)
+ - dependencies (this directory is a git submodule that clones the IAM repository for access the IAM javascript client module)
  - tests (nodejs tests and java api client library with example calls)
    - nodejs
    - java
  - utils (nodejs server handlers)
+ - validators (this directory contains 'dummyTokenValidation' that serves as an example on how to create a module to connect to a different token validation service)
  - broker.js
  - Dockerfile
+ - dockerFileCustom.js (a custom config file for replacing 'config/custom.js' when building the Dockerfile)
  - package.json
  - README.md (this file)
 
@@ -30,15 +33,21 @@ $ npm start
 It will install all the needed dependencies and start the broker. 
 
 ## Deployment of the broker with Dockerfile
-First build the docker image
+First edit the file 'dockerFileCustom.js' to configure the access to the IAM. The ports of the broker and the configuration of the certificates can be also be set up in this file.
+Then build the docker image
 ```
 $ docker build -t witdom-core-broker .
 ```
-
-Then run the docker container
+The broker needs a running instance a running instance of the IAM.
+Run the docker container
 ```
 $ docker run --name broker -p 5000:5000 -p 5043:5043 -d witdom-core-broker
 ```
+
+If the instance of the IAM is run in a container inside the same docker host as the broker, run the broker container with the following command to link the broker container to the IAM container
+```
+$ docker run --name broker -p 5000:5000 -p 5043:5043 --link iam_container:iam_host_name -d witdom-core-broker
+``` 
 
 To stop the container
 ```
@@ -57,7 +66,7 @@ $ docker rm broker
 
 And then run it again with the 'docker run' command
 
-Prior building the docker image it is possible to change the default configuration of the broker by editing the file 'config/custom.js'.
+Prior building the docker image it is possible to change the default configuration of the broker by editing the file 'config/custom.js'. (now it is done through the file 'dockerFileCustom.js', may be changed in future commits)
 For example to change the port of the HTTP connector put the following content in the file:
 
 ```javascript

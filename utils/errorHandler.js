@@ -10,7 +10,8 @@ function globalHandler(error, request, response, next) {
             case 'INVALID_CERTIFICATE' : 
                 httpCode = 401;
                 httpStatus = "denied";
-                if (request.client.hasCert) {
+                //if (request.client.hasCert) { //TODO: change this by 'if (request.connection.getPeerCertificate().subject)'
+                if (request.client.encrypted && request.connection.getPeerCertificate().subject) {
                     err_message = "Authorization failed: wrong certificate provided"; 
                 } else {
                     err_message = "Authorization failed: a client certificate is needed";
@@ -19,7 +20,8 @@ function globalHandler(error, request, response, next) {
             case 'INVALID_CERTIFICATE_OR_TOKEN' :
                 httpCode = 401;
                 httpStatus = "denied";
-                if (request.client.hasCert) {
+                //if (request.client.hasCert) { //TODO: change this by 'if (request.connection.getPeerCertificate().subject)'
+                if (request.client.encrypted && request.connection.getPeerCertificate().subject) {
                     if ((request.swagger.params.user.value == undefined) && (request.swagger.params.token.value == undefined)) {
                         err_message = "Authorization failed: wrong certificate provided";
                     } else {

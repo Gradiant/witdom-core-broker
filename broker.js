@@ -1,18 +1,19 @@
 'use strict';
 
 global.__base = __dirname + '/'; //Save the broker base directory
-
 var app = require('connect')();
 var http = require('http');
 var https = require('https');
 var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
 var fs = require('fs');
+var brokerConfig = require('./config');
+global.__brokerConfig = brokerConfig;
 var errorHandler = require('./utils/errorHandler')
 var clientAuthHandler = require('./utils/clientAuthHandler');
 var authHandler = require('./utils/authHandler');
 var httpAuthValidator = require('./utils/httpAuthValidator');
-var brokerConfig = require('./config');
+
 
 var requestIp = require('request-ip');
 
@@ -56,10 +57,10 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
 
     // Route validated requests to appropriate controller
     app.use(middleware.swaggerRouter(options));
-
+    
     // Serve the Swagger documents and Swagger UI
     app.use(middleware.swaggerUi());
-    
+        
     // Use error handler
     app.use(errorHandler);
 
