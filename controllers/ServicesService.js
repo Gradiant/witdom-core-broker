@@ -25,7 +25,7 @@ exports.serviceDetailsGET = function(args, response, next) {
                 service_id: service.id,
                 image: service.service_data.image,
                 description: service.service_data.description,
-                uri: "??"
+                uri: service.service_data.host + ':' + service.service_data.port
             };
             response.setHeader('Content-Type', 'application/json');
             response.end(JSON.stringify(service_response || {}, null, 2));
@@ -35,6 +35,7 @@ exports.serviceDetailsGET = function(args, response, next) {
                 if(error){
                     response.setHeader('Content-Type', 'application/json');
                     if(error.code == 404) {
+                        // TODO retrieve from untrusted domains
                         response.writeHead(404);
                         response.end(JSON.stringify({code: 404, reason: error.reason}));
                     } else {
@@ -46,10 +47,12 @@ exports.serviceDetailsGET = function(args, response, next) {
                         service_id: service_id,
                         image: service_data.image,
                         description: service_data.description,
-                        uri: "??"
+                        uri: service_data.host + ':' + service_data.port
                     };
                     response.setHeader('Content-Type', 'application/json');
                     response.end(JSON.stringify(service_response || {}, null, 2));
+                    var newService = new Service({id: service_id, source: 'local', service_data: service_data});
+                    newService.save();
                 }
             });
         }
@@ -63,28 +66,55 @@ exports.serviceDomainlistGET = function(args, response, next) {
      * token (String)
      **/
 
-    // TODO, how to use database
-    // Only retrieve services from current domain
-    orchestrator.getServiceList(function(error, services) {
+    // Retrive from database with local source
+    Service.find({source: 'local'}, function(error, services) {
         if(error) {
             response.setHeader('Content-Type', 'application/json');
-            response.writeHead(503);
-            response.end(JSON.stringify({code: 503, reason: "service unavaliable"}));
+            response.writeHead(500);
+            response.end(JSON.stringify({code: 500, reason: "internal server error"}));
+        } else if(services.length == 0) {
+            // Only retrieve services from current domain
+            orchestrator.getServiceList(function(error, services) {
+                if(error) {
+                    response.setHeader('Content-Type', 'application/json');
+                    response.writeHead(503);
+                    response.end(JSON.stringify({code: 503, reason: "service unavaliable"}));
+                } else {
+                    var services_response = [];
+                    for(var index in services) {
+                        var service = {
+                            service_id: services[index].name,
+                            image: services[index].image,
+                            description: services[index].description,
+                            uri: services[index].host + ':' + services[index].port
+                        };
+                        services_response.push(service);
+                    }
+                    response.setHeader('Content-Type', 'application/json');
+                    response.end(JSON.stringify(services_response || [], null, 2));
+                    // Save all services to database
+                    services.forEach(function(service) {
+                        var newService = new Service({id: service.name, source: 'local', service_data: service_data});
+                        newService.save();
+                    })
+                }
+            }); 
         } else {
+            // There are services in the database
             var services_response = [];
             for(var index in services) {
                 var service = {
-                    service_id: services[index].name,
-                    image: services[index].image,
-                    description: services[index].description,
-                    uri: "??"
-                };
+                    service_id: services[index].id,
+                    image: services[index].service_data.image,
+                    description: services[index].service_data.description,
+                    uri: services[index].service_data.host + ":" + services[index].service_data.port
+                }
                 services_response.push(service);
             }
             response.setHeader('Content-Type', 'application/json');
             response.end(JSON.stringify(services_response || [], null, 2));
         }
-    });  
+    }); 
 }
 
 exports.serviceListGET = function(args, response, next) {
@@ -95,24 +125,51 @@ exports.serviceListGET = function(args, response, next) {
      **/
 
     // TODO, how to use database
-    // Retrieve services from current domain
-    orchestrator.getServiceList(function(error, services) {
+    Service.find({}, function(error, services) {
         if(error) {
             response.setHeader('Content-Type', 'application/json');
-            response.writeHead(503);
-            response.end(JSON.stringify({code: 503, reason: "service unavaliable"}));
+            response.writeHead(500);
+            response.end(JSON.stringify({code: 500, reason: "internal server error"}));
+        } else if(services.length == 0) {
+            // Retrieve services from current domain
+            orchestrator.getServiceList(function(error, services) {
+                if(error) {
+                    response.setHeader('Content-Type', 'application/json');
+                    response.writeHead(503);
+                    response.end(JSON.stringify({code: 503, reason: "service unavaliable"}));
+                } else {
+                    var services_response = [];
+                    for(var index in services) {
+                        var service = {
+                            service_id: services[index].name,
+                            image: services[index].image,
+                            description: services[index].description,
+                            uri: services[index].host + ':' + services[index].port
+                        };
+                        services_response.push(service);
+                    }
+                    // TODO retrieve services from untrusted domains
+                    response.setHeader('Content-Type', 'application/json');
+                    response.end(JSON.stringify(services_response || [], null, 2));
+                    // Save all services to database
+                    services.forEach(function(service) {
+                        var newService = new Service({id: service.name, source: 'local', service_data: service});
+                        newService.save();
+                    })
+                }
+            });
         } else {
+            // There are services in the database
             var services_response = [];
             for(var index in services) {
                 var service = {
-                    service_id: services[index].name,
-                    image: services[index].image,
-                    description: services[index].description,
-                    uri: "??"
-                };
+                    service_id: services[index].id,
+                    image: services[index].service_data.image,
+                    description: services[index].service_data.description,
+                    uri: services[index].service_data.host + ":" + services[index].service_data.port
+                }
                 services_response.push(service);
             }
-            // TODO retrieve services from untrusted domains
             response.setHeader('Content-Type', 'application/json');
             response.end(JSON.stringify(services_response || [], null, 2));
         }
