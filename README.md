@@ -9,6 +9,7 @@ The broker repository contains the following directories and files (not all the 
  - config (broker configuration)
  - controllers (nodejs controllers for servicing request to the broker)
  - models (mongoose database models)
+ - orchestration (default orchestration connection modules)
  - tests (nodejs tests and java api client library with example calls)
    - nodejs
    - java
@@ -21,6 +22,7 @@ The broker repository contains the following directories and files (not all the 
 
 ## Broker configuration
 WITDOM broker component uses JSON style configurariton files. The default configuration is inside 'config/default.js', a custom configuration can be entered by providing the desired fields in the file 'config/custom.js'.
+
 ### Database
 The database must be up and running before launching the broker. By default it points to 'mongo:27017', as this is the way it works on docker by linking containers. You can enter different configuration in the 'config/custom.js' file.
 ```
@@ -28,6 +30,36 @@ database: {
     host: 'mongo',
     port: '27017'
 }
+```
+
+### Orchestration
+There are two included orchestration modules, one for Cloudify and other for testing/example.
+#### To load the example:
+```
+    orchestrator: {
+        name: 'mock_example',
+        config: {
+            host: '127.0.0.1',
+            port: '1234',
+            auth_token: 'some token'
+        }
+    }
+```
+None of the parameters means nothing, but they must exist. If not the module will fail to load.
+#### To load the one which communicates with Cloudify
+```
+    orchestrator: {
+        name: 'cloudify_provider_connector',                    // Installed module name to import
+        config: {
+            protocol: 'http',                                   // Connection protocol
+            host: 'localhost',                                  // Cloudify API host
+            port: '1234',                                       // Cloudify API port
+            auth_token: 'some token',                           // Auth mechanism (TBD)
+            certificate_key: './CAs/witdomCA/client1_key.pem',  // Client certificate key
+            certificate: './CAs/witdomCA/client1_crt.pem',      // Client certificate
+            ca: './CAs/witdomCA/witdomcacert.pem'               // Client trusted CA
+        }
+    }
 ```
 
 ## Local deployment of the broker with nodejs
