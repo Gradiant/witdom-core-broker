@@ -1,4 +1,5 @@
 module.exports = {
+    //tokenValidationModule: __base + "validators/dummyTokenValidation"
     /*orchestrator: {
         name: 'cloudify_provider_connector',
         config: {
