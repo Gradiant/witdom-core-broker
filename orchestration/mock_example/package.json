@@ -1,0 +1,11 @@
+{
+  "name": "mock_example",
+  "version": "1.0.0",
+  "description": "mock orchestration connector module example",
+  "main": "index.js",
+  "scripts": {
+    "test": "../../node_modules/.bin/mocha tests/format.js"
+  },
+  "author": "Lorenzo García Cortiñas <lgcortinas@gradiant.org>",
+  "license": "ISC"
+}

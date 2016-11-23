@@ -9,11 +9,13 @@ The broker repository contains the following directories and files (not all the 
  - config (broker configuration)
  - controllers (nodejs controllers for servicing request to the broker)
  - dependencies (this directory is a git submodule that clones the IAM repository for access the IAM javascript client module)
+ - models (mongoose database models)
+ - orchestration (default orchestration connection modules)
  - tests (nodejs tests and java api client library with example calls)
    - nodejs
    - java
  - utils (nodejs server handlers)
- - validators (this directory contains 'dummyTokenValidation' that serves as an example on how to create a module to connect to a different token validation service)
+    - validators (this directory contains 'dummyTokenValidation' that serves as an example on how to create a module to connect to a different token validation service)
  - broker.js
  - Dockerfile
  - dockerFileCustom.js (a custom config file for replacing 'config/custom.js' when building the Dockerfile)
@@ -23,6 +25,45 @@ The broker repository contains the following directories and files (not all the 
 
 ## Broker configuration
 WITDOM broker component uses JSON style configurariton files. The default configuration is inside 'config/default.js', a custom configuration can be entered by providing the desired fields in the file 'config/custom.js'.
+
+### Database
+The database must be up and running before launching the broker. By default it points to 'mongo:27017', as this is the way it works on docker by linking containers. You can enter different configuration in the 'config/custom.js' file.
+```
+database: {
+    host: 'mongo',
+    port: '27017'
+}
+```
+
+### Orchestration
+There are two included orchestration modules, one for Cloudify and other for testing/example.
+#### To load the example:
+```
+    orchestrator: {
+        name: 'mock_example',
+        config: {
+            host: '127.0.0.1',
+            port: '1234',
+            auth_token: 'some token'
+        }
+    }
+```
+None of the parameters means nothing, but they must exist. If not the module will fail to load.
+#### To load the one which communicates with Cloudify
+```
+    orchestrator: {
+        name: 'cloudify_provider_connector',                    // Installed module name to import
+        config: {
+            protocol: 'http',                                   // Connection protocol
+            host: 'localhost',                                  // Cloudify API host
+            port: '1234',                                       // Cloudify API port
+            auth_token: 'some token',                           // Auth mechanism (TBD)
+            certificate_key: './CAs/witdomCA/client1_key.pem',  // Client certificate key
+            certificate: './CAs/witdomCA/client1_crt.pem',      // Client certificate
+            ca: './CAs/witdomCA/witdomcacert.pem'               // Client trusted CA
+        }
+    }
+```
 
 ## Local deployment of the broker with nodejs
 For locally deploying the broker just run the following command:
@@ -39,9 +80,15 @@ Then build the docker image
 $ docker build -t witdom-core-broker .
 ```
 The broker needs a running instance a running instance of the IAM.
-Run the docker container
+
+Then run the mongo container
 ```
-$ docker run --name broker -p 5000:5000 -p 5043:5043 -d witdom-core-broker
+$ docker run --name mongo-broker -d mongo
+```
+
+Then run the docker container
+```
+$ docker run --name broker -p 5000:5000 -p 5043:5043 --link mongo-broker:mongo -d witdom-core-broker
 ```
 
 If the instance of the IAM is run in a container inside the same docker host as the broker, run the broker container with the following command to link the broker container to the IAM container

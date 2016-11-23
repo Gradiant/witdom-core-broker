@@ -14,5 +14,17 @@ module.exports = {
         },
         endpoint: "http://127.0.0.1:5001/v3"
     },
-    tokenValidationModule: "openstack-token-utils"
+    tokenValidationModule: "openstack-token-utils",
+    database: {
+        host: 'mongo',
+        port: '27017'
+    },
+    orchestrator: {
+        name: 'mock_example',
+        config: {
+            host: '127.0.0.1',
+            port: '1234',
+            auth_token: 'some token'
+        }
+    }
 };

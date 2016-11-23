@@ -14,10 +14,21 @@ var clientAuthHandler = require('./utils/clientAuthHandler');
 var authHandler = require('./utils/authHandler');
 var httpAuthValidator = require('./utils/httpAuthValidator');
 
+var mongoose = require('mongoose');
+
+// Safe load of orchestrator module from configuration
+try {
+    var orchestration = require(brokerConfig.orchestrator.name);
+} catch(error) {
+    throw 'Can not load orchestator module: ' + error;
+}
 
 var requestIp = require('request-ip');
 
-// swaggerRouter configuration
+// Database connection
+mongoose.connect('mongodb://' + brokerConfig.database.host + ':' + brokerConfig.database.port);
+
+// SwaggerRouter configuration
 var options = {
     swaggerUi: '/swagger.json',
     controllers: './controllers',
@@ -28,6 +39,7 @@ var options = {
 var spec = fs.readFileSync('./api/swagger.yaml', 'utf8');
 var swaggerDoc = jsyaml.safeLoad(spec);
 
+// Https server configuration
 var httpsOptions = {
     key: fs.readFileSync(brokerConfig.https.broker_key), 
     passphrase: brokerConfig.https.broker_key_passphrase,
@@ -37,42 +49,52 @@ var httpsOptions = {
     rejectUnauthorized: false
 };
 
-// Initialize the Swagger middleware
-swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
-    // Register the middleware that gets the client ip
-    //app.use(requestIp.mw()) // Not needed now, was used for clientAuthHandler
 
-    // FIXME only for dev!!
-    app.use(httpAuthValidator);
+// Orchestrator connection
+var orchestrator = orchestration.Orchestrator;
+orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
+    if(!error) {
+        // Initialize the Swagger middleware
+        swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
+            // Register the middleware that gets the client ip
+            //app.use(requestIp.mw()) // Not needed now, was used for clientAuthHandler
 
-    // Interpret Swagger resources and attach metadata to request - must be first in swagger-tools middleware chain
-    app.use(middleware.swaggerMetadata());
+            // Register a client auth validator
+            //app.use(clientAuthHandler);
 
-    // Register a client auth validator
-    //app.use(clientAuthHandler);
-    app.use(authHandler);
+            // FIXME only for dev!!
+            app.use(httpAuthValidator);
 
-    // Validate Swagger requests
-    app.use(middleware.swaggerValidator());
+            // Interpret Swagger resources and attach metadata to request - must be first in swagger-tools middleware chain
+            app.use(middleware.swaggerMetadata());
 
-    // Route validated requests to appropriate controller
-    app.use(middleware.swaggerRouter(options));
-    
-    // Serve the Swagger documents and Swagger UI
-    app.use(middleware.swaggerUi());
-        
-    // Use error handler
-    app.use(errorHandler);
+            // Register a client auth validator
+            //app.use(clientAuthHandler);
+            app.use(authHandler);
 
-    // Start the server
-    http.createServer(app).listen(brokerConfig.http.port, function () {
-        console.log('Your server is listening on port %d (http://localhost:%d)', brokerConfig.http.port, brokerConfig.http.port);
-        console.log('Swagger-ui is available on http://localhost:%d/docs', brokerConfig.http.port);
-    });
+            // Validate Swagger requests
+            app.use(middleware.swaggerValidator());
 
-    // Start the https server
-    https.createServer(httpsOptions,app).listen(brokerConfig.https.port, function () {
-        console.log('Your server is listening on port %d (https://localhost:%d)', brokerConfig.https.port, brokerConfig.https.port);
-        console.log('Swagger-ui is available on https://localhost:%d/docs', brokerConfig.https.port);
-    });
+            // Route validated requests to appropriate controller
+            app.use(middleware.swaggerRouter(options));
+            
+            // Serve the Swagger documents and Swagger UI
+            app.use(middleware.swaggerUi());
+                
+            // Use error handler
+            app.use(errorHandler);
+
+            // Start the server
+            http.createServer(app).listen(brokerConfig.http.port, function () {
+                console.log('Your server is listening on port %d (http://localhost:%d)', brokerConfig.http.port, brokerConfig.http.port);
+                console.log('Swagger-ui is available on http://localhost:%d/docs', brokerConfig.http.port);
+            });
+
+            // Start the https server
+            https.createServer(httpsOptions,app).listen(brokerConfig.https.port, function () {
+                console.log('Your server is listening on port %d (https://localhost:%d)', brokerConfig.https.port, brokerConfig.https.port);
+                console.log('Swagger-ui is available on https://localhost:%d/docs', brokerConfig.https.port);
+            });
+        });
+    }
 });
