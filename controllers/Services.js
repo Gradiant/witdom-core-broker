@@ -1,10 +1,8 @@
 'use strict';
 
 var url = require('url');
-var BrokerError = require('../utils/brokerError');
 
 var Services = require('./ServicesService');
-var validator = require('../utils/tokenValidator');
 
 module.exports.serviceDetailsGET = function serviceDetailsGET (req, res, next) {
     Services.serviceDetailsGET(req.swagger.params, res, next);

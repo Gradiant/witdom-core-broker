@@ -12,9 +12,8 @@ describe("Syntax : ", function() {
             server
             .get('/service/list')
             .set('Accept', /json/)
-            .query({ 
-                user: "string",
-                token: 'string'
+            .set({
+                'X-Auth-Token': 'string'
             })
             .expect(200)
             .expect('Content-type', /json/)
@@ -37,9 +36,8 @@ describe("Syntax : ", function() {
             server
             .get('/service/domainlist')
             .set('Accept', /json/)
-            .query({
-                user: "string",
-                token: 'string'
+            .set({
+                'X-Auth-Token': 'string'
             })
             .expect(200)
             .expect('Content-type', /json/)
@@ -62,9 +60,8 @@ describe("Syntax : ", function() {
             server
             .get('/service/outsidelist')
             .set('Accept', /json/)
-            .query({
-                user: "string",
-                token: 'string'
+            .set({
+                'X-Auth-Token': 'string'
             })
             .expect(200)
             .expect('Content-type', /json/)
@@ -87,9 +84,10 @@ describe("Syntax : ", function() {
             server
             .get('/service/details')
             .set('Accept', /json/)
+            .set({
+                'X-Auth-Token': 'string'
+            })
             .query({
-                user: "string",
-                token: 'string',
                 service: 'service1'
             })
             .expect(200)
@@ -111,9 +109,10 @@ describe("Syntax : ", function() {
             server
             .get('/service/details')
             .set('Accept', /json/)
+            .set({
+                'X-Auth-Token': 'string'
+            })
             .query({
-                user: "string",
-                token: 'string',
                 serdice: 'service_id'    // typo
             })
             .expect(400)
@@ -126,9 +125,8 @@ describe("Syntax : ", function() {
             server
             .get('/service/details')
             .set('Accept', /json/)
-            .query({
-                user: "string",
-                token: 'string'
+            .set({
+                'X-Auth-Token': 'string'
             })
             .expect(400)
             .expect('Content-type', /json/)
@@ -139,20 +137,13 @@ describe("Syntax : ", function() {
     // requests tests
     describe("Requests : ", function() {
         // create request
-        it("create : OK", function(done) {
+        it("create_get : OK", function(done) {
             server
-            .post('/request/create')
+            .get('/request/create/service/service_uri/long?param=value')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
-            .query({
-                user: "string",
-                token: 'string'
-            })
-            .send({
-                "service_name": "string",
-                "request_type": "string",
-                "request_uri": "string",
-                "request_data": {}
+            .set({
+                'X-Auth-Token': 'string'
             })
             .expect(200)
             .expect('Content-type', /json/)
@@ -168,56 +159,52 @@ describe("Syntax : ", function() {
         });
 
         // create request
-        it("create : 400 : missing data", function(done) {
+        it("create_post : OK", function(done) {
             server
-            .post('/request/create')
+            .post('/request/create/string/string')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
-            .query({
-                user: "string",
-                token: 'string'
+            .set({
+                'X-Auth-Token': 'string'
             })
-            .expect(400)
+            .send({
+            })
+            .expect(200)
             .expect('Content-type', /json/)
-            .end(done);
+            .end(function(error, response) {
+                if (error) {
+                    done(error);
+                }
+                else {
+                    response.body.should.be.a.String;
+                    done();
+                }
+            });
         });
 
         // create request
-        it("create : 400 : typo in data", function(done) {
+        it("create : 400 : malformed json data", function(done) {
             server
-            .post('/request/create')
+            .post('/request/create/string/string')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
-            .query({
-                user: "string",
-                token: 'string'
+            .set({
+                'X-Auth-Token': 'string'
             })
-            .send({
-                "serdice_name": "string",   // typo
-                "request_type": "string",
-                "request_uri": "string",
-                "request_data": {}
-            })
+            .send("abc")
             .expect(400)
             .expect('Content-type', /json/)
             .end(done);
         });
 
         // create blocker request
-        it("create blocker : OK", function(done) {
+        it("create blocker_get : OK", function(done) {
             server
-            .post('/request/create_blocker')
+            .get('/request/create_blocker/string/string')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
-            .query({
-                user: "string",
-                token: 'string'
-            })
-            .send({
-                "service_name": "string",
-                "request_type": "string",
-                "request_uri": "string",
-                "request_data": {}
+            .set({
+                'X-Auth-Token': 'string'
             })
             .expect(200)
             .expect('Content-type', /json/)
@@ -227,28 +214,47 @@ describe("Syntax : ", function() {
                 }
                 else {
                     response.body.should.be.an.Object;
-                    checkServiceResultFormat(response.body);
+                    //checkServiceResultFormat(response.body);
                     done();
                 }
             });
         });
 
         // create blocker request
-        it("create blocker : 400 : object instead of string", function(done) {
+        it("create blocker_post : OK", function(done) {
             server
-            .post('/request/create_blocker')
+            .post('/request/create_blocker/string/string')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
-            .query({
-                user: "string",
-                token: 'string'
+            .set({
+                'X-Auth-Token': 'string'
             })
             .send({
-                "service_name": {"name": "String"},   // syntax
-                "request_type": "string",
-                "request_uri": "string",
-                "request_data": {}
             })
+            .expect(200)
+            .expect('Content-type', /json/)
+            .end(function(error, response) {
+                if (error) {
+                    done(error);
+                }
+                else {
+                    response.body.should.be.an.Object;
+                    //checkServiceResultFormat(response.body);
+                    done();
+                }
+            });
+        });
+
+        // create blocker request
+        it("create blocker : 400 : array instead of object", function(done) {
+            server
+            .post('/request/create_blocker/string/string')
+            .set('Accept', /json/)
+            .set('Content-type', 'application/json')
+            .set({
+                'X-Auth-Token': 'string'
+            })
+            .send([])
             .expect(400)
             .expect('Content-type', /json/)
             .end(done);
@@ -260,9 +266,10 @@ describe("Syntax : ", function() {
             .get('/request/getresult')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
+            .set({
+                'X-Auth-Token': 'string'
+            })
             .query({
-                user: "string",
-                token: "string",
                 request_id: "string"
             })
             .expect(200)
@@ -273,7 +280,7 @@ describe("Syntax : ", function() {
                 }
                 else {
                     response.body.should.be.an.Object;
-                    checkServiceResultFormat(response.body);
+                    //checkServiceResultFormat(response.body);
                     done();
                 }
             });
@@ -285,6 +292,9 @@ describe("Syntax : ", function() {
             .get('/request/getresult')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
+            .set({
+                'X-Auth-Token': 'string'
+            })
             .expect(400)
             .expect('Content-type', /json/)
             .end(done);
@@ -303,14 +313,13 @@ describe("Syntax : ", function() {
                 "result_data": {"data": "String"}
             })
             .expect(200)
-            .expect('Content-type', /json/)
+            //.expect('Content-type', /json/)
             .end(function(error, response) {
                 if (error) {
                     done(error);
                 }
                 else {
-                    response.body.should.be.an.Object;
-                    checkServiceResultFormat(response.body);
+                    response.body.should.be.undefined;
                     done();
                 }
             });
@@ -330,19 +339,6 @@ describe("Syntax : ", function() {
             .end(done);
         });
 
-        // callback request
-        it("callback : 400 : missing data", function(done) {
-            server
-            .post('/request/callback')
-            .set('Accept', /json/)
-            .set('Content-type', 'application/json')
-            .send({
-                "result_data": "string"
-            })
-            .expect(400)
-            .expect('Content-type', /json/)
-            .end(done);
-        });
     });
 
     // forward
@@ -357,6 +353,7 @@ describe("Syntax : ", function() {
                 "service_name": "string",
                 "request_type": "string",
                 "request_uri": "string",
+                "request_headers" : {},
                 "request_data": {}
             })
             .expect('Content-type', /json/)
@@ -393,6 +390,24 @@ describe("Syntax : ", function() {
                 "service_name": {"name": "String"},   // syntax
                 "request_type": "string",
                 "request_uri": "string",
+                "request_data": {}
+            })
+            .expect('Content-type', /json/)
+            .expect(400)
+            .end(done);
+        });
+
+         // forward domain
+        it("domain : 400 : string instead of object", function(done) {
+            server
+            .post('/forward/domain')
+            .set('Accept', /json/)
+            .set('Content-type', 'application/json')
+            .send({
+                "service_name": "string",
+                "request_type": "string",
+                "request_uri": "string",
+                "request_headers": "string",   // syntax
                 "request_data": {}
             })
             .expect('Content-type', /json/)

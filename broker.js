@@ -13,6 +13,7 @@ var errorHandler = require('./utils/errorHandler')
 var clientAuthHandler = require('./utils/clientAuthHandler');
 var authHandler = require('./utils/authHandler');
 var httpAuthValidator = require('./utils/httpAuthValidator');
+var requestHeadersParser = require('./utils/requestHeadersParser');
 
 var mongoose = require('mongoose');
 
@@ -74,6 +75,9 @@ orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
 
             // Validate Swagger requests
             app.use(middleware.swaggerValidator());
+
+            // Put request HTTP headers in request.swagger.params.headers
+            app.use(requestHeadersParser);
 
             // Route validated requests to appropriate controller
             app.use(middleware.swaggerRouter(options));

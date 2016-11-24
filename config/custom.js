@@ -12,8 +12,8 @@ module.exports = {
             ca: './CAs/witdomCA/witdomcacert.pem'
         }
     }*/
-/*    database: {
+    database: {
         host: 'localhost',
         port: '27017'
-    },*/
+    }
 };

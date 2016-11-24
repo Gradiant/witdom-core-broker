@@ -7,7 +7,8 @@
     "prestart": "npm install",
     "start": "node broker.js",
     "test": "./node_modules/.bin/mocha tests/nodejs/integration",
-    "db_test": "./node_modules/.bin/mocha tests/nodejs/unit/database.js"
+    "db_test": "./node_modules/.bin/mocha tests/nodejs/unit/database.js",
+    "unit_test": "./node_modules/.bin/mocha tests/nodejs/unit/dummyTokenValidatorTest.js; ./node_modules/.bin/mocha tests/nodejs/unit/iamTokenValidatorTest.js"
   },
   "keywords": [
     "swagger"

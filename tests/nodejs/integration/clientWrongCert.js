@@ -34,7 +34,9 @@ describe("Wrong cert : ", function() {
         server
         .get('/service/list')
         .set('Accept', /json/)
-        .query({ token: 'string'})
+        .set({
+            'X-Auth-Token': 'string'
+        })
         .expect('Content-type',/json/)
         .expect(401, {
                  "message":[{

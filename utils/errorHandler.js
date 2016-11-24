@@ -22,13 +22,13 @@ function globalHandler(error, request, response, next) {
                 httpStatus = "denied";
                 //if (request.client.hasCert) { //TODO: change this by 'if (request.connection.getPeerCertificate().subject)'
                 if (request.client.encrypted && request.connection.getPeerCertificate().subject) {
-                    if ((request.swagger.params.user.value == undefined) && (request.swagger.params.token.value == undefined)) {
+                    if (request.swagger.params['X-Auth-Token'].value == undefined) {
                         err_message = "Authorization failed: wrong certificate provided";
                     } else {
                         err_message = "Authorization failed: wrong certificate and token provided";
                     }
                 } else {
-                    if ((request.swagger.params.user.value == undefined) && (request.swagger.params.token.value == undefined)) {
+                    if (request.swagger.params['X-Auth-Token'].value == undefined) {
                         err_message = "Authorization failed: a client certificate or user token is needed";
                     } else {
                         err_message = "Authorization failed: no certificate provided and wrong user token";
@@ -61,7 +61,11 @@ function globalHandler(error, request, response, next) {
             response.setHeader('Content-Type', 'application/json');
             response.writeHead(400);
             response.end(JSON.stringify({
-                message: error.Error
+                message: [{
+                    code:"400",
+                    message: error.message,
+                    path:[request._parsedUrl.pathname]
+                }]
             }));
         } else if(error.status == 404) {
             response.setHeader('Content-Type', 'application/json');
@@ -70,6 +74,16 @@ function globalHandler(error, request, response, next) {
                 message: [{
                     code:"404",
                     message:"Cannot GET",
+                    path:[request._parsedUrl.pathname]
+                }]
+            }));
+        } else if (error.status == 400) {
+            response.setHeader('Content-Type', 'application/json');
+            response.writeHead(400);
+            response.end(JSON.stringify({
+                message: [{
+                    code:"400",
+                    message:error.message,
                     path:[request._parsedUrl.pathname]
                 }]
             }));
