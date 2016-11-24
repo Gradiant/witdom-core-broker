@@ -9,8 +9,8 @@ var BrokerError = require('./brokerError');
 var authService = new auth.TokenValidationService(__brokerConfig.tokenValidationService.endpoint, __brokerConfig.tokenValidationService.admin.user, __brokerConfig.tokenValidationService.admin.pass);
 
 
-module.exports.validateToken = function(user, token, callback, next, throwerror) {
-    if (user == undefined || token == undefined) {
+module.exports.validateToken = function(token, callback, next, throwerror) {
+    if (token == undefined) {
         next(throwerror);
         return;
     }
@@ -20,14 +20,9 @@ module.exports.validateToken = function(user, token, callback, next, throwerror)
             next(new BrokerError("COULDNT_VALIDATE_TOKEN"));
         } else {
             if (tokenValid) {
-                if (tokenUser == user) {
-                    //console.log("The token is valid");
-                    if (typeof callback === "function") {
-                        callback();
-                    }
-                } else {
-                    //console.log("The token is valid but the provided user doesn't match the token user (" + tokenUser+ ")");
-                    next(throwerror);
+                //console.log("The token is valid");
+                if (typeof callback === "function") {
+                    callback();
                 }
             } else {
                 //console.log("Token is not valid");

@@ -8,9 +8,8 @@ var Service = require('../models/mongo/service');
 exports.serviceDetailsGET = function(args, response, next) {
     /**
      * parameters expected in the args:
-     * user (String)
-     * token (String)
      * service (String)
+     * xAuthToken (String)
      **/
 
     // Retrieve from database
@@ -62,8 +61,7 @@ exports.serviceDetailsGET = function(args, response, next) {
 exports.serviceDomainlistGET = function(args, response, next) {
     /**
      * parameters expected in the args:
-     * user (String)
-     * token (String)
+     * xAuthToken (String)
      **/
 
     // Retrive from database with local source
@@ -120,8 +118,7 @@ exports.serviceDomainlistGET = function(args, response, next) {
 exports.serviceListGET = function(args, response, next) {
     /**
      * parameters expected in the args:
-     * user (String)
-     * token (String)
+     * xAuthToken (String)
      **/
 
     // TODO, how to use database
@@ -179,8 +176,7 @@ exports.serviceListGET = function(args, response, next) {
 exports.serviceOutsidelistGET = function(args, response, next) {
     /**
      * parameters expected in the args:
-     * user (String)
-     * token (String)
+     * xAuthToken (String)
      **/
 
     // TODO retrieve services from untrusted domains

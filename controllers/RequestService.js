@@ -1,14 +1,63 @@
 'use strict';
 
+exports.requestCallbackPOST = function(args, res, next) {
+  /**
+   * parameters expected in the args:
+   * service (Result)
+   * request_id (String)
+   **/
+  // no response value expected for this operation
+  res.end();
+}
+
+exports.requestCreateGET = function(args, res, next) {
+  /**
+   * parameters expected in the args:
+   * service_id (String)
+   * service_uri (String)
+   * xAuthToken (String)
+   **/
+    var examples = {};
+  examples['application/json'] = "aeiou";
+  if(Object.keys(examples).length > 0) {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
+  }
+  else {
+    res.end();
+  }
+  
+}
+
 exports.requestCreatePOST = function(args, res, next) {
   /**
    * parameters expected in the args:
-   * user (String)
-   * token (String)
-   * service (Request)
+   * service_id (String)
+   * service_uri (String)
+   * request_data (Request)
+   * xAuthToken (String)
    **/
     var examples = {};
-  examples['application/json'] = "A57910A6DE9366BC81731895FF";
+  examples['application/json'] = "aeiou";
+  if(Object.keys(examples).length > 0) {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
+  }
+  else {
+    res.end();
+  }
+  
+}
+
+exports.requestCreate_blockerGET = function(args, res, next) {
+  /**
+   * parameters expected in the args:
+   * service_id (String)
+   * service_uri (String)
+   * xAuthToken (String) 
+   **/
+    var examples = {};
+  examples['application/json'] = { };
   if(Object.keys(examples).length > 0) {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
@@ -22,14 +71,13 @@ exports.requestCreatePOST = function(args, res, next) {
 exports.requestCreate_blockerPOST = function(args, res, next) {
   /**
    * parameters expected in the args:
-   * user (String)
-   * token (String)
-   * service (Request)
+   * service_id (String)
+   * service_uri (String)
+   * request_data (Request)
+   * xAuthToken (String)
    **/
     var examples = {};
-  examples['application/json'] = {
-  "result_data" : "aeiou"
-};
+  examples['application/json'] = { };
   if(Object.keys(examples).length > 0) {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
@@ -43,14 +91,11 @@ exports.requestCreate_blockerPOST = function(args, res, next) {
 exports.requestGetresultGET = function(args, res, next) {
   /**
    * parameters expected in the args:
-   * user (String)
-   * token (String)
    * request_id (String)
+   * xAuthToken (String)
    **/
     var examples = {};
-  examples['application/json'] = {
-  "result_data" : "aeiou"
-};
+  examples['application/json'] = { };
   if(Object.keys(examples).length > 0) {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
@@ -60,24 +105,3 @@ exports.requestGetresultGET = function(args, res, next) {
   }
   
 }
-
-exports.requestCallbackPOST = function(args, res, next) {
-  /**
-   * parameters expected in the args:
-   * service (Result)
-   * request_id (String)
-   **/
-    var examples = {};
-  examples['application/json'] = {
-  "result_data" : "aeiou"
-};
-  if(Object.keys(examples).length > 0) {
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(examples[Object.keys(examples)[0]] || {}, null, 2));
-  }
-  else {
-    res.end();
-  }
-  
-}
-

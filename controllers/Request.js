@@ -1,13 +1,19 @@
 'use strict';
 
 var url = require('url');
-var BrokerError = require('../utils/brokerError');
 
 var Request = require('./RequestService');
-var validator = require('../utils/tokenValidator');
+
+module.exports.requestCreateGET = function requestCreateGET (req, res, next) {
+    Request.requestCreateGET(req.swagger.params, res, next);
+};
 
 module.exports.requestCreatePOST = function requestCreatePOST (req, res, next) {
     Request.requestCreatePOST(req.swagger.params, res, next);
+};
+
+module.exports.requestCreate_blockerGET = function requestCreate_blockerGET (req, res, next) {
+    Request.requestCreate_blockerGET(req.swagger.params, res, next);
 };
 
 module.exports.requestCreate_blockerPOST = function requestCreate_blockerPOST (req, res, next) {

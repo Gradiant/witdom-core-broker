@@ -35,6 +35,7 @@ Connector.prototype.connect = function(config, callback) {
 Connector.prototype.getServiceData = function(service, callback) {
     if(service != 'service1') {
         callback(new OrchestrationError(404, "Unknown service"), null)
+        return;
     }
     var error = null;
     var service_data = {

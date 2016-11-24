@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   description: "API to use services from the Broker"
-  version: "1.2.0"
+  version: "1.4.0"
   title: "WITDOM Broker API"
 basePath: "/v1"
 produces:
@@ -23,30 +23,38 @@ paths:
       parameters:
       - in: "body"
         name: "service"
-        description: "Name of the service"
+        description: "Service info and request data"
         required: true
         schema:
-          $ref: "#/definitions/Request"
+          $ref: "#/definitions/Forward_Request"
       responses:
         200:
           description: "Request ID"
           schema:
             type: string
+        400:
+          description: "Request parameters validation error"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
         default:
           description: "Unexpected error"
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Forward"
-  /request/create:
+  /request/create/{service_id}/{service_uri}*:
     post:
       tags:
       - "request"
-      summary: "Forwarding a request to a service or module"
+      summary: "Forwards a POST request to a service or module"
       description: |
         With this request starts the forwarding process; where the broker 
-        will locate the target service and will perform the previous steps (like moving 
-        the data to the untrusted domain) needed to allow the service to do the requested 
-        operations.
+        will locate the target service and will perform the previous steps (like asking the
+        PO to protect and move the data to the untrusted domain) needed to allow the service
+        to do the requested operations.
 
         The broker will answer with a request_id which should be used to later request 
         the operations result or state.
@@ -57,34 +65,93 @@ paths:
       operationId: "requestCreatePOST"
       parameters:
       - in: "body"
-        name: "service"
-        description: "Name of the service"
+        name: "request_data"
+        description: "Data to pass to the service/module when invoking it"
         required: true
         schema:
           $ref: "#/definitions/Request"
-      - name: "user"
-        in: "query"
-        description: "user name"
-        type: "string"
-      - name: "token"
-        in: "query"
-        description: "Token of the user"
-        type: "string"
+          #type: "object"
       responses:
         200:
           description: "Request ID"
           schema:
             type: "string"
+        400:
+          description: "Request parameters validation error"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "Service not found"
+          schema:
+            $ref: "#/definitions/Error"
         default:
           description: "Unexpected error"
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Request"
-  /request/create_blocker:
+    get:
+      tags:
+      - "request"
+      summary: "Forwards a GET request to a service or module"
+      description: |
+        With this request starts the forwarding process; where the broker 
+        will locate the target service and will perform the previous steps (like asking the
+        PO to protect and move the data to the untrusted domain) needed to allow the service
+        to do the requested operations.
+
+        The broker will answer with a request_id which should be used to later request 
+        the operations result or state.
+
+        To access this path a external client must provide a valid user token granted by 
+        the IAM. For an internal module/service, it's fine to provide a valid certificate 
+        signed by the witdom CA.
+      operationId: "requestCreateGET"
+      responses:
+        200:
+          description: "Request ID"
+          schema:
+            type: "string"
+        400:
+          description: "Request parameters validation error"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "Service not found"
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Request"
+    parameters:
+      - in: "path"
+        name: "service_id"
+        description: "ID of the service"
+        required: true
+        type: "string"
+      - in: "path"
+        name: "service_uri"
+        description: "URI to use in the service call"
+        required: true
+        type: "string"
+      - name: "X-Auth-Token"
+        in: "header"
+        description: "The authentication token of the user"
+        type: "string"
+  /request/create_blocker/{service_id}/{service_uri}*:
     post:
       tags:
       - "request"
-      summary: "Forwards a request to a service or module in a blocking manner"
+      summary: "Forwards a POST request to a service or module in a blocking manner"
       description: |
         This requests works the same as /request/create, the main difference 
         is that this one will not answer with a request_id, but with the result of the operations 
@@ -96,29 +163,83 @@ paths:
       operationId: "requestCreate_blockerPOST"
       parameters:
       - in: "body"
-        name: "service"
-        description: "Name of the service"
+        name: "request_data"
+        description: "Data to pass to the service/module when invoking it"
         required: true
         schema:
           $ref: "#/definitions/Request"
-      - name: "user"
-        in: "query"
-        description: "user name"
-        type: "string"
-      - name: "token"
-        in: "query"
-        description: "Token of the user"
-        type: "string"
       responses:
         200:
           description: "Request result"
           schema:
             $ref: "#/definitions/Result"
+        400:
+          description: "Request parameters validation error"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "Service not found"
+          schema:
+            $ref: "#/definitions/Error"
         default:
           description: "Unexpected error"
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Request"
+    get:
+      tags:
+      - "request"
+      summary: "Forwards a GET request to a service or module in a blocking manner"
+      description: |
+        This requests works the same as /request/create, the main difference 
+        is that this one will not answer with a request_id, but with the result of the operations 
+        performed by the target service. This means that the connection will be open until the 
+        service ends the requested operations and may reach timeout if the operations take to long.
+
+        The access authorization remains the same, it can be accessed with a valid certificate or 
+        a valid token.
+      operationId: "requestCreate_blockerGET"
+      responses:
+        200:
+          description: "Request result"
+          schema:
+            $ref: "#/definitions/Result"
+        400:
+          description: "Request parameters validation error"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "Service not found"
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Request"
+    parameters:
+      - in: "path"
+        name: "service_id"
+        description: "ID of the service"
+        required: true
+        type: "string"
+      - in: "path"
+        name: "service_uri"
+        description: "URI to use in the service call"
+        required: true
+        type: "string"
+      - name: "X-Auth-Token"
+        in: "header"
+        description: "The authentication token of the user"
+        type: "string"
   /request/getresult:
     get:
       tags:
@@ -134,13 +255,9 @@ paths:
         pair or a certificate signed by the witdom CA.
       operationId: "requestGetresultGET"
       parameters:
-      - name: "user"
-        in: "query"
-        description: "user name"
-        type: "string"
-      - name: "token"
-        in: "query"
-        description: "Token of the user"
+      - name: "X-Auth-Token"
+        in: "header"
+        description: "The authentication token of the user"
         type: "string"
       - name: "request_id"
         in: "query"
@@ -152,6 +269,18 @@ paths:
           description: "Request result"
           schema:
             $ref: "#/definitions/Result"
+        400:
+          description: "Request parameters validation error"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "Request with request_id doesn't exist'"
+          schema:
+            $ref: "#/definitions/Error"
         default:
           description: "Unexpected error"
           schema:
@@ -161,19 +290,21 @@ paths:
     post:
       tags:
       - "request"
-      summary: "Update a request"
+      summary: "Signals the end of a previous request"
       description: |
         The broker expects the service to send the results of the request started by the client here.
         Once the service ends an asyncronous request started by the broker, it will need to send the 
         result through this method to allow the broker to forward it to the client application.
+        The broker will also expect the PO to send the result of the protection request through this
+        method.
 
         This method can only be accesed by internal services, so it's required to provide a valid 
         certificate signed by the witdom CA.
       operationId: "requestCallbackPOST"
       parameters:
       - in: "body"
-        name: "service"
-        description: "Name of the service"
+        name: "result"
+        description: "Result of the request to the service"
         required: true
         schema:
           $ref: "#/definitions/Result"
@@ -185,8 +316,14 @@ paths:
       responses:
         200:
           description: "Request result"
+        400:
+          description: "Request parameters validation error"
           schema:
-            $ref: "#/definitions/Result"
+            $ref: "#/definitions/Error"
+        401:
+          description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
         default:
           description: "Unexpected error"
           schema:
@@ -205,13 +342,9 @@ paths:
         the other domain, so both a valid certificate and a valid token can be used to get access authorization.
       operationId: "serviceDetailsGET"
       parameters:
-      - name: "user"
-        in: "query"
-        description: "user name"
-        type: "string"
-      - name: "token"
-        in: "query"
-        description: "Token of the user"
+      - name: "X-Auth-Token"
+        in: "header"
+        description: "The authentication token of the user"
         type: "string"
       - name: "service"
         in: "query"
@@ -223,6 +356,18 @@ paths:
           description: "The details of a service or module deployed in WITDOM"
           schema:
               $ref: "#/definitions/Service"
+        400:
+          description: "Request parameters validation error"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "Service not found"
+          schema:
+            $ref: "#/definitions/Error"
         default:
           description: "Unexpected error"
           schema:
@@ -239,13 +384,9 @@ paths:
         As the \"/service/details\" method, it accepts both a valid certificate and a valid token to grant access.
       operationId: "serviceDomainlistGET"
       parameters:
-      - name: "user"
-        in: "query"
-        description: "user name"
-        type: "string"
-      - name: "token"
-        in: "query"
-        description: "Token of the user"
+      - name: "X-Auth-Token"
+        in: "header"
+        description: "The authentication token of the user"
         type: "string"
       responses:
         200:
@@ -255,6 +396,14 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/Service"
+        400:
+          description: "Request parameters validation error"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
         default:
           description: "Unexpected error"
           schema:
@@ -271,13 +420,9 @@ paths:
         As the other service methods, it accepts both a valid certificate and a valid token to grant access.
       operationId: "serviceListGET"
       parameters:
-      - name: "user"
-        in: "query"
-        description: "user name"
-        type: "string"
-      - name: "token"
-        in: "query"
-        description: "Token of the user"
+      - name: "X-Auth-Token"
+        in: "header"
+        description: "The authentication token of the user"
         type: "string"
       responses:
         200:
@@ -286,6 +431,14 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/Service"
+        400:
+          description: "Request parameters validation error"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
         default:
           description: "Unexpected error"
           schema:
@@ -295,20 +448,16 @@ paths:
     get:
       tags:
       - "services"
-      summary: "Time Estimates"
+      summary: "List of the services available outside this broker's domain"
       description: |
-        This lists all the services located outside the asked boker's domain and their data.
+        This lists all the services located outside the asked broker's domain and their data.
 
         Like the other service methods, it accepts both a valid certificate and a valid token to grant access.
       operationId: "serviceOutsidelistGET"
       parameters:
-      - name: "user"
-        in: "query"
-        description: "user name"
-        type: "string"
-      - name: "token"
-        in: "query"
-        description: "Token of the user"
+      - name: "X-Auth-Token"
+        in: "header"
+        description: "The authentication token of the user"
         type: "string"
       responses:
         200:
@@ -317,6 +466,14 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/Service"
+        400:
+          description: "Request parameters validation error"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
         default:
           description: "Unexpected error"
           schema:
@@ -324,6 +481,8 @@ paths:
       x-swagger-router-controller: "Services"
 definitions:
   Request:
+    type: "object"
+  Forward_Request:
     type: "object"
     required:
     - "request_data"
@@ -340,9 +499,12 @@ definitions:
       request_uri:
         type: "string"
         description: "http/https call after IP and port of the service"
+      request_headers:
+        type: "object"
+        description: "A set of HTTP headers to pass to the service/module when doing the request"
       request_data:
         type: "object"
-        description: "JSON or HTML with the parameters of the request in case request_type\
+        description: "JSON with the parameters of the request in case request_type\
           \ is POST"
   Service:
     type: "object"
@@ -366,23 +528,29 @@ definitions:
         description: "Image URL representing the service."
   Result:
     type: "object"
-    required:
-    - "result_data"
-    properties:
-      result_data:
-        type: "object"
-        description: "JSON or HTML of the result"
+    description: "JSON of the result"
   Error:
     type: "object"
     required:
-    - "code"
-    - "fields"
     - "message"
+    properties:
+      message:
+        type: "array"
+        items:
+              $ref: "#/definitions/ErrorData"
+  ErrorData:
+    type: "object"
+    required:
+    - "code"
+    - "message"
+    - "path"
     properties:
       code:
         type: "integer"
         format: "int32"
       message:
         type: "string"
-      fields:
-        type: "string"
+      path:
+        type: "array"
+        items:
+          type: "string"

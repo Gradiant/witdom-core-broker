@@ -10,9 +10,9 @@ function authHandler(request, response, next) {
         next();
         return;
     } else {
-        if (request.swagger.params.token != undefined) { // Means the request admits user/token authentication
+        if (request.swagger.params['X-Auth-Token'] != undefined) { // Means the request admits user/token authentication
             //console.log("The method admits user/token");
-            validator.validateToken(request.swagger.params.user.value, request.swagger.params.token.value, function() {
+            validator.validateToken(request.swagger.params['X-Auth-Token'], function() {
                 next();
             }, next, new BrokerError('INVALID_CERTIFICATE_OR_TOKEN'));
             return;
