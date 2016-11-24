@@ -185,6 +185,10 @@ paths:
           description: "Service not found"
           schema:
             $ref: "#/definitions/Error"
+        503:
+          description: "Requested service unavailable"
+          schema:
+            $ref: "#/definitions/Error"
         default:
           description: "Unexpected error"
           schema:
@@ -218,6 +222,10 @@ paths:
             $ref: "#/definitions/Error"
         404:
           description: "Service not found"
+          schema:
+            $ref: "#/definitions/Error"
+        503:
+          description: "Requested service unavailable"
           schema:
             $ref: "#/definitions/Error"
         default:
@@ -279,6 +287,10 @@ paths:
             $ref: "#/definitions/Error"
         404:
           description: "Request with request_id doesn't exist'"
+          schema:
+            $ref: "#/definitions/Error"
+        503:
+          description: "The service requested in the /request/create is not available"
           schema:
             $ref: "#/definitions/Error"
         default:
@@ -368,6 +380,14 @@ paths:
           description: "Service not found"
           schema:
             $ref: "#/definitions/Error"
+        500:
+          description: "Internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+        503:
+          description: "Service unavailable"
+          schema:
+            $ref: "#/definitions/Error"
         default:
           description: "Unexpected error"
           schema:
@@ -402,6 +422,14 @@ paths:
             $ref: "#/definitions/Error"
         401:
           description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+        503:
+          description: "Service unavailable"
           schema:
             $ref: "#/definitions/Error"
         default:
@@ -439,6 +467,14 @@ paths:
           description: "Authorization error"
           schema:
             $ref: "#/definitions/Error"
+        500:
+          description: "Internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+        503:
+          description: "Service unavailable"
+          schema:
+            $ref: "#/definitions/Error"
         default:
           description: "Unexpected error"
           schema:
@@ -472,6 +508,14 @@ paths:
             $ref: "#/definitions/Error"
         401:
           description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Internal server error"
+          schema:
+            $ref: "#/definitions/Error"
+        503:
+          description: "Service unavailable"
           schema:
             $ref: "#/definitions/Error"
         default:
