@@ -1,1 +1,3 @@
 V	211018190053Z		01	unknown	/CN=localhost/ST=Pontevedra/C=ES/emailAddress=broker@witdom.eu/O=Witdom/OU=Broker
+V	211019105720Z		02	unknown	/CN=client1/ST=Pontevedra/C=ES/emailAddress=client1@witdom.eu/O=Witdom/OU=Clients
+V	211124170129Z		03	unknown	/CN=broker-td/ST=Pontevedra/C=ES/emailAddress=broker@witdom.eu/O=Witdom/OU=Broker

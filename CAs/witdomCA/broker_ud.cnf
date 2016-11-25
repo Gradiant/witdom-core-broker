@@ -1,0 +1,32 @@
+#
+# broker.cnf
+#
+
+[ req ]
+prompt                  = no
+distinguished_name      = witdom_broker
+req_extensions          = v3_req
+
+[ witdom_broker ]
+commonName              = broker-ud
+stateOrProvinceName     = Pontevedra
+countryName             = ES
+emailAddress            = broker@witdom.eu
+organizationName        = Witdom
+organizationalUnitName  = Broker
+
+[ v3_req ]
+basicConstraints        = CA:FALSE
+keyUsage                = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName          = @alt_names
+
+[ alt_names ]
+DNS.1      = broker-ud
+#IP			= 10.5.1.95
+#DNS.1       = example.com
+#DNS.2       = www.example.com
+#DNS.3       = mail.example.com
+#DNS.4       = ftp.example.com
+#DNS.5			= localhost
+#DNS.0                   = tradeshowhell.com
+#DNS.1                   = alt.tradeshowhell.com

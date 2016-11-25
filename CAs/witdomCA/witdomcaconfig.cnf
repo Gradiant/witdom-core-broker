@@ -9,7 +9,7 @@ default_ca      = local_ca
 # Default location of directories and files needed to generate certificates.
 #
 [ local_ca ]
-dir             = /home/gjimenez/Proyectos/WITDOM/broker/witdomCA
+dir             = ./
 certificate     = $dir/witdomcacert.pem
 database        = $dir/index.txt
 new_certs_dir   = $dir/signedcerts
@@ -54,7 +54,7 @@ basicConstraints        = CA:false
 #
 [ req ]
 default_bits    = 4096
-default_keyfile = /home/gjimenez/Proyectos/WITDOM/broker/witdomCA/private/witdomcakey.pem
+default_keyfile = ./private/witdomcakey.pem
 default_md      = sha256
 #       
 prompt                  = no
