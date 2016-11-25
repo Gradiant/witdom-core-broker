@@ -8,6 +8,7 @@ var Request = require('../models/mongo/request');
 var Service = require('../models/mongo/service');
 var unirest = require('unirest');
 var fs = require('fs');
+var stream = require('stream');
 
 /**
  * 
@@ -61,10 +62,12 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
     // Check if the request can use body
     if(request_data.request.method == 'POST' || request_data.request.method == 'PUT' || request_data.request.method == 'PATCH') {
         // Check body type
-        var bodyContentType = typeof(request_data.request.body);
-        if(bodyContentType != 'string') {
+        if(!(request_data.request.body instanceof stream.Stream) && 
+           !(request_data.request.body instanceof Buffer) && 
+           !(typeof(request_data.request.body) == 'string')) {
+
             // If it is not a string, we check if is JSON
-            if(bodyContentType == 'object' && request_data.request.headers['content-type'] == 'application/json') {
+            if(typeof(request_data.request.body) == 'object' && request_data.request.headers['content-type'] == 'application/json') {
                 try {
                     // If is we have JSON header, we test we can stringify it, if not, the request creation will fail
                     /**
@@ -73,7 +76,7 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
                      */
                     JSON.stringify(request_data.request.body);
                     options.json = true;
-                    options.body = request_data.request.body;
+                    options.body = request_data.request.body || {};
                 } catch (error) {
                     // If the atempt to stringify fails, the request is not supported
                     var response = {};
@@ -95,7 +98,7 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
         } else {
             // If it is a string, we allow body
             options.json = false;
-            options.body = request_data.request.body;
+            options.body = request_data.request.body || "";
         }
     }
 

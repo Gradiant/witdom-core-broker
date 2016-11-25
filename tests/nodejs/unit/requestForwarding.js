@@ -143,10 +143,13 @@ describe("Requests : ", function() {
         var service_name = 'broker';
         var service_path = '/v1/request/create';
         var method = 'POST';
-        var headers = {
-            "content-type": "application/json"
+        var headers = {};
+        var body = {
+            "service_name": "string",
+            "request_type": "string",
+            "request_uri": "string",
+            "request_data": {}
         };
-        var body = fs.readFileSync(__dirname + '/../../../CAs/witdomCA/client1_key.pem');
 
         // Create request
         requestForwardingHandler.createRequest({
