@@ -20,11 +20,11 @@ function Connector()
  */
 Connector.prototype.connect = function(config, callback) {
     // Example configuration load
-    this.host = config.host;
-    this.port = config.port;
-    this.auth_token = config.auth_token;
     this.base_name = "service";
     this.base_ip = "127.0.0.";
+    this.service_name = config.service_name;
+    this.service_host = config.service_host;
+    this.service_port = config.service_port;
     callback(null); // no error
 }
 
@@ -33,14 +33,15 @@ Connector.prototype.connect = function(config, callback) {
  * Gets the information of the service identified by the given service name
  */
 Connector.prototype.getServiceData = function(service, callback) {
-    if(service != 'service1') {
+    if(service != this.service_name) {
         callback(new OrchestrationError(404, "Unknown service"), null)
     }
     var error = null;
     var service_data = {
+            "name": this.service_name,
             "image": "image_url",
-            "host": this.base_ip + "1",
-            "port": "1234",
+            "host": this.service_host,
+            "port": this.service_port,
             "description": "service_description"
         };
     callback(error, service_data);
@@ -64,6 +65,13 @@ Connector.prototype.getServiceList = function(callback) {
             "description": "service_description"
         });
     }
+    services.push({
+        "name": this.service_name,
+        "image": "image_url",
+        "host": this.service_host,
+        "port": this.service_port,
+        "description": "service_description"
+    });
     callback(error, services);
 };
 

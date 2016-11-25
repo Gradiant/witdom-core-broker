@@ -8,9 +8,9 @@ var Schema = mongoose.Schema;
  * requests_log: array with all the request/response data got during the request process in json format
  */
 var RequestSchema = new Schema({
-    user_id: String,
+    origin: String,
     status: String,
-    requests_log: [{}]
+    request_log: [{}]
 },
 { timestamps: true}); // adds createdAt and updatedAt fields
 

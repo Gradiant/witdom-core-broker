@@ -1,8 +1,8 @@
 var should = require("should");
 
 // database models
-var Service = require('../../../models/mongo/service')
-var Request = require('../../../models/mongo/request')
+var Service = require('../../../models/mongo/service');
+var Request = require('../../../models/mongo/request');
 var mongoose = require('mongoose');
 var brokerConfig = require('../../../config');
 
