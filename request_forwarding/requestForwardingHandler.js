@@ -322,6 +322,7 @@ RequestForwardingHandler.prototype.createRequest = function(request_data, callba
  * Saves the new request to the database and starts the request flow.
  * This function manages the in-memory storage of the request_object in order to allow sending the
  * response to the client.
+ * May be removed
  */
 RequestForwardingHandler.prototype.createBlockerRequest = function(request_data, request_object, callback) {
     // Save request in the database
@@ -341,8 +342,18 @@ RequestForwardingHandler.prototype.createBlockerRequest = function(request_data,
  * Updates the request status and adds new_data to the end of the request_log array.
  */
 RequestForwardingHandler.prototype.updateRequest = function(request_id, status, new_data, callback) {
-    // Do things
-    console.log(new_data);
+    // Get request identified by given request_id
+    Request.findById(request_id, function(error, request) {
+        if(error) {
+            callback(error);
+        } else {
+            // Push new_data lo request log
+            var new_log = request.request_log;
+            new_log.push(new_data);
+            // Update request
+            request.update(status, new_log, callback);
+        }
+    });
 }
 
 /**
@@ -350,14 +361,16 @@ RequestForwardingHandler.prototype.updateRequest = function(request_id, status, 
  * it also retrieves this object.
  */
 RequestForwardingHandler.prototype.getRequest = function(request_id, callback) {
-    // Do things
+    // Get request identified by given request_id
+    Request.findById(request_id, callback);
 }
 
 /**
  * Removes the request from the database, it also removes the associated response_object from memory if exists.
  */
 RequestForwardingHandler.prototype.deleteRequest = function(request_id, callback) {
-    // Do things
+    // Delete request identified by given id
+    Request.remove({_id: request_id}, callback);
 }
 
 var connector = module.exports = exports = new RequestForwardingHandler;
