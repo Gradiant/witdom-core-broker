@@ -4,7 +4,8 @@ FROM node:argon
 RUN mkdir -p /usr/src/broker
 WORKDIR /usr/src/broker
 
-# Copy andnstall app dependencies
+# Copy and install app dependencies
+COPY dependencies/iam/keystone-clients/javascript-wrappers/node-openstack-token-utils/. dependencies/iam/keystone-clients/javascript-wrappers/node-openstack-token-utils
 COPY package.json /usr/src/broker
 COPY orchestration/. orchestration/
 RUN npm install
@@ -13,10 +14,12 @@ RUN npm install
 COPY broker.js ./
 COPY api/. api/
 COPY config/. config/
+COPY dockerFileCustom.js config/custom.js
 COPY controllers/. controllers/
 COPY models/. models/
 COPY utils/. utils/
 COPY certs/. certs/
+COPY validators/. validators/
 
 EXPOSE 5000
 EXPOSE 5043

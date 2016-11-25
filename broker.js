@@ -1,15 +1,20 @@
 'use strict';
 
+global.__base = __dirname + '/'; //Save the broker base directory
 var app = require('connect')();
 var http = require('http');
 var https = require('https');
 var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
 var fs = require('fs');
+var brokerConfig = require('./config');
+global.__brokerConfig = brokerConfig;
 var errorHandler = require('./utils/errorHandler')
 var clientAuthHandler = require('./utils/clientAuthHandler');
+var authHandler = require('./utils/authHandler');
 var httpAuthValidator = require('./utils/httpAuthValidator');
-var brokerConfig = require('./config');
+var requestHeadersParser = require('./utils/requestHeadersParser');
+
 var mongoose = require('mongoose');
 
 // Safe load of orchestrator module from configuration
@@ -45,6 +50,7 @@ var httpsOptions = {
     rejectUnauthorized: false
 };
 
+
 // Orchestrator connection
 var orchestrator = orchestration.Orchestrator;
 orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
@@ -52,7 +58,7 @@ orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
         // Initialize the Swagger middleware
         swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
             // Register the middleware that gets the client ip
-            app.use(requestIp.mw())
+            //app.use(requestIp.mw()) // Not needed now, was used for clientAuthHandler
 
             // Register a client auth validator
             //app.use(clientAuthHandler);
@@ -63,15 +69,22 @@ orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
             // Interpret Swagger resources and attach metadata to request - must be first in swagger-tools middleware chain
             app.use(middleware.swaggerMetadata());
 
+            // Register a client auth validator
+            //app.use(clientAuthHandler);
+            app.use(authHandler);
+
             // Validate Swagger requests
             app.use(middleware.swaggerValidator());
 
+            // Put request HTTP headers in request.swagger.params.headers
+            app.use(requestHeadersParser);
+
             // Route validated requests to appropriate controller
             app.use(middleware.swaggerRouter(options));
-
+            
             // Serve the Swagger documents and Swagger UI
             app.use(middleware.swaggerUi());
-            
+                
             // Use error handler
             app.use(errorHandler);
 

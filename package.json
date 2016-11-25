@@ -8,7 +8,8 @@
     "start": "node broker.js",
     "test": "./node_modules/.bin/mocha tests/nodejs/integration",
     "db_test": "./node_modules/.bin/mocha tests/nodejs/unit/database.js",
-    "request_test": "./node_modules/.bin/mocha --timeout 10000 tests/nodejs/unit/requestForwarding.js"
+    "request_test": "./node_modules/.bin/mocha --timeout 10000 tests/nodejs/unit/requestForwarding.js",
+    "unit_test": "./node_modules/.bin/mocha tests/nodejs/unit/dummyTokenValidatorTest.js; ./node_modules/.bin/mocha tests/nodejs/unit/iamTokenValidatorTest.js"
   },
   "keywords": [
     "swagger"
@@ -16,6 +17,8 @@
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
+    "openstack-wrapper": "mancabizjak/node-openstack-wrapper",
+    "openstack-token-utils":"./dependencies/iam/keystone-clients/javascript-wrappers/node-openstack-token-utils",
     "array-includes": "^3.0.2",
     "cloudify_provider_connector": "file:orchestration/cloudify_provider_connector",
     "connect": "^3.2.0",

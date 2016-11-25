@@ -75,6 +75,7 @@ Connector.prototype.getServiceData = function(service, callback) {
                                     continue;
                                 }
                                 callback(null, service_data);
+                                return;
                             }
                         }
                     }
