@@ -24,7 +24,7 @@ module.exports = {
         config: {
             service_name: 'google',
             service_host: 'www.google.com',
-            service_port: '80'
+            service_port: '443'
         }
     }
 };

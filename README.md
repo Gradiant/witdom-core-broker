@@ -11,6 +11,7 @@ The broker repository contains the following directories and files (not all the 
  - dependencies (this directory is a git submodule that clones the IAM repository for access the IAM javascript client module)
  - models (mongoose database models)
  - orchestration (default orchestration connection modules)
+ - request_forwarding (broker's core module)
  - tests (nodejs tests and java api client library with example calls)
    - nodejs
    - java

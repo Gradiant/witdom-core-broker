@@ -21,9 +21,9 @@ before(function (done) {
     }
 
     var orchestratorConfig = {
-                service_name: 'broker',
-                service_host: '192.168.122.221',
-                service_port: '5043'
+                service_name: 'google',
+                service_host: 'www.google.com',
+                service_port: '443'
             };
     orchestrator.connect(orchestratorConfig, function(error) {
         if(error) throw error;
@@ -62,19 +62,14 @@ after(function (done) {
 });
 
 describe("Requests : ", function() {
-    it("POST broker: ok", function(done) {
-        var service_name = 'broker';
-        var service_path = '/v1/request/create';
-        var method = 'POST';
+    it("GET google: ok", function(done) {
+        var service_name = 'google';
+        var service_path = '/';
+        var method = 'GET';
         var headers = {
-            "content-type": "application/json"
+            "accept": "application/json"
         };
-        var body = {
-            "service_name": "string",
-            "request_type": "string",
-            "request_uri": "string",
-            "request_data": {}
-        };
+        var body = null
 
         // Create request
         requestForwardingHandler.createRequest({
@@ -103,19 +98,15 @@ describe("Requests : ", function() {
         });
     });
 
-    it("POST broker: bad id", function(done) {
-        var service_name = 'broker';
-        var service_path = '/v1/request/create';
+    it("POST google: bad id", function(done) {
+        var service_name = 'google';
+        var service_path = '/';
         var method = 'POST';
         var headers = {
-            "content-type": "application/json"
+            "content-type": "application/json",
+            "accept": "application/json"
         };
-        var body = {
-            "service_name": "string",
-            "request_type": "string",
-            "request_uri": "string",
-            "request_data": {}
-        };
+        var body = {};
 
         // Create request
         requestForwardingHandler.createRequest({
@@ -139,17 +130,12 @@ describe("Requests : ", function() {
         });
     });
 
-    it("POST broker: bad body", function(done) {
-        var service_name = 'broker';
-        var service_path = '/v1/request/create';
+    it("POST google: bad body", function(done) {
+        var service_name = 'google';
+        var service_path = '/';
         var method = 'POST';
-        var headers = {};
-        var body = {
-            "service_name": "string",
-            "request_type": "string",
-            "request_uri": "string",
-            "request_data": {}
-        };
+        var headers = {};   // No content-type header
+        var body = {};
 
         // Create request
         requestForwardingHandler.createRequest({
