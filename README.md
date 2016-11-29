@@ -93,7 +93,7 @@ $ docker run --name broker -p 5000:5000 -p 5043:5043 --link mongo-broker:mongo -
 
 If the instance of the IAM is run in a container inside the same docker host as the broker, run the broker container with the following command to link the broker container to the IAM container
 ```
-$ docker run --name broker -p 5000:5000 -p 5043:5043 --link iam_container:iam_host_name -d witdom-core-broker
+$ docker run --name broker -p 5000:5000 -p 5043:5043 --link mongo-broker:mongo --link iam_container:iam_host_name -d witdom-core-broker
 ``` 
 
 To stop the container

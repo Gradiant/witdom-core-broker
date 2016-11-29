@@ -28,4 +28,4 @@ EXPOSE 5043
 CMD [ "npm", "start" ]
 
 # For the image build: $ docker build -f Dockerfile_ud -t witdom-core-broker-ud .
-# For the container run: $ docker run --name broker_ud -p 5000:5000 -p 5043:5043 --link mongo-container-name:mongo -d witdom-core-broker-ud
+# For the container run: $ docker run --name broker_ud -p 5100:5000 -p 5143:5043 --link mongo-container-name:mongo -d witdom-core-broker-ud

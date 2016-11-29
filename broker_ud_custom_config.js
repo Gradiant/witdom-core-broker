@@ -8,6 +8,11 @@ module.exports = {
         broker_cert: 'certs/broker_ud_crt.pem',
         ca_cert: 'certs/witdomcacert.pem'
     },
+    broker_ed : { //broker external domain
+        domain_name: "broker_td",
+        http_port: 5000,
+        https_port: 5043
+    },
     tokenValidationService: {
         admin: {
             user: "admin",

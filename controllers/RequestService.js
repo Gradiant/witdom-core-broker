@@ -1,5 +1,7 @@
 'use strict';
 
+var request = require('superagent');
+
 exports.requestCallbackPOST = function(args, res, next) {
   /**
    * parameters expected in the args:
