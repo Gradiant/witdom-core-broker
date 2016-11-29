@@ -22,9 +22,9 @@ module.exports = {
     orchestrator: {
         name: 'mock_example',
         config: {
-            host: '127.0.0.1',
-            port: '1234',
-            auth_token: 'some token'
+            service_name: 'google',
+            service_host: 'www.google.com',
+            service_port: '443'
         }
     }
 };

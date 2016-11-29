@@ -6,7 +6,6 @@ var fs = require('fs');
 
 /**
  * Cloudify orchestration connector
- * config: will be as defined in broker configuration, no processing will be applied
  */
 function Connector()
 {
@@ -22,7 +21,7 @@ function Connector()
 
 /**
  * Initializes the connection.
- * If authentication is required, should be done here
+ * config: will be as defined in broker configuration, no processing will be applied
  */
 Connector.prototype.connect = function(config, callback) {
     // Configuration load
@@ -67,6 +66,7 @@ Connector.prototype.getServiceData = function(service, callback) {
                             if(service.name == given_name && service.host && service.port ) {
                                 try {
                                     var service_data = {
+                                        name: service.name,
                                         image: service.image || "",
                                         host: service.host,
                                         port: service.port,
