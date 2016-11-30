@@ -9,7 +9,22 @@
     "test": "./node_modules/.bin/mocha tests/nodejs/integration",
     "db_test": "./node_modules/.bin/mocha tests/nodejs/unit/database.js",
     "request_test": "./node_modules/.bin/mocha --timeout 10000 tests/nodejs/unit/requestForwarding.js",
-    "unit_test": "./node_modules/.bin/mocha tests/nodejs/unit/dummyTokenValidatorTest.js; ./node_modules/.bin/mocha tests/nodejs/unit/iamTokenValidatorTest.js"
+    "unit_test": "./node_modules/.bin/mocha tests/nodejs/unit/dummyTokenValidatorTest.js; ./node_modules/.bin/mocha tests/nodejs/unit/iamTokenValidatorTest.js",
+    "si_test": "mocha tests/nodejs/unit/serviceInfoTest.js",
+    "build_broker_td": "./broker_docker.sh --command=build-images --dockerfile=Dockerfile_td --image-name=witdom-core-broker-td --container-name=broker_td",
+    "rebuild_broker_td": "./broker_docker.sh --command=rebuild-images --dockerfile=Dockerfile_td --image-name=witdom-core-broker-td --container-name=broker_td",
+    "build_broker_ud": "./broker_docker.sh --command=build-images --dockerfile=Dockerfile_ud --image-name=witdom-core-broker-ud --container-name=broker_ud",
+    "rebuild_broker_ud": "./broker_docker.sh --command=rebuild-images --dockerfile=Dockerfile_ud --image-name=witdom-core-broker-ud --container-name=broker_ud",
+    "run_broker_td": "./broker_docker.sh --command=run-containers --image-name=witdom-core-broker-td --container-name=broker_td --mongo-container=mongo-broker-td --container-http-port=5000 --container-https-port=5043 --host-http-port=5000 --host-https-port=5043 --remote-host=localhost --remote-http-port=5100 --remote-https-port=5143 --other-domain-name=broker-ud --use-iam=yes --iam-container=iam",
+    "run_broker_ud": "./broker_docker.sh --command=run-containers --image-name=witdom-core-broker-ud --container-name=broker_ud --mongo-container=mongo-broker-ud --container-http-port=5000 --container-https-port=5043 --host-http-port=5100 --host-https-port=5143 --remote-host=localhost --remote-http-port=5000 --remote-https-port=5043 --other-domain-name=broker-td",
+    "delete_images_broker_td": "./broker_docker.sh --command=delete-images --image-name=witdom-core-broker-td --container-name=broker_td",
+    "delete_images_broker_ud": "./broker_docker.sh --command=delete-images --image-name=witdom-core-broker-ud --container-name=broker_ud",
+    "start_broker_td": "./broker_docker.sh --command=start-containers --container-name=broker_td",
+    "stop_broker_td": "./broker_docker.sh --command=stop-containers --container-name=broker_td",
+    "remove_broker_td_containers": "./broker_docker.sh --command=remove-containers --container-name=broker_td",
+    "start_broker_ud": "./broker_docker.sh --command=start-containers --container-name=broker_ud",
+    "stop_broker_ud": "./broker_docker.sh --command=stop-containers --container-name=broker_ud",
+    "remove_broker_ud_containers": "./broker_docker.sh --command=remove-containers --container-name=broker_ud"
   },
   "keywords": [
     "swagger"
@@ -29,6 +44,7 @@
     "request": "^2.79.0",
     "request-ip": "^1.2.2",
     "swagger-tools": "0.10.1",
+    "superagent": "^3.0.0",
     "unirest": "^0.5.1"
   },
   "devDependencies": {
