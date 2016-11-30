@@ -602,7 +602,7 @@ definitions:
     properties:
       request_id:
         type: "string"
-        description: "get or post"
+        description: "ID of the forward request this forward callback is related to"
       response_status:
         type: "string"
         description: "http status code"

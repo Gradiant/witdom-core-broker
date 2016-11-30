@@ -20,7 +20,7 @@ exports.forwardDomainPOST = function(args, res, next) {
 exports.forwardCallbackPOST = function(args, res, next) {
   /**
    * parameters expected in the args:
-   * service (Forward_Request)
+   * service (Forward_Callback)
    **/
     var examples = {};
   examples['application/json'] = "A57910A6DE9366BC81731895FF";
