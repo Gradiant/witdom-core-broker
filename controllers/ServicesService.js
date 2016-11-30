@@ -6,7 +6,7 @@ var mongoose = require('mongoose');
 var Service = require('../models/mongo/service');
 var ServiceInfo = require(__base + 'service_info/ServiceInfo');
 
-function sendResponse(error, response_data, next) {
+function sendResponse(error, response, response_data, next) {
     if (error) {
         response.setHeader('Content-Type', 'application/json');
         response.writeHead(error.code);
@@ -29,7 +29,7 @@ exports.serviceDetailsGET = function(args, response, next) {
     var service_id = args.service.value;
 
     ServiceInfo.find(service_id, function(error, service) {
-        sendResponse(error, service, next);
+        sendResponse(error, response, ervice, next);
     });    
 }
 
@@ -41,7 +41,7 @@ exports.serviceDomainlistGET = function(args, response, next) {
 
     // Retrive from database with local source
     ServiceInfo.domainList(function(error, services) {
-        sendResponse(error, services, next);
+        sendResponse(error, response, services, next);
     });
 }
 
@@ -53,7 +53,7 @@ exports.serviceListGET = function(args, response, next) {
 
     // TODO, how to use database
     ServiceInfo.list(function(error, services) {
-        sendResponse(error, services, next);
+        sendResponse(error, response, services, next);
     });
 }
 
@@ -65,7 +65,7 @@ exports.serviceOutsidelistGET = function(args, response, next) {
 
     // TODO retrieve services from untrusted domains
     ServiceInfo.outsideList(function(error, services) {
-        sendResponse(error, services, next);
+        sendResponse(error, response, services, next);
     });
 }
 

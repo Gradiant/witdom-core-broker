@@ -21,6 +21,7 @@ COPY utils/. utils/
 COPY certs/broker_td* certs/
 COPY certs/witdomcacert.pem certs/
 COPY validators/. validators/
+COPY service_info/. service_info/
 
 EXPOSE 5000
 EXPOSE 5043

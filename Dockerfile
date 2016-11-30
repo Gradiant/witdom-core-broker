@@ -20,6 +20,7 @@ COPY models/. models/
 COPY utils/. utils/
 COPY certs/. certs/
 COPY validators/. validators/
+COPY service_info/. service_info/
 
 EXPOSE 5000
 EXPOSE 5043
