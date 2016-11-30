@@ -45,6 +45,47 @@ paths:
           schema:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Forward"
+  /forward/callback:
+    post:
+      tags:
+      - "forward"
+      summary: "Forward request response to a WITDOM domain"
+      description: |
+        This request allows the broker to forward one response to the 
+        broker in the trusted domain, where the target application is located.
+
+        This path can only be accessed from a trusted component, so a valid client 
+        certificate must be present on the request.
+      operationId: "forwardCallbackPOST"
+      parameters:
+      - in: "body"
+        name: "service"
+        description: "Service info and request data"
+        required: true
+        schema:
+          $ref: "#/definitions/Forward_Callback"
+      responses:
+        200:
+          description: "Request ID"
+          schema:
+            type: string
+        400:
+          description: "Request parameters validation error"
+          schema:
+            $ref: "#/definitions/Error"
+        401:
+          description: "Authorization error"
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: "Request not found"
+          schema:
+            $ref: "#/definitions/Error"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+      x-swagger-router-controller: "Forward"
   /request/create/{service_id}/{service_uri}*:
     post:
       tags:
@@ -530,6 +571,7 @@ definitions:
     type: "object"
     required:
     - "request_data"
+    - "request_headers"
     - "request_type"
     - "request_uri"
     - "service_name"
@@ -547,6 +589,27 @@ definitions:
         type: "object"
         description: "A set of HTTP headers to pass to the service/module when doing the request"
       request_data:
+        type: "object"
+        description: "JSON with the parameters of the request in case request_type\
+          \ is POST"
+  Forward_Callback:
+    type: "object"
+    required:
+    - "response_data"
+    - "response_headers"
+    - "response_status"
+    - "request_id"
+    properties:
+      request_id:
+        type: "string"
+        description: "get or post"
+      response_status:
+        type: "string"
+        description: "http status code"
+      response_headers:
+        type: "object"
+        description: "A set of HTTP headers to pass to the service/module when doing the request"
+      response_data:
         type: "object"
         description: "JSON with the parameters of the request in case request_type\
           \ is POST"

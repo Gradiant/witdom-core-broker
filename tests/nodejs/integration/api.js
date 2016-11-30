@@ -429,6 +429,76 @@ describe("Syntax : ", function() {
             .expect(400)
             .end(done);
         });
+
+        // forward callback
+        it("callback : OK", function(done) {
+            server
+            .post('/forward/callback')
+            .set('Accept', /json/)
+            .set('Content-type', 'application/json')
+            .send({
+                "request_id": "string",
+                "response_status": "string",
+                "response_headers" : {},
+                "response_data": {}
+            })
+            .expect('Content-type', /json/)
+            .expect(200)
+            .end(function(error, response) {
+                if (error) {
+                    done(error);
+                }
+                else {
+                    response.body.should.be.a.String;
+                    done();
+                }
+            });
+        });
+
+        // forward callback
+        it("callback : 400 : missing data", function(done) {
+            server
+            .post('/forward/callback')
+            .set('Accept', /json/)
+            .set('Content-type', 'application/json')
+            .expect('Content-type', /json/)
+            .expect(400)
+            .end(done);
+        });
+
+        // forward callback
+        it("callback : 400 : object instead of string", function(done) {
+            server
+            .post('/forward/callback')
+            .set('Accept', /json/)
+            .set('Content-type', 'application/json')
+            .send({
+                "request_id": {"name": "String"},   // syntax
+                "response_status": "string",
+                "response_headers" : {},
+                "response_data": {}
+            })
+            .expect('Content-type', /json/)
+            .expect(400)
+            .end(done);
+        });
+
+         // forward callback
+        it("callback : 400 : string instead of object", function(done) {
+            server
+            .post('/forward/callback')
+            .set('Accept', /json/)
+            .set('Content-type', 'application/json')
+            .send({
+                "request_id": "string",
+                "response_status": "string",
+                "response_headers" : "string",   // syntax
+                "response_data": {}
+            })
+            .expect('Content-type', /json/)
+            .expect(400)
+            .end(done);
+        });
     });
 });
 
