@@ -6,6 +6,7 @@ var Service = require('../models/mongo/service');
 var unirest = require('unirest');
 var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
 var stream = require('stream');
+var protector = require('../protection/po_connector').Protector;
 
 exports.requestCallbackPOST = function(args, res, next) {
   /**
@@ -13,6 +14,7 @@ exports.requestCallbackPOST = function(args, res, next) {
    * service (Result)
    * request_id (String)
    **/
+
   requestForwardingHandler.getRequest(args.request_id.value, function(error, request) {
       if(error) {
             if(error.name == "CastError") {
@@ -51,29 +53,82 @@ exports.requestCallbackPOST = function(args, res, next) {
             }));
         } else {
             // Got request
-            // TODO, check if it comes from the PO and if the request came from other domain
-            var last_log = request.request_log[request.request_log.length - 1];
-            requestForwardingHandler.updateRequest(request_id, 'FINISHED', {
-                response:{
-                    service_name: last_log.request.service_name,
-                    service_path: last_log.request.service_path,
-                    status: 200,
-                    headers: args.headers.value,
-                    body: args.request_data.value,
+            // FIXME, most of this code should go on the requestForwardingHandler module
+            if(request.origin != 'local') {
+                // Return request to origin domain
+                var first_log = request.request_log[0];
+                var original_id = first_log.request.original_id;
+                var origin = request.origin;    // TODO get origin from configuration
+                var callback_data = {   // FIXME, only for remember how to get this data
+                    response_data: args.request_data.value,
+                    response_headers: args.headers.value,
+                    response_status: 200,    // TODO, there is some way to get status from service?
+                    request_id: original_id
                 }
-            }, function(error) {
-                if(error) {
-                    // Malfunction (database) error
-                    res.setHeader('Content-Type', 'application/json');
-                    res.writeHead(500);
-                    res.end(/* TODO, define errors */);
-                } else {
-                    // no response value expected for this operation
-                    res.end();
-                }
-            }); 
+                // TODO, Implement returnForwardedRequest in requestForwardingHandler
+
+            } else if(request.status == 'PROTECTING') {
+                // Protection process finished
+                var first_log = request.request_log[0];
+                var originalCallParameters = first_log.response.body;
+                var receivedCallParameters = args.request_data.value;
+                // Change data and forward request
+                protector.endProtection(originalCallParameters, receivedCallParameters, function(error, finalCallParameters) {
+                    // TODO Implement forwardRequest in requestForwardingHandler
+                });
+            } else if(request.status == 'UNPROTECTING') {
+                // Unprotection status finished
+                var last_response_log = request.request_log[request.request_log.length - 2];    // FIXME, this does not look like a proper way to recover last response
+                var first_log = request.request_log[0];
+                var originalCallParameters = last_response_log.response.body;
+                var receivedCallParameters = args.request_data.value;
+                // Cange data and end request
+                protector.endUnprotection(originalCallParameters, receivedCallParameters, function(error, finalCallParameters) {
+                    requestForwardingHandler.updateRequest(request_id, 'FINISHED', {
+                        response: {
+                            service_name: first_log.request.service_name,
+                            service_path: first_log.request.service_path,
+                            status: 200,    // TODO, there is some way to get status from service?
+                            headers: args.headers.value,
+                            body: finalCallParameters,
+                        }
+                    }, function(error) {
+                        if(error) {
+                            // Malfunction (database) error
+                            res.setHeader('Content-Type', 'application/json');
+                            res.writeHead(500);
+                            res.end(/* TODO, define errors */);
+                        } else {
+                            // no response value expected for this operation
+                            res.end();
+                        }
+                    });
+                });
+            } else if(request.status == 'PROCESSING') {
+                // Local request finished
+                var first_log = request.request_log[0];
+                requestForwardingHandler.updateRequest(request_id, 'FINISHED', {
+                    response:{
+                        service_name: first_log.request.service_name,
+                        service_path: first_log.request.service_path,
+                        status: 200,    // TODO, there is some way to get status from service?
+                        headers: args.headers.value,
+                        body: args.request_data.value,
+                    }
+                }, function(error) {
+                    if(error) {
+                        // Malfunction (database) error
+                        res.setHeader('Content-Type', 'application/json');
+                        res.writeHead(500);
+                        res.end(/* TODO, define errors */);
+                    } else {
+                        // no response value expected for this operation
+                        res.end();
+                    }
+                });
+            } 
         }
-  });
+    });
 }
 
 exports.requestCreateGET = function(args, res, next) {

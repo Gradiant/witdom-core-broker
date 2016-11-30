@@ -575,7 +575,11 @@ definitions:
     - "request_type"
     - "request_uri"
     - "service_name"
+    - "request_id"
     properties:
+      request_id:
+        type: "string"
+        description: "Request identifier"
       service_name:
         type: "string"
         description: "Name representing a specific service in WITDOM."
@@ -590,8 +594,7 @@ definitions:
         description: "A set of HTTP headers to pass to the service/module when doing the request"
       request_data:
         type: "object"
-        description: "JSON with the parameters of the request in case request_type\
-          \ is POST"
+        description: "JSON with the parameters of the request in case request_type is POST"
   Forward_Callback:
     type: "object"
     required:
@@ -602,17 +605,16 @@ definitions:
     properties:
       request_id:
         type: "string"
-        description: "get or post"
+        description: "Request identifier"
       response_status:
         type: "string"
         description: "http status code"
       response_headers:
         type: "object"
-        description: "A set of HTTP headers to pass to the service/module when doing the request"
+        description: "A set of HTTP headers to pass to the service/module when sending the response"
       response_data:
         type: "object"
-        description: "JSON with the parameters of the request in case request_type\
-          \ is POST"
+        description: JSON with the parameters of the response"
   Service:
     type: "object"
     required:

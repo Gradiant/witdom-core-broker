@@ -383,6 +383,22 @@ RequestForwardingHandler.prototype.createRequest = function(request_data, callba
 
 /**
  * Saves the new request to the database and starts the request flow.
+ */
+RequestForwardingHandler.prototype.createForwardedRequest = function(origin, request_data, callback) {
+    // Save request in the database
+    var new_request = new Request({origin: origin, status: 'IN_PROGRESS', request_log: [request_data]});
+    new_request.save(function(error, request) {
+        // Return ID to caller
+        callback(error, request.id);
+        if(!error) {
+            // If no error do request
+            this.doRequest(request.id, request_data);
+        }
+    }.bind(this));
+}
+
+/**
+ * Saves the new request to the database and starts the request flow.
  * This function manages the in-memory storage of the request_object in order to allow sending the
  * response to the client.
  * DEPRECATED May be removed
