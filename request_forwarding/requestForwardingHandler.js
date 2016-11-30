@@ -42,7 +42,7 @@ RequestForwardingHandler.prototype.initialize = function(config, callback) {
 RequestForwardingHandler.prototype.doRestCall = function(service_data, request_data, callback) {
     
     // Arrange path
-    var request_path = request_data.request.service_path;
+    var request_path = request_data.request.service_path || "";
     if(request_path.charAt(0) != '/') request_path = '/' + request_path;
     // URL generation
     var request_url = "https://" + service_data.host + ":" + service_data.port + request_path;
@@ -52,9 +52,9 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
         url: request_url,
         method: request_data.request.method,
         headers: request_data.request.headers,
-        cert: this.certificate,
-        key: this.certificate_key,
-        ca: this.ca,
+        //cert: this.certificate,
+        //key: this.certificate_key,
+        //ca: this.ca,
         //strictSSL: true,  // TODO forces agent not to be empty
         //agent: "¿?"
     };
@@ -83,7 +83,13 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
                     response.status = 400;
                     response.code = 400;
                     response.headers = {};
-                    response.body = {/* TODO, define errors */};
+                    response.body = {
+                        message: [{
+                            code:"400",
+                            message: "MALFORMED BODY",
+                            path:[]
+                        }]
+                    };
                     return callback(response);
                 }
             } else {
@@ -92,7 +98,13 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
                 response.status = 400;
                 response.code = 400;
                 response.headers = {};
-                response.body = {/* TODO, define errors */};
+                response.body = {
+                    message: [{
+                        code:"400",
+                        message: "UNSUPORTED BODY",
+                        path:[]
+                    }]
+                };
                 return callback(response);
             }
         } else {
@@ -131,7 +143,13 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
         response.status = 400;
         response.code = 400;
         response.headers = {};
-        response.body = {/* TODO, define errors */};
+        response.body = {
+            message: [{
+                code:"400",
+                message: "MALFORMED BODY",
+                path:[]
+            }]
+        };
         callback(response);
     }
 }
@@ -155,7 +173,13 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                     service_path: request_data.request.service_path,
                     status: 500,
                     headers: {},
-                    body: {/* TODO, define errors */}
+                    body: {
+                        message: [{
+                            code:"500",
+                            message: "internal server error",
+                            path:[]
+                        }]
+                    }
                 }
             }, function(error) {});
         } else if(service) {
@@ -176,7 +200,13 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                         service_path: request_data.request.service_path,
                                         status: 404,
                                         headers: {},
-                                        body: {/* TODO, define errors */}
+                                        body: {
+                                            message: [{
+                                                code:"404",
+                                                message: "service not found",
+                                                path:[]
+                                            }]
+                                        }
                                     }
                                 }, function(error) {});
                             } else {
@@ -187,7 +217,13 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                         service_path: request_data.request.service_path,
                                         status: 503,
                                         headers: {},
-                                        body: {/* TODO, define errors */}
+                                        body: {
+                                            message: [{
+                                                code:"503",
+                                                message: "can not reach orchestration service",
+                                                path:[]
+                                            }]
+                                        }
                                     }
                                 }, function(error) {});
                             }
@@ -202,12 +238,18 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                             service_path: request_data.request.service_path,
                                             status: 503,
                                             headers: {},
-                                            body: {/* TODO, define errors */}
+                                            body: {
+                                                message: [{
+                                                    code:"503",
+                                                    message: "can not reach service",
+                                                    path:[]
+                                                }]
+                                            }
                                         }
                                     }, function(error) {});
                                 } else {
                                     var status = 'FINISHED';
-                                    if(response.status == 201) {
+                                    if(response.status == 202) {
                                         status = 'IN_PROGRESS';
                                     }
                                     self.updateRequest(request_id, status, {
@@ -253,7 +295,13 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                 service_path: request_data.request.service_path,
                                 status: 404,
                                 headers: {},
-                                body: {/* TODO, define errors */}
+                                body: {
+                                    message: [{
+                                        code:"404",
+                                        message: "service not found",
+                                        path:[]
+                                    }]
+                                }
                             }
                         }, function(error) {});
                     } else {
@@ -263,7 +311,13 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                 service_path: request_data.request.service_path,
                                 status: 503,
                                 headers: {},
-                                body: {/* TODO, define errors */}
+                                body: {
+                                    message: [{
+                                        code:"503",
+                                        message: "can not reach orchestration service",
+                                        path:[]
+                                    }]
+                                }
                             }
                         }, function(error) {});
                     }
@@ -278,7 +332,13 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                     service_path: request_data.request.service_path,
                                     status: 503,
                                     headers: {},
-                                    body: {/* TODO, define errors */}
+                                    body: {
+                                        message: [{
+                                            code:"503",
+                                            message: "can not reach service",
+                                            path:[]
+                                        }]
+                                    }
                                 }
                             }, function(error) {});
                         } else {
@@ -325,7 +385,7 @@ RequestForwardingHandler.prototype.createRequest = function(request_data, callba
  * Saves the new request to the database and starts the request flow.
  * This function manages the in-memory storage of the request_object in order to allow sending the
  * response to the client.
- * May be removed
+ * DEPRECATED May be removed
  */
 RequestForwardingHandler.prototype.createBlockerRequest = function(request_data, request_object, callback) {
     // Save request in the database

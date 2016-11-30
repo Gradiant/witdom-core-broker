@@ -21,6 +21,7 @@ COPY utils/. utils/
 COPY certs/. certs/
 COPY validators/. validators/
 COPY service_info/. service_info/
+COPY request_forwarding/. request_forwarding/
 
 EXPOSE 5000
 EXPOSE 5043

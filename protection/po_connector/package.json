@@ -1,18 +1,21 @@
 {
-  "name": "cloudify_provider_connector",
-  "version": "1.0.1",
-  "description": "cloudify orchestration connector module",
+  "name": "po_connector",
+  "version": "1.0.0",
+  "description": "",
   "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
   "scripts": {
-    "test": "./node_modules/.bin/mocha tests/format.js"
+    "test": "./node_modules/.bin/mocha tests/flow.js"
   },
   "author": "Lorenzo García Cortiñas <lgcortinas@gradiant.org>",
   "license": "ISC",
   "dependencies": {
-    "unirest": "^0.5.1"
+    "request": "^2.79.0"
   },
   "devDependencies": {
-    "mocha": "^3.1.2",
+    "mocha": "^3.2.0",
     "nock": "^9.0.2",
     "should": "^11.1.1"
   }
