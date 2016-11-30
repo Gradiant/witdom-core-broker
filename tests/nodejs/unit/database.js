@@ -47,13 +47,25 @@ after(function (done) {
 
 
 describe("Services : ", function() {
+    it("list all services 1", function(done) {
+        Service.find({}, function(error, services) {
+            should.not.exist(error);
+            should.exist(services);
+            services.should.be.an.array;
+            done();
+        });
+    });
     it("new service", function(done) {
-        Service.saveOrUpdate("fakeService", {'host': '127.0.0.1'}, function(error, savedService) {
+        Service.saveOrUpdate("fakeService", "local",{"image": "image_url", "host": "127.0.0.1", "port": "1234","description": "A fake service"},
+        function(error, savedService) {
             should.not.exist(error);
             savedService.id.should.be.a.String;
             savedService.id.should.equal("fakeService")
-            savedService.host_data.should.be.an.Object;
-            savedService.host_data.host.should.equal('127.0.0.1');
+            savedService.service_data.should.be.an.Object;
+            savedService.service_data.image.should.equal('image_url');
+            savedService.service_data.host.should.equal('127.0.0.1');
+            savedService.service_data.port.should.equal('1234');
+            savedService.service_data.description.should.equal('A fake service');
             done();
         });
     });
@@ -62,18 +74,39 @@ describe("Services : ", function() {
         Service.findById("fakeService", function(error, savedService) {
             should.not.exist(error);
             should.exist(savedService);
-            savedService.update( {'host': '127.0.0.2'}, function(error) {
+            var new_service_data = savedService.service_data;
+            new_service_data.host = '127.0.0.2';
+            savedService.update("local", new_service_data, function(error) {
                 should.not.exist(error);
                 Service.findById("fakeService", function(error, savedService) {
                     should.not.exist(error);
                     should.exist(savedService);
                     savedService.id.should.be.a.String;
                     savedService.id.should.equal("fakeService")
-                    savedService.host_data.should.be.an.Object;
-                    savedService.host_data.host.should.equal('127.0.0.2');
+                    savedService.service_data.should.be.an.Object;
+                    savedService.service_data.host.should.equal('127.0.0.2');
                     done();
                 });
             });
+        });
+    });
+
+    it("list all services 2", function(done) {
+        Service.find({}, function(error, services) {
+            should.not.exist(error);
+            should.exist(services);
+            services.should.be.an.array;
+            done();
+        });
+    });
+
+    it("list outside services", function(done) {
+        Service.find({source: {$ne:'local'}}, function(error, services) {
+            should.not.exist(error);
+            should.exist(services);
+            services.should.be.an.array;
+            services.length.should.equal(0);
+            done();
         });
     });
 

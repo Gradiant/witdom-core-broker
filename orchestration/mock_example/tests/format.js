@@ -2,9 +2,18 @@ var should = require("should");
 
 var orchestration = require('../index');
 
-var config = {host: '127.0.0.1',
-              port: '1234',
-              auth_token: 'some token'}
+var config = {
+    services: {
+        google_http: {
+            host: "www.google.com",
+            port: "443"
+        },
+        google_https: {
+            host: "www.google.com",
+            port: "80"
+        }
+    }
+};
 
 var orchestrator = orchestration.Orchestrator;
 
@@ -17,12 +26,12 @@ before(function(done) {
 
 describe("Services : ", function() {
     it("get service data", function(done) {
-        orchestrator.getServiceData('service1', function(error, service_data) {
+        orchestrator.getServiceData('google_http', function(error, service_data) {
             should.not.exist(error);
             should.exist(service_data);
             service_data.image.should.equal("image_url");
-            service_data.host.should.equal("127.0.0.1");
-            service_data.port.should.equal("1234");
+            service_data.host.should.equal(config.services.google_http.host);
+            service_data.port.should.equal(config.services.google_http.port);
             service_data.description.should.equal("service_description");
             done();
         });
@@ -40,13 +49,19 @@ describe("Services : ", function() {
         orchestrator.getServiceList(function(error, services) {
             should.not.exist(error);
             should.exist(services);
-            services.length.should.equal(9);
+            services.length.should.equal(2);
             for(i=1; i<=services.lenght; i++) {
-                services[i].name.should.equal("service" + i);
-                services[i].image.should.equal("image_url");
-                services[i].host.should.equal("127.0.0." + i);
-                services[i].port.should.equal("1234");
-                services[i].description.should.equal("service_description");
+                if(services[i].name == "google_http"){
+                    services[i].image.should.equal("image_url");
+                    service_data.host.should.equal(config.services.google_http.host);
+                    service_data.port.should.equal(config.services.google_http.port);
+                    service_data.description.should.equal("service_description");
+                } else if(services[i].name == "google_https") {
+                    services[i].image.should.equal("image_url");
+                    service_data.host.should.equal(config.services.google_https.host);
+                    service_data.port.should.equal(config.services.google_https.port);
+                    service_data.description.should.equal("service_description");
+                }
             }
             done();
         });

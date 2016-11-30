@@ -14,19 +14,19 @@ RUN npm install
 COPY broker.js ./
 COPY api/. api/
 COPY config/. config/
-COPY dockerFileCustom.js config/custom.js
+COPY broker_ud_custom_config.js config/custom.js
 COPY controllers/. controllers/
 COPY models/. models/
 COPY utils/. utils/
-COPY certs/. certs/
+COPY certs/broker_ud* certs/
+COPY certs/witdomcacert.pem certs/
 COPY validators/. validators/
 COPY service_info/. service_info/
-COPY request_forwarding/. request_forwarding/
 
 EXPOSE 5000
 EXPOSE 5043
 
 CMD [ "npm", "start" ]
 
-# For the image build: $ docker build -t witdom-core-broker .
-# For the container run: $ docker run --name broker -p 5000:5000 -p 5043:5043 --link mongo-container-name:mongo -d witdom-core-broker
+# For the image build: $ docker build -f Dockerfile_ud -t witdom-core-broker-ud .
+# For the container run: $ docker run --name broker_ud -p 5100:5000 -p 5143:5043 --link mongo-container-name:mongo -d witdom-core-broker-ud
