@@ -18,7 +18,7 @@ function Connector()
  */
 Connector.prototype.connect = function(config, callback) {
     // Example configuration load
-    this.services = config.services;
+    this.services = config.services || {};
     callback(null); // no error
 }
 
