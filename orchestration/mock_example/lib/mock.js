@@ -9,9 +9,7 @@ var OrchestrationError = require('./mockError');
 function Connector()
 {
     // Example data
-    this.host;
-    this.port;
-    this.auth_token;
+    this.services;
 }
 
 /**
@@ -20,11 +18,7 @@ function Connector()
  */
 Connector.prototype.connect = function(config, callback) {
     // Example configuration load
-    this.host = config.host;
-    this.port = config.port;
-    this.auth_token = config.auth_token;
-    this.base_name = "service";
-    this.base_ip = "127.0.0.";
+    this.services = config.services;
     callback(null); // no error
 }
 
@@ -33,39 +27,36 @@ Connector.prototype.connect = function(config, callback) {
  * Gets the information of the service identified by the given service name
  */
 Connector.prototype.getServiceData = function(service, callback) {
-    if(service != 'service1') {
+    if(this.services[service]) {
+        var service_data = {
+            "image": "image_url",
+            "host": this.services[service].host,
+            "port": this.services[service].port,
+            "description": "service_description"
+        };
+        callback(null, service_data);
+    } else {
         callback(new OrchestrationError(404, "Unknown service"), null)
         return;
     }
-    var error = null;
-    var service_data = {
-            "image": "image_url",
-            "host": this.base_ip + "1",
-            "port": "1234",
-            "description": "service_description"
-        };
-    callback(error, service_data);
 };  
 
 /**
- * Gets the information of all the services deployed
- * Depending on the service will take a wile, so the list will only be read at startup.
+ * Gets the information of all the services deployed.
  */
 Connector.prototype.getServiceList = function(callback) {
-    var error = null;
-    var services = [];
-    for(var i=1; i< 10; i++) {
-        var name = this.base_name + i;
-        var ip = this.base_ip + i;
-        services.push({
-            "name": name,
+    var services_response = [];
+    var names = Object.keys(this.services);
+    for(var index in names) {
+        services_response.push({
+            "name": names[index],
             "image": "image_url",
-            "host": ip,
-            "port": "1234",
+            "host": this.services[names[index]].host,
+            "port": this.services[names[index]].port,
             "description": "service_description"
         });
     }
-    callback(error, services);
+    callback(null, services_response)
 };
 
 var connector = module.exports = exports = new Connector;

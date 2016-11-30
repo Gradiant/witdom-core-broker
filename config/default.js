@@ -34,9 +34,16 @@ module.exports = {
     orchestrator: {
         name: 'mock_example',
         config: {
-            host: '127.0.0.1',
-            port: '1234',
-            auth_token: 'some token'
+            services: {
+                google_http: {
+                    host: "www.google.com",
+                    port: "443"
+                },
+                google_https: {
+                    host: "www.google.com",
+                    port: "80"
+                }
+            }
         }
     }
 };
