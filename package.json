@@ -25,7 +25,9 @@
     "remove_broker_td_containers": "./broker_docker.sh --command=remove-containers --container-name=broker_td",
     "start_broker_ud": "./broker_docker.sh --command=start-containers --container-name=broker_ud",
     "stop_broker_ud": "./broker_docker.sh --command=stop-containers --container-name=broker_ud",
-    "remove_broker_ud_containers": "./broker_docker.sh --command=remove-containers --container-name=broker_ud"
+    "remove_broker_ud_containers": "./broker_docker.sh --command=remove-containers --container-name=broker_ud",
+    "bash_td": "sudo docker exec -it broker_td /bin/bash",
+    "bash_ud": "sudo docker exec -it broker_ud /bin/bash"
   },
   "keywords": [
     "swagger"
