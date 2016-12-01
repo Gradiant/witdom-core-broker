@@ -6,6 +6,7 @@ var Service = require('../models/mongo/service');
 var unirest = require('unirest');
 var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
 var stream = require('stream');
+var protector = require('../protection/po_connector').Protector;
 
 exports.requestCallbackPOST = function(args, res, next) {
   /**
@@ -13,7 +14,9 @@ exports.requestCallbackPOST = function(args, res, next) {
    * service (Result)
    * request_id (String)
    **/
-  requestForwardingHandler.getRequest(args.request_id.value, function(error, request) {
+
+  var request_id = args.request_id.value;
+  requestForwardingHandler.doCallback(args.request_id.value, args.headers.value, args.service.value, function(error) {
       if(error) {
             if(error.name == "CastError") {
                 // Error parsing ID
@@ -38,40 +41,9 @@ exports.requestCallbackPOST = function(args, res, next) {
                     }]
                 }));
             }
-        } else if(!request) {
-            // Request does not exist
-            res.setHeader('Content-Type', 'application/json');
-            res.writeHead(404);
-            res.end(JSON.stringify({
-                message: [{
-                    code:"404",
-                    message:"requested resource does not exist",
-                    path:['/v1/request/callback']
-                }]
-            }));
         } else {
-            // Got request
-            // TODO, check if it comes from the PO and if the request came from other domain
-            var last_log = request.request_log[request.request_log.length - 1];
-            requestForwardingHandler.updateRequest(request_id, 'FINISHED', {
-                response:{
-                    service_name: last_log.request.service_name,
-                    service_path: last_log.request.service_path,
-                    status: 200,
-                    headers: args.headers.value,
-                    body: args.request_data.value,
-                }
-            }, function(error) {
-                if(error) {
-                    // Malfunction (database) error
-                    res.setHeader('Content-Type', 'application/json');
-                    res.writeHead(500);
-                    res.end(/* TODO, define errors */);
-                } else {
-                    // no response value expected for this operation
-                    res.end();
-                }
-            }); 
+            // no response value expected for this operation
+            res.end();
         }
   });
 }
@@ -224,6 +196,7 @@ var requestCreate_blocker = function(request_data, res, next) {
                             }
                             // Stop watcher
                             clearInterval(watcher);
+                            requestForwardingHandler.deleteRequest(request_id, function(error){});
                         }
                     }
                 });

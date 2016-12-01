@@ -37,7 +37,6 @@ Connector.prototype.getServiceData = function(service, callback) {
         callback(null, service_data);
     } else {
         callback(new OrchestrationError(404, "Unknown service"), null)
-        return;
     }
 };  
 
