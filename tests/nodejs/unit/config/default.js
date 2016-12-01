@@ -46,5 +46,6 @@ module.exports = {
                 }
             }
         }
-    }
+    },
+    serviceInfoModule : __base + "service_info/mockServiceInfo"
 };

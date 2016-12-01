@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   description: "API to use services from the Broker"
-  version: "1.4.0"
+  version: "1.5.0"
   title: "WITDOM Broker API"
 basePath: "/v1"
 produces:
@@ -575,6 +575,7 @@ definitions:
     - "request_type"
     - "request_uri"
     - "service_name"
+    - "request_id"
     properties:
       service_name:
         type: "string"
@@ -592,6 +593,10 @@ definitions:
         type: "object"
         description: "JSON with the parameters of the request in case request_type\
           \ is POST"
+      request_id:
+        type: "string"
+        description: "ID of the request that is being forwared to the domain. This ID will be used\
+         \ in the invocation of the method forward/callback when the request is completed."
   Forward_Callback:
     type: "object"
     required:
