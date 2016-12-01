@@ -9,7 +9,7 @@ module.exports = {
         ca_cert: 'certs/witdomcacert.pem'
     },
     broker_ed : { //broker external domain
-        domain_name: "broker_td",
+        domain_name: "broker-td",
         http_port: 5000,
         https_port: 5043
     },
