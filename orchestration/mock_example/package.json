@@ -1,6 +1,10 @@
 {
   "name": "mock_example",
+<<<<<<< HEAD
+  "version": "1.5.0",
+=======
   "version": "1.0.1",
+>>>>>>> master
   "description": "mock orchestration connector module example",
   "main": "index.js",
   "scripts": {

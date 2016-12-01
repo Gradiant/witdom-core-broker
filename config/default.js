@@ -7,6 +7,18 @@ module.exports = {
         broker_cert: 'certs/broker_crt.pem',
         ca_cert: 'certs/witdomcacert.pem'
     },
+    protocol: "https",
+    broker_ed : { //broker external domain
+        domain_name: "broker-ud",
+        http: {
+            port: 5100
+        },
+        https: {
+            port: 5143
+        },
+        http_port: 5100,
+        https_port: 5143
+    },
     tokenValidationService: {
         admin: {
             user: "admin",
@@ -22,9 +34,16 @@ module.exports = {
     orchestrator: {
         name: 'mock_example',
         config: {
-            service_name: 'google',
-            service_host: 'www.google.com',
-            service_port: '443'
+            services: {
+                google_http: {
+                    host: "www.google.com",
+                    port: "443"
+                },
+                google_https: {
+                    host: "www.google.com",
+                    port: "80"
+                }
+            }
         }
     }
 };
