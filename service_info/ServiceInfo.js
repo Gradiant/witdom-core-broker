@@ -22,8 +22,9 @@ function getOtherDomainsServices(callback) {
         if (error) {
             var serviceInfoError = {code: 500, message: "Internal server error"};
             if (typeof callback === 'function') {
-                callback(servceInfoError);
+                callback(serviceInfoError);
             }
+
         } else {
             if (response.status == 200) { // The other domain returned its service list
                 //Save services in the database
@@ -36,9 +37,8 @@ function getOtherDomainsServices(callback) {
                         "port": service.uri.split(":")[1],
                         "description": service.description
                     };
-                    Service.saveOrUpdate(service.service_id, __brokerConfig.broker_ed.domain_name, db_service, function() {//Save the service to local database
-
-                    });
+                    //Save the service to local database
+                    Service.saveOrUpdate(service.service_id, __brokerConfig.broker_ed.domain_name, db_service, function() {});
                     
                 });
 
@@ -63,7 +63,51 @@ function getOtherDomainsServices(callback) {
     });
 }
 
+module.exports.updateService = function(service_id, callback) {
+    // Retrieve from orchestrator module
+    orchestrator.getServiceData(service_id, function(error, service_data) {
+        if(error) {
+            if(error.code == 404) { // Service not found in local orchestrator try to find it in other domain
+                getOtherDomainsServices(function(error, services) {
+                    if(error) {
+                        if (typeof callback === 'function') {
+                            callback(error);
+                        }
+                    } else {
+                        for(var index in services) {
+                            if(services[index].service_id == service_id) {
+                                if (typeof callback === 'function') {
+                                    callback(null, {location: __brokerConfig.broker_ed.domain_name, details: services[index]});
+                                }
+                            }
+                        }
+                        if (typeof callback === 'function') {
+                            callback({code:404, message: "Service not found"});
+                        }
+                    }
+                });
+            } else {
+                response.writeHead(503);
+                response.end(JSON.stringify({code: 503, reason: "service unavaliable"}));
+            }
+        } else {
+            var service_response = {
+                service_id: service_id,
+                description: service_data.description,
+                uri: service_data.host + ':' + service_data.port,
+                image: service_data.image
+            };
+            Service.saveOrUpdate(service_id, 'local', service_data, function(error, service) {});
+            if (typeof callback === 'function') {
+                //console.log("Service " + service_response.service_id + " found in the local orchestrator");
+                callback(null, {location: 'local', details: service_response});
+            }
+        }
+    });
+}
+
 module.exports.findWithLocation = function(service_id, callback) {
+    var self = this;
     Service.findById(service_id, function(error, service) {
         if(error) {
             var serviceInfoError = {code: 500, message: "Internal server error"};
@@ -82,51 +126,8 @@ module.exports.findWithLocation = function(service_id, callback) {
                 callback(null, {location: service.source, details: service_response});
             }
         } else {
-            // Retrieve from orchestrator module
-            orchestrator.getServiceData(service_id, function(error, service_data) {
-                if(error) {
-                    if(error.code == 404) { // Service not found in local orchestrator try to find it in other domain
-                        getOtherDomainsServices(function(error, services) {
-                            if(error) {
-                                if (typeof callback === 'function') {
-                                    callback(error);
-                                }
-                            } else {
-                                var foundService = undefined;
-                                services.forEach(function(service) {
-                                    if (service.service_id == service_id) {
-                                            foundService = service;
-                                    }
-                                });
-                                if (typeof callback === 'function') {
-                                    if (foundService) {
-                                        //console.log("Service " + foundService.service_id + " found in the other domain");
-                                        callback(null, {location: __brokerConfig.broker_ed.domain_name, details: foundService});
-                                    } else {
-                                        callback({code:404, message: "Service not found"});
-                                    }
-                                }
-                            }
-                        });
-                    } else {
-                        response.writeHead(503);
-                        response.end(JSON.stringify({code: 503, reason: "service unavaliable"}));
-                    }
-                } else {
-                    var service_response = {
-                        service_id: service_id,
-                        description: service_data.description,
-                        uri: service_data.host + ':' + service_data.port,
-                        image: service_data.image
-                    };
-                    var newService = new Service({id: service_id, source: 'local', service_data: service_data});
-                    newService.save();
-                    if (typeof callback === 'function') {
-                        //console.log("Service " + service_response.service_id + " found in the local orchestrator");
-                        callback(null, {location: 'local', details: service_response});
-                    }
-                }
-            });
+            // Update service
+            self.updateService(service_id, callback);
         }
     });
 }
@@ -174,8 +175,9 @@ module.exports.domainList = function(callback) {
                     }
                     // Save all services to database
                     services.forEach(function(service) {
-                        var newService = new Service({id: service.name, source: 'local', service_data: service});
-                        newService.save();
+                        Service.saveOrUpdate(service.name, 'local', service, function(error, service) {});
+                        /*var newService = new Service({id: service.name, source: 'local', service_data: service});
+                        newService.save();*/
                     })
                 }
             }); 

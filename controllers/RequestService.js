@@ -279,6 +279,7 @@ var requestCreate_blocker = function(request_data, res, next) {
                             }
                             // Stop watcher
                             clearInterval(watcher);
+                            requestForwardingHandler.deleteRequest(request_id, function(error){});
                         }
                     }
                 });
