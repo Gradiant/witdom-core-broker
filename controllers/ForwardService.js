@@ -5,6 +5,7 @@ exports.forwardDomainPOST = function(args, res, next) {
    * parameters expected in the args:
    * service (Forward_Request)
    **/
+  //console.log(args.service.value);
     var examples = {};
   examples['application/json'] = "A57910A6DE9366BC81731895FF";
   if(Object.keys(examples).length > 0) {

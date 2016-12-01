@@ -3,7 +3,6 @@ var brokerConfig = require('./config');
 global.__brokerConfig = brokerConfig;
 var should = require('should');
 var mongoose = require('mongoose');
-var assert = require('assert');
 
 var ServiceInfo = require(__base + 'service_info/ServiceInfo');
 var nock = require("nock");

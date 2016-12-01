@@ -22,7 +22,7 @@ function getOtherDomainsServices(callback) {
         if (error) {
             var serviceInfoError = {code: 500, message: "Internal server error"};
             if (typeof callback === 'function') {
-                callback(servceInfoError);
+                callback(serviceInfoError);
             }
         } else {
             if (response.status == 200) { // The other domain returned its service list

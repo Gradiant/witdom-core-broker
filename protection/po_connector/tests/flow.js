@@ -1,16 +1,45 @@
+global.__base = __dirname + '/../../../'; //Save the broker base directory
+var brokerConfig = require(__base +'config');
+global.__brokerConfig = brokerConfig;
 var should = require("should");
 var nock = require('nock');
 
+//Set the serviceInfoModule to 'mockServiceInfo'
+__brokerConfig.serviceInfoModule = __base + "service_info/mockServiceInfo";
+
+var ServiceInfo = require(__brokerConfig.serviceInfoModule);
+
 var protection = require('../index');
 
+var po_info = {
+    service_id: "po",
+    description: "PO component",
+    uri: "192.168.0.10:8000",
+    image: "image"
+};
+
+var host = po_info.uri.split(":")[0];
+var port = po_info.uri.split(":")[1];
 var config = {
-        protocol: 'http',
-        host: 'localhost',
-        port: '1234',
-        auth_token: 'some token',
-        certificate_key: '../../CAs/witdomCA/client1_key.pem',
-        certificate: '../../CAs/witdomCA/client1_crt.pem',
-        ca: '../../CAs/witdomCA/witdomcacert.pem'}
+    protocol: 'http',
+    //host: 'localhost',
+    //port: '1234',
+    auth_token: 'some token',
+    certificate_key: '../../CAs/witdomCA/client1_key.pem',
+    certificate: '../../CAs/witdomCA/client1_crt.pem',
+    ca: '../../CAs/witdomCA/witdomcacert.pem',
+    po_id: "po"
+};
+
+var service_info = {
+    location: "broker-ud",
+    details: {
+        service_id: "ud_service",
+        description: "Service from the UD",
+        uri: "192.168.1.16:9000",
+        image: "image"
+    }
+}            
 
 var protector = protection.Protector;
 
@@ -22,15 +51,16 @@ before(function(done) {
 });
 
 beforeEach(function(done){
-    nock(config.protocol + '://' + config.host + ':' + config.port)
-    .post('/execute/fs-riskscoring-createdataset/protect')
+    nock(config.protocol + '://' + host + ':' + port)
+    .post('/execute/' + service_info.details.service_id + '/protect')
     .reply(200,13456789)
 
-    nock(config.protocol + '://' + config.host + ':' + config.port)
-    .post('/execute/fs-riskscoring-createdataset/unprotect')
+    nock(config.protocol + '://' + host + ':' + port)
+    .post('/execute/' + service_info.details.service_id + '/unprotect')
     .reply(200,13456788)
     done();
 });
+
 
 describe("Protection : ", function() {
     it("OK", function(done) {
@@ -43,10 +73,11 @@ describe("Protection : ", function() {
             "FSUseCase": "CreditScoring",
             "OperationalKey": "#{untrustedkey}"
         };
-        protector.protect("someURL", {"X-Auth-Token": "SomeToken"}, originalBody, function(error, protectionResponse, finalCallParameters) {
+        protector.protect("someURL", service_info, {"X-Auth-Token": "SomeToken"}, originalBody, function(error, protectionResponse, finalCallParameters) {
                 should.not.exist(error);
                 should.exist(protectionResponse);
                 should.not.exist(finalCallParameters);
+                //The following simulates the reception of the callback from the PO
                 var receivedCallParameters = {
                     "status": "success",
                     "results": [{
@@ -83,10 +114,11 @@ describe("Unprotection : ", function() {
             "FSUseCase": "CreditScoring",
             "OperationalKey": "ukuuid"
         };
-        protector.unprotect("someURL", {"X-Auth-Token": "SomeToken"}, originalBody, function(error, protectionResponse, finalCallParameters) {
+        protector.unprotect("someURL", service_info, {"X-Auth-Token": "SomeToken"}, originalBody, function(error, protectionResponse, finalCallParameters) {
                 should.not.exist(error);
                 should.exist(protectionResponse);
                 should.not.exist(finalCallParameters);
+                //The following simulates the reception of the callback from the PO
                 var receivedCallParameters = {
                     "status": "success",
                     "results": [{
