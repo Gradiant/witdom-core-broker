@@ -252,6 +252,91 @@ RequestForwardingHandler.prototype.doForwardRequest = function(domain_data, requ
 }
 
 /**
+ * Returns forwarded request to its origin
+ */
+RequestForwardingHandler.prototype.doForwardCallback = function(domain_data, callback_data, callback) {
+    // URL generation
+    var request_url = "https://" + domain_data.http.host + ":" + domain_data.http.port + '/v1/forward/callback';
+
+    // Request options
+    var options = {
+        url: request_url,
+        method: request_data.request.method,
+        headers: request_data.request.headers,
+        json: true,
+        body: callback_data,
+        //cert: this.certificate,
+        //key: this.certificate_key,
+        //ca: this.ca,
+        //strictSSL: true,  // TODO forces agent not to be empty
+        //agent: "¿?"
+    };
+
+    try {
+        // If is we have JSON header, we test we can stringify it, if not, the request creation will fail
+        /**
+         * We net to test this because we can not catch if the request module fails to write the body.
+         * TODO, We should change this
+         */
+        JSON.stringify(request_data.request.body);
+    } catch (error) {
+        // If the atempt to stringify fails, the request is not supported
+        var response = {};
+        response.status = 400;
+        response.code = 400;
+        response.headers = {};
+        response.body = {
+            message: [{
+                code:"400",
+                message: "MALFORMED BODY",
+                path:[]
+            }]
+        };
+        return callback(response);
+    }
+
+    //===============================================//
+    //=\/\/\/\/REMOVE THIS, ONLY FOR TESTING\/\/\/\/=//
+    //===============================================//
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";     // TODO REMOVE!!!
+    //===============================================//
+    //=/\/\/\/\REMOVE THIS, ONLY FOR TESTING/\/\/\/\=//
+    //===============================================//
+
+    // Request creation
+    try{
+        request(options, function(error, response, body) {
+            if(error) {
+                // If we can not reach server, we do not set up response status
+                var response = {};
+                response.error = error;
+                callback(response);
+            } else if(response) {
+                // If success, add status/code and body if exists
+                response.status = response.statusCode;
+                response.code = response.statusCode;
+                response.body = response.body || {};
+                callback(response);
+            } // Should exist either an error or a response, do not bother with more options
+        });
+    } catch (error) {
+        var response = {};
+        response.status = 400;
+        response.code = 400;
+        response.headers = {};
+        response.body = {
+            message: [{
+                code:"400",
+                message: "MALFORMED BODY",
+                path:[]
+            }]
+        };
+        callback(response);
+    }
+
+}
+
+/**
  * Manages the request flow, taking care of the service location and the database updates for
  * the requests and services, if needed.
  * Works asynchronously and does not provide any output, it only updates the database.
@@ -398,8 +483,8 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                     }
                 });
             } else {
-                // FIXME, chage parameters
-                protector.protect("broker/callback/url", request_data.request.headers, request_data.request.body,
+                // TODO, broker callback url
+                protector.protect("/request/callback?request_id=" + request_id, service.service_data, request_data.request.headers, request_data.request.body,
                 function(error, protectionResponse, finalCallParameters) {
                     if(error) {
                         // Error with PO communication
@@ -412,7 +497,7 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                 body: {
                                     message: [{
                                         code:"503",
-                                        message: "can not reach orchestration service",
+                                        message: "can not reach protection service",
                                         path:[]
                                     }]
                                 }
@@ -431,45 +516,253 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                         }, function(error) {});
                     } else if(finalCallParameters) {
                         // Protection ended
-                        protector.endProtection(request_data.request.body, protectionResponse, function(error, finalCallParameters) {
-                            request_data.request.body = finalCallParameters;
-                            self.doForwardRequest("domain_data", request_id, request_data, function(response) {
-                                if(!response.status) {
-                                    // Error communicating with UD broker
-                                    self.updateRequest(request_id, 'FINISHED', {
-                                        response:{
-                                            service_name: request_data.request.service_name,
-                                            service_path: request_data.request.service_path,
-                                            status: 503,
-                                            headers: {},
-                                            body: {
-                                                message: [{
-                                                    code:"503",
-                                                    message: "can not reach orchestration service",
-                                                    path:[]
-                                                }]
-                                            }
+                        request_data.request.body = finalCallParameters;
+                        // TODO, domain data
+                        self.doForwardRequest(brokerConfig.broker_ed, request_id, request_data, function(response) {
+                            if(!response.status) {
+                                // Error communicating with UD broker
+                                self.updateRequest(request_id, 'FINISHED', {
+                                    response:{
+                                        service_name: request_data.request.service_name,
+                                        service_path: request_data.request.service_path,
+                                        status: 503,
+                                        headers: {},
+                                        body: {
+                                            message: [{
+                                                code:"503",
+                                                message: "can not reach orchestration service",
+                                                path:[]
+                                            }]
                                         }
-                                    }, function(error) {});
-                                } else {
-                                    var status;
-                                    if(response.status == 202) {
-                                        status = 'FORWARDED';
-                                    } else {
-                                        status = 'FINISHED';
                                     }
-                                    // Successful request forwading
-                                    self.updateRequest(request_id, status, {
-                                        response:{
-                                            service_name: request_data.request.service_name,
-                                            service_path: request_data.request.service_path,
-                                            status: response.status,
-                                            headers: response.headers,
-                                            body: response.body
-                                        }
-                                    }, function(error) {});
+                                }, function(error) {});
+                            } else {
+                                var status;
+                                if(response.status == 202) {
+                                    status = 'FORWARDED';
+                                } else {
+                                    status = 'FINISHED';
                                 }
-                            });
+                                // Successful request forwading
+                                self.updateRequest(request_id, status, {
+                                    response:{
+                                        service_name: request_data.request.service_name,
+                                        service_path: request_data.request.service_path,
+                                        status: response.status,
+                                        headers: response.headers,
+                                        body: response.body
+                                    }
+                                }, function(error) {});
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    });
+}
+
+/**
+ * Updates the status of the request and makes the needed calls accortind to callback parameters 
+ */
+RequestForwardingHandler.prototype.doCallback = function(request_id, callback_headers, callback_body, callback) {
+    
+    var self = this;
+    // Get request from database
+    self.getRequest(request_id, function(error, request) {
+        if(error) {
+            callback(error);
+        } else if(!request) {
+            // FIXME, not proper way to pass errors
+            callback({name: "CastError", message: "request not found"})
+        } else {
+            // Got request, return OK
+            callback(null);
+            // 
+            if(request.origin != 'local') {
+                //Return request to origin domain
+                var first_log = request.request_log[0];
+                var original_id = first_log.request.original_id;
+                var origin = brokerConfig.broker_ed; // TODO get origin data
+                var callback_data = {
+                    response_data: callback_body,
+                    response_headers: callback_headers,
+                    response_status: 200,
+                    request_id: original_id
+                }
+                self.doForwardCallback(origin, callback_data, function(response) {
+                    // For now we asume that if it fails we can not do anything, so we simply delete de request in the database
+                    requestForwardingHandler.deleteRequest(request_id, function(error) {});
+                });
+            } else if(request.status == 'PROTECTING') {
+                // Protection process finished
+                var first_log = request.request_log[0];
+                var originalCallParameters = first_log.response.body;
+                var receivedCallParameters = callback_body;
+                // Change data and forward request
+                protector.endProtection(originalCallParameters, receivedCallParameters, function(error, finalCallParameters) {
+                    if(error) {
+                        self.updateRequest(request_id, 'FINISHED', {
+                            response: {
+                                service_name: first_log.request.service_name,
+                                service_path: first_log.request.service_path,
+                                status: 500,
+                                headers: {},
+                                body: {
+                                    message: [{
+                                        code:"500",
+                                        message: "internal server error",
+                                        path:[]
+                                    }]
+                                }
+                            }
+                        });
+                    } else {
+                        var request_data = first_log.request;
+                        request_data.body = finalCallParameters;
+                        // TODO, domain data
+                        self.doForwardRequest(brokerConfig.broker_ed, request_id, request_data, function(response) {});
+                    }
+                });
+            } else if(request.status == 'UNPROTECTING') {
+                // Unprotection process finished
+                var last_response_log = request.request_log[request.request_log.length - 2];    // FIXME, this does not look like a proper way to recover last response
+                var first_log = request.request_log[0];
+                var originalCallParameters = last_response_log.response.body;
+                var receivedCallParameters = callback_body;
+                // Change data and end request
+                protector.endUnprotection(originalCallParameters, receivedCallParameters, function(error, finalCallParameters) {
+                    if(error) {
+                        self.updateRequest(request_id, 'FINISHED', {
+                            response: {
+                                service_name: first_log.request.service_name,
+                                service_path: first_log.request.service_path,
+                                status: 500,
+                                headers: {},
+                                body: {
+                                    message: [{
+                                        code:"500",
+                                        message: "internal server error",
+                                        path:[]
+                                    }]
+                                }
+                            }
+                        });
+                    } else {
+                        self.updateRequest(request_id, 'FINISHED', {
+                            response: {
+                                service_name: first_log.request.service_name,
+                                service_path: first_log.request.service_path,
+                                status: 200,
+                                headers: last_response_log.response.headers,
+                                body: finalCallParameters
+                            }
+                        }, function(error) {});
+                    }
+                });
+            } else if(request.status == 'PROCESSING') {
+                // Local request finished
+                var first_log = request.request_log[0];
+                requestForwardingHandler.updateRequest(request_id, 'FINISHED', {
+                    response: {
+                        service_name: first_log.request.service_name,
+                        service_path: first_log.request.service_path,
+                        status: 200,    // TODO, there is some way to get status from service?
+                        headers: callback_headers,
+                        body: callback_body
+                    }
+                }, function(error) {});
+            }
+        }
+    });
+}
+
+/**
+ * Updates the status of the request and makes the needed calls accortind to callback parameters 
+ */
+RequestForwardingHandler.prototype.doForwardedCallback = function(callback_body, callback) {
+    
+    var self = this;
+    // Get request
+    self.getRequest(callback_body.request_id, function(error, request) {
+        if(error) {
+            callback(error, null);
+        } else if(!request) {
+            callback({name: "CastError", message: "Can not find request"});
+        } else {
+            // Got request
+            if(request.status != 'FORWARDED') {
+                // Non consistent request
+                callback({name: "CastError", message: "Can not find request"});
+            } else {
+                // Found consistent request, return OK
+                callback(null);
+                var last_log = request.request_log[request.request_log.length - 1];
+                ServiceInfo.find(last_log.request.service_name, function(error, service) {
+                    if(error) {
+                        // Weird error finding service
+                        var last_log = request.request_log[request.request_log.length - 1];
+                        self.updateRequest(request_id, 'FINISHED', {
+                            response:{
+                                service_name: last_log.request.service_name,
+                                service_path: last_log.request.service_path,
+                                status: 500,
+                                headers: {},
+                                body: {
+                                    message: [{
+                                        code:"500",
+                                        message: "undefined",
+                                        path:[]
+                                    }]
+                                }
+                            }
+                        }, function(error) {});
+                    } else {
+                        // TODO, broker callback url
+                        protector.unprotect("/request/callback?request_id=" + callback_body.request_id, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
+                            if(error) {
+                                // Error with PO communication
+                                var last_log = request.request_log[request.request_log.length - 1];
+                                self.updateRequest(request_id, 'FINISHED', {
+                                    response:{
+                                        service_name: last_log.request.service_name,
+                                        service_path: last_log.request.service_path,
+                                        status: 503,
+                                        headers: {},
+                                        body: {
+                                            message: [{
+                                                code:"503",
+                                                message: "can not reach protection service",
+                                                path:[]
+                                            }]
+                                        }
+                                    }
+                                }, function(error) {});
+                            } else if(protectionResponse) {
+                                // Protection in progress
+                                var last_log = request.request_log[request.request_log.length - 1];
+                                self.updateRequest(request_id, 'PROTECTING', {
+                                    response:{
+                                        service_name: last_log.request.service_name,
+                                        service_path: last_log.request.service_path,
+                                        status: 200,    // TODO, we could get status from protector
+                                        headers: {},    // TODO, we could get headers from protector
+                                        body: protectionResponse
+                                    }
+                                }, function(error) {});
+                            } else if(finalCallParameters) {
+                                // Protection ended
+                                var last_log = request.request_log[request.request_log.length - 1];
+                                self.updateRequest(callback_body.request_id, 'FINISHED', {
+                                    response:{
+                                        service_name: last_log.request.service_name,
+                                        service_path: last_log.request.service_path,
+                                        status: callback_body.response_status,
+                                        headers: callback_body.response_headers,
+                                        body: callback_body.response_data,
+                                    }
+                                }, function(error) {});
+                            }
                         });
                     }
                 });
@@ -496,7 +789,6 @@ RequestForwardingHandler.prototype.createRequest = function(request_data, callba
 
 /**
  * Saves the new request to the database and starts the request flow.
- * @deprecated
  */
 RequestForwardingHandler.prototype.createForwardedRequest = function(origin, request_data, callback) {
     // Save request in the database
