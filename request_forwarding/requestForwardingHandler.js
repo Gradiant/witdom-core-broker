@@ -47,7 +47,7 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
     var request_path = request_data.request.service_path || "";
     if(request_path.charAt(0) != '/') request_path = '/' + request_path;
     // URL generation
-    var request_url = "https://" + service_data.host + ":" + service_data.port + request_path;
+    var request_url = brokerConfig.protocol + "://" + service_data.host + ":" + service_data.port + request_path;
 
     // Request options
     var options = {
@@ -162,7 +162,7 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
 RequestForwardingHandler.prototype.doForwardRequest = function(domain_data, request_id, request_data, callback) {
     
     // URL generation
-    var request_url = "https://" + domain_data.http.host + ":" + domain_data.http.port + '/v1/forward/domain';
+    var request_url = brokerConfig.protocol + "://" + domain_data.http.host + ":" + domain_data.http.port + '/v1/forward/domain';
 
     // Forward body
     var body = {
@@ -256,7 +256,7 @@ RequestForwardingHandler.prototype.doForwardRequest = function(domain_data, requ
  */
 RequestForwardingHandler.prototype.doForwardCallback = function(domain_data, callback_data, callback) {
     // URL generation
-    var request_url = "https://" + domain_data.http.host + ":" + domain_data.http.port + '/v1/forward/callback';
+    var request_url = brokerConfig.protocol + "://" + domain_data.http.host + ":" + domain_data.http.port + '/v1/forward/callback';
 
     // Request options
     var options = {
@@ -484,7 +484,7 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                 });
             } else {
                 // TODO, broker callback url
-                protector.protect("/request/callback?request_id=" + request_id, service.service_data, request_data.request.headers, request_data.request.body,
+                protector.protect("/request/callback?request_id=" + request_id, service, request_data.request.headers, request_data.request.body,
                 function(error, protectionResponse, finalCallParameters) {
                     if(error) {
                         // Error with PO communication
@@ -698,7 +698,7 @@ RequestForwardingHandler.prototype.doForwardedCallback = function(callback_body,
                 // Found consistent request, return OK
                 callback(null);
                 var last_log = request.request_log[request.request_log.length - 1];
-                ServiceInfo.find(last_log.request.service_name, function(error, service) {
+                ServiceInfo.findWithLocation(last_log.request.service_name, function(error, service) {
                     if(error) {
                         // Weird error finding service
                         var last_log = request.request_log[request.request_log.length - 1];
@@ -719,7 +719,7 @@ RequestForwardingHandler.prototype.doForwardedCallback = function(callback_body,
                         }, function(error) {});
                     } else {
                         // TODO, broker callback url
-                        protector.unprotect("/request/callback?request_id=" + callback_body.request_id, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
+                        protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
                             if(error) {
                                 // Error with PO communication
                                 var last_log = request.request_log[request.request_log.length - 1];
