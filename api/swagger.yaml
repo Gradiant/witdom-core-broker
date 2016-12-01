@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   description: "API to use services from the Broker"
-  version: "1.4.0"
+  version: "1.5.0"
   title: "WITDOM Broker API"
 basePath: "/v1"
 produces:
@@ -579,7 +579,8 @@ definitions:
     properties:
       request_id:
         type: "string"
-        description: "Request identifier"
+        description: "ID of the request that is being forwared to the domain. This ID will be used\
+         \ in the invocation of the method forward/callback when the request is completed."
       service_name:
         type: "string"
         description: "Name representing a specific service in WITDOM."

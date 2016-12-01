@@ -6,7 +6,7 @@ var requestForwardingHandler = require('../request_forwarding/requestForwardingH
 exports.forwardDomainPOST = function(args, res, next) {
     /**
      * parameters expected in the args:
-     * service (Object) JSON with all the parameters of the request
+     * service (Forward_Request) JSON with all the parameters of the request
      **/
 
     var request_data = {
@@ -47,11 +47,7 @@ exports.forwardDomainPOST = function(args, res, next) {
 exports.forwardCallbackPOST = function(args, res, next) {
     /**
      * parameters expected in the args:
-     * service (Object) JSON with all the parameters of the request
-     * response_data (Object) JSON with the parameters of the response
-     * response_headers (Object) A set of HTTP headers to pass to the service/module when sending the response
-     * response_status (Object) http status code
-     * request_id (String) Request identifier
+     * service (Forward_Callback) JSON with all the parameters of the request
      **/
 
     var body = args.service.value;
