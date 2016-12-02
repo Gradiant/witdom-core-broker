@@ -53,7 +53,7 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
     // URL generation
     //var request_url = __brokerConfig.protocol + "://" + service_data.host + ":" + service_data.port + request_path;
     var request_url = __brokerConfig.protocol + "://" + service_data.uri + request_path;
-    //console.log("request_url: " + request_url);
+    __logger.silly("RequestForwardingHandler.doRestCall, request_url: " + request_url);
 
     // Request options
     var options = {
@@ -137,11 +137,17 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
     try{
         request(options, function(error, response, body) {
             if(error) {
+                __logger.silly("RequestForwardingHandler.doRestCall, request error: ");
+                __logger.silly(error);
                 // If we can not reach server, we do not set up response status
                 var response = {};
                 response.error = error;
                 callback(response);
             } else if(response) {
+                __logger.silly("RequestForwardingHandler.doRestCall, request response: ");
+                __logger.silly(response.statusCode);
+                __logger.silly(response.text);
+                __logger.silly(response.body);
                 // If success, add status/code and body if exists
                 response.status = response.statusCode;
                 response.code = response.statusCode;
@@ -211,11 +217,14 @@ RequestForwardingHandler.prototype.doForwardRequest = function(domain_data, requ
         request_id: request_id
     }
 
+    __logger.silly("RequestForwardingHandler.doForwardRequest, request body:");
+    __logger.silly(JSON.stringify(body, null, 2));
+
     // Request options
     var options = {
         url: request_url,
-        method: request_data.request.method,
-        headers: request_data.request.headers,
+        method: 'POST',
+        //headers: request_data.request.headers,
         json: true,
         body: body,
         //cert: this.certificate,
@@ -231,7 +240,7 @@ RequestForwardingHandler.prototype.doForwardRequest = function(domain_data, requ
          * We net to test this because we can not catch if the request module fails to write the body.
          * TODO, We should change this
          */
-        JSON.stringify(request_data.request.body);
+        JSON.stringify(options.body);
     } catch (error) {
         // If the atempt to stringify fails, the request is not supported
         var response = {};
@@ -268,7 +277,9 @@ RequestForwardingHandler.prototype.doForwardRequest = function(domain_data, requ
                 callback(response);
             } else if(response) {
                 __logger.silly("RequestForwardingHandler.doForwardRequest, request response: ");
-                __logger.silly(response);
+                __logger.silly(response.statusCode);
+                __logger.silly(response.text);
+                __logger.silly(response.body);
                 // If success, add status/code and body if exists
                 response.status = response.statusCode;
                 response.code = response.statusCode;
@@ -295,17 +306,28 @@ RequestForwardingHandler.prototype.doForwardRequest = function(domain_data, requ
 /**
  * Returns forwarded request to its origin
  */
-RequestForwardingHandler.prototype.doForwardCallback = function(domain_data, callback_data, callback) {
+RequestForwardingHandler.prototype.doForwardCallback = function(domain_data, request_id, callback_data, callback) {
     // URL generation
-    var request_url = __brokerConfig.protocol + "://" + domain_data.http.host + ":" + domain_data.http.port + '/v1/forward/callback';
+    var request_url = __brokerConfig.protocol + "://" + domain_data.domain_name + ":" + domain_data[__brokerConfig.protocol].port + '/v1/forward/callback';
+
+    // Forward Callback body
+    var data = callback_data.response || callback_data.request;
+    var body = {
+        response_data: {
+            data: data.body   // FIXME, this does not looks like a way to solve the problem. i.e. nhapa
+        },
+        response_headers: data.headers,
+        response_status: data.status,
+        request_id: request_id
+    }
 
     // Request options
     var options = {
         url: request_url,
-        method: request_data.request.method,
-        headers: request_data.request.headers,
+        method: 'POST',
+        headers: {"content-type": "application/json"},
         json: true,
-        body: callback_data,
+        body: body,
         //cert: this.certificate,
         //key: this.certificate_key,
         //ca: this.ca,
@@ -319,8 +341,11 @@ RequestForwardingHandler.prototype.doForwardCallback = function(domain_data, cal
          * We net to test this because we can not catch if the request module fails to write the body.
          * TODO, We should change this
          */
-        JSON.stringify(request_data.request.body);
+        __logger.silly("RequestForwardingHandler.doForwardCallback: request body: ");
+        __logger.silly(JSON.stringify(options.body, null, 2));
     } catch (error) {
+        __logger.silly("RequestForwardingHandler.doForwardCallback: stringify error: ");
+        __logger.silly(error);
         // If the atempt to stringify fails, the request is not supported
         var response = {};
         response.status = 400;
@@ -348,11 +373,17 @@ RequestForwardingHandler.prototype.doForwardCallback = function(domain_data, cal
     try{
         request(options, function(error, response, body) {
             if(error) {
+                __logger.silly("RequestForwardingHandler.doForwardCallback, request error: ");
+                __logger.silly(error);
                 // If we can not reach server, we do not set up response status
                 var response = {};
                 response.error = error;
                 callback(response);
             } else if(response) {
+                __logger.silly("RequestForwardingHandler.doRestCall, request response: ");
+                __logger.silly(response.statusCode);
+                __logger.silly(response.text);
+                __logger.silly(response.body);
                 // If success, add status/code and body if exists
                 response.status = response.statusCode;
                 response.code = response.statusCode;
@@ -526,20 +557,61 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                         });
                     } else {
                         var status;
-                        if(response.status == 202) {
-                            status = 'IN_PROGRESS';
-                        } else {
-                            status = 'FINISHED';
-                        }
-                        self.updateRequest(request_id, status, {
-                            response: {
+                        var new_log = {
+                            response:{
                                 service_name: request_data.request.service_name,
                                 service_path: request_data.request.service_path,
                                 status: response.status,
                                 headers: response.headers,
                                 body: response.body
                             }
-                        }, function(error) {});
+                        };
+                        if(response.status == 202) {
+                            status = 'IN_PROGRESS';
+                            self.updateRequest(request_id, status, new_log, function(error) {
+                                if(error) {
+                                    __logger.warn("RequestForwardingHandler.doRequest: Error updating request in database");
+                                    __logger.debug("RequestForwardingHandler.doRequest: Trace:");
+                                    __logger.debug(error);
+                                }
+                            });
+                        } else {
+                            status = 'FINISHED';
+                            Request.findById(request_id, function(error, request) {
+                                if(!error) {
+                                    // Successful request forwading
+                                    if(request.origin != 'local') {
+                                        var first_log = request.request_log[0];
+                                        var original_id = first_log.request.original_id;
+                                        self.doForwardCallback(__brokerConfig.broker_ed, original_id, new_log, function(response) {
+                                            if(!response.status || response.status != 200) {
+                                                __logger.warn("RequestForwardingHandler.doRequest: Error doing forward callback to origin");
+                                                __logger.debug("RequestForwardingHandler.doRequest: Trace:");
+                                                __logger.debug(response.status);
+                                                __logger.debug(response.text);
+                                                __logger.debug(response.body);
+                                                __logger.debug(response.error);
+                                            }
+                                            self.deleteRequest(request_id, function(error) {
+                                                if(error) {
+                                                    __logger.warn("RequestForwardingHandler.doRequest: Error deleting request in database");
+                                                    __logger.debug("RequestForwardingHandler.doRequest: Trace:");
+                                                    __logger.debug(error);
+                                                }
+                                            });
+                                        });
+                                    } else {
+                                        self.updateRequest(request_id, status, new_log, function(error) {
+                                            if(error) {
+                                                __logger.warn("RequestForwardingHandler.doRequest: Error updating request in database");
+                                                __logger.debug("RequestForwardingHandler.doRequest: Trace:");
+                                                __logger.debug(error);
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
                     }
                 });
             } else {
@@ -599,7 +671,7 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                         body: {
                                             message: [{
                                                 code:"503",
-                                                message: "can not reach orchestration service",
+                                                message: "can not reach untrusted domain",
                                                 path:[]
                                             }]
                                         }
@@ -608,13 +680,7 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                             } else {
                                 __logger.silly("RequestForwardingHandler.doRequest: forwading process started.");
                                 var status;
-                                if(response.status == 202) {
-                                    status = 'FORWARDED';
-                                } else {
-                                    status = 'FINISHED';
-                                }
-                                // Successful request forwading
-                                self.updateRequest(request_id, status, {
+                                var new_log = {
                                     response:{
                                         service_name: request_data.request.service_name,
                                         service_path: request_data.request.service_path,
@@ -622,7 +688,26 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                         headers: response.headers,
                                         body: response.body
                                     }
-                                }, function(error) {});
+                                };
+                                if(response.status == 202) {
+                                    status = 'FORWARDED';
+                                    self.updateRequest(request_id, status, new_log, function(error) {
+                                        if(error) {
+                                            __logger.warn("RequestForwardingHandler.doRequest: Error updating request in database");
+                                            __logger.debug("RequestForwardingHandler.doRequest: Trace:");
+                                            __logger.debug(error);
+                                        }
+                                    });
+                                } else {
+                                    status = 'FINISHED';
+                                    self.updateRequest(request_id, status, new_log, function(error) {
+                                        if(error) {
+                                            __logger.warn("RequestForwardingHandler.doRequest: Error updating request in database");
+                                            __logger.debug("RequestForwardingHandler.doRequest: Trace:");
+                                            __logger.debug(error);
+                                        }
+                                    });
+                                }
                             }
                         });
                     }
@@ -660,12 +745,15 @@ RequestForwardingHandler.prototype.doCallback = function(request_id, callback_he
                 var original_id = first_log.request.original_id;
                 var origin = __brokerConfig.broker_ed; // TODO get origin data
                 var callback_data = {
-                    response_data: callback_body,
-                    response_headers: callback_headers,
-                    response_status: 200,
-                    request_id: original_id
+                    request: {
+                        service_name: first_log.request.service_name,
+                        service_path: first_log.request.service_path,
+                        status: 200,
+                        headers: callback_headers,
+                        body: callback_body
+                    }
                 }
-                self.doForwardCallback(origin, callback_data, function(response) {
+                self.doForwardCallback(origin, original_id, callback_data, function(response) {
                     // For now we asume that if it fails we can not do anything, so we simply delete de request in the database
                     self.deleteRequest(request_id, function(error) {});
                 });
@@ -702,7 +790,47 @@ RequestForwardingHandler.prototype.doCallback = function(request_id, callback_he
                         // TODO, domain data
                         __logger.silly("RequestForwardingHandler.doCallback: request_data:");
                         __logger.silly(JSON.stringify(request_data,null,2));
-                        self.doForwardRequest(__brokerConfig.broker_ed, request_id, request_data, function(response) {});
+                        self.doForwardRequest(__brokerConfig.broker_ed, request_id, request_data, function(response) {
+                            if(!response.status) {
+                                __logger.warn("RequestForwardingHandler.doCallback: Got error forwarding request " + request_id);
+                                __logger.debug("RequestForwardingHandler.doCallback: Trace:");
+                                __logger.debug(response.error);
+                                // Error communicating with UD broker
+                                self.updateRequest(request_id, 'FINISHED', {
+                                    response:{
+                                        service_name: request_data.request.service_name,
+                                        service_path: request_data.request.service_path,
+                                        status: 503,
+                                        headers: {},
+                                        body: {
+                                            message: [{
+                                                code:"503",
+                                                message: "can not reach untrusted domain",
+                                                path:[]
+                                            }]
+                                        }
+                                    }
+                                }, function(error) {});
+                            } else {
+                                __logger.silly("RequestForwardingHandler.doCallback: forwading process started.");
+                                var status;
+                                if(response.status == 202) {
+                                    status = 'FORWARDED';
+                                } else {
+                                    status = 'FINISHED';
+                                }
+                                // Successful request forwading
+                                self.updateRequest(request_id, status, {
+                                    response:{
+                                        service_name: request_data.request.service_name,
+                                        service_path: request_data.request.service_path,
+                                        status: response.status,
+                                        headers: response.headers,
+                                        body: response.body
+                                    }
+                                }, function(error) {});
+                            }
+                        });
                     }
                 });
             } else if(request.status == 'UNPROTECTING') {
@@ -767,6 +895,7 @@ RequestForwardingHandler.prototype.doCallback = function(request_id, callback_he
 RequestForwardingHandler.prototype.doForwardedCallback = function(callback_body, callback) {
     
     var self = this;
+    callback_body.response_data = callback_body.response_data.data;   //FIXME, this is a nhapa 
     // Get request
     self.getRequest(callback_body.request_id, function(error, request) {
         if(error) {
@@ -781,15 +910,14 @@ RequestForwardingHandler.prototype.doForwardedCallback = function(callback_body,
             } else {
                 // Found consistent request, return OK
                 callback(null);
-                var last_log = request.request_log[request.request_log.length - 1];
-                ServiceInfo.findWithLocation(last_log.request.service_name, function(error, service) {
+                var first_log = request.request_log[0];
+                ServiceInfo.findWithLocation(first_log.request.service_name, function(error, service) {
                     if(error) {
                         // Weird error finding service
-                        var last_log = request.request_log[request.request_log.length - 1];
                         self.updateRequest(request_id, 'FINISHED', {
                             response:{
-                                service_name: last_log.request.service_name,
-                                service_path: last_log.request.service_path,
+                                service_name: first_log.request.service_name,
+                                service_path: first_log.request.service_path,
                                 status: 500,
                                 headers: {},
                                 body: {
@@ -803,14 +931,15 @@ RequestForwardingHandler.prototype.doForwardedCallback = function(callback_body,
                         }, function(error) {});
                     } else {
                         // TODO, broker callback url
+                        __logger.silly("RequestForwardingHandler.doForwardedCallback: Received body:");
+                        __logger.silly(JSON.stringify(callback_body, null, 2));
                         protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
                             if(error) {
                                 // Error with PO communication
-                                var last_log = request.request_log[request.request_log.length - 1];
-                                self.updateRequest(request_id, 'FINISHED', {
+                                self.updateRequest(callback_body.request_id, 'FINISHED', {
                                     response:{
-                                        service_name: last_log.request.service_name,
-                                        service_path: last_log.request.service_path,
+                                        service_name: first_log.request.service_name,
+                                        service_path: first_log.request.service_path,
                                         status: 503,
                                         headers: {},
                                         body: {
@@ -824,11 +953,10 @@ RequestForwardingHandler.prototype.doForwardedCallback = function(callback_body,
                                 }, function(error) {});
                             } else if(protectionResponse) {
                                 // Protection in progress
-                                var last_log = request.request_log[request.request_log.length - 1];
-                                self.updateRequest(request_id, 'PROTECTING', {
+                                self.updateRequest(callback_body.request_id, 'UNPROTECTING', {
                                     response:{
-                                        service_name: last_log.request.service_name,
-                                        service_path: last_log.request.service_path,
+                                        service_name: first_log.request.service_name,
+                                        service_path: first_log.request.service_path,
                                         status: 200,    // TODO, we could get status from protector
                                         headers: {},    // TODO, we could get headers from protector
                                         body: protectionResponse
@@ -836,14 +964,13 @@ RequestForwardingHandler.prototype.doForwardedCallback = function(callback_body,
                                 }, function(error) {});
                             } else if(finalCallParameters) {
                                 // Protection ended
-                                var last_log = request.request_log[request.request_log.length - 1];
                                 self.updateRequest(callback_body.request_id, 'FINISHED', {
                                     response:{
-                                        service_name: last_log.request.service_name,
-                                        service_path: last_log.request.service_path,
+                                        service_name: first_log.request.service_name,
+                                        service_path: first_log.request.service_path,
                                         status: callback_body.response_status,
                                         headers: callback_body.response_headers,
-                                        body: callback_body.response_data,
+                                        body: finalCallParameters,
                                     }
                                 }, function(error) {});
                             }
@@ -863,8 +990,6 @@ RequestForwardingHandler.prototype.createRequest = function(request_data, callba
     __logger.silly("RequestForwardingHandler.createRequest: request_data");
     __logger.silly(request_data);
     var new_request = new Request({origin: 'local', status: 'IN_PROGRESS', request_log: [request_data]});
-    __logger.silly("RequestForwardingHandler.createRequest: newRequest.request_log");
-    __logger.silly(new_request.request_log);
     new_request.save(function(error, request) {
         // Return ID to caller
         callback(error, request.id);
@@ -880,6 +1005,8 @@ RequestForwardingHandler.prototype.createRequest = function(request_data, callba
  */
 RequestForwardingHandler.prototype.createForwardedRequest = function(origin, request_data, callback) {
     // Save request in the database
+    __logger.silly("RequestForwardingHandler.createForwardedRequest: request_data");
+    __logger.silly(request_data);
     var new_request = new Request({origin: origin, status: 'IN_PROGRESS', request_log: [request_data]});
     new_request.save(function(error, request) {
         // Return ID to caller

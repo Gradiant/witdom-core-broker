@@ -173,7 +173,8 @@ Connector.prototype.unprotect = function(callbackUrl, service_info, request_head
             var headers = {
                 "X-Auth-Token": request_headers["x-auth-token"] || request_headers["X-Auth-Token"]
             };
-            __logger.silly("Connector.protect: Headers: " + headers);
+            __logger.silly("Connector.unprotect: Headers:");
+            __logger.silly(request_headers);
             var options = {
                 url: unprotect_url,
                 method: 'POST',
@@ -196,9 +197,15 @@ Connector.prototype.unprotect = function(callbackUrl, service_info, request_head
                     callback(error, null, null);
                 } else if(response) {
                     if(response.statusCode == 200) {
+                        __logger.silly("Connector.protect: Successful response from PO");
                         // If success, we only set protectionResponse
                         callback(null, body, null);
                     } else {
+                        __logger.warn("Connector.unprotect: Unexpected response from PO");
+                        __logger.debug("Connector.unprotect: Trace");
+                        __logger.debug(response.status);
+                        __logger.debug(response.text);
+                        __logger.debug(response.body);
                         // If error in protection, we return control to main function
                         callback(new PoError(response.status, "error in unprotection process"), null, null);
                     }

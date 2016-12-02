@@ -608,7 +608,7 @@ definitions:
         type: "string"
         description: "Request identifier"
       response_status:
-        type: "string"
+        type: "integer"
         description: "http status code"
       response_headers:
         type: "object"

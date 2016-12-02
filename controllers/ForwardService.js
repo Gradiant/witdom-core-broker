@@ -21,7 +21,7 @@ exports.forwardDomainPOST = function(args, res, next) {
     };
 
     // TODO, find a way to get origin domain
-    var origin = "untrusted"
+    var origin = __brokerConfig.broker_ed.domain_name;
 
     requestForwardingHandler.createForwardedRequest(origin, request_data, function(error, request_id) {
         if(error) {
@@ -50,7 +50,6 @@ exports.forwardCallbackPOST = function(args, res, next) {
      * service (Forward_Callback) JSON with all the parameters of the request
      **/
 
-    var body = args.service.value;
     requestForwardingHandler.doForwardedCallback(args.service.value, function(error) {
         if(error) {
             if(error.name == "CastError") {
