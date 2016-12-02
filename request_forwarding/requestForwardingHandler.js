@@ -198,7 +198,8 @@ RequestForwardingHandler.prototype.doRestCall2 = function(service_data, request_
 RequestForwardingHandler.prototype.doForwardRequest = function(domain_data, request_id, request_data, callback) {
     
     // URL generation
-    var request_url = __brokerConfig.protocol + "://" + domain_data.http.host + ":" + domain_data.http.port + '/v1/forward/domain';
+    var request_url = __brokerConfig.protocol + "://" + domain_data.domain_name + ":" + domain_data[__brokerConfig.protocol].port + '/v1/forward/domain';
+    __logger.silly("RequestForwardingHandler.doForwardRequest, request_url: " + request_url);
 
     // Forward body
     var body = {
@@ -259,11 +260,15 @@ RequestForwardingHandler.prototype.doForwardRequest = function(domain_data, requ
     try{
         request(options, function(error, response, body) {
             if(error) {
+                __logger.silly("RequestForwardingHandler.doForwardRequest, request error: ");
+                __logger.silly(error);
                 // If we can not reach server, we do not set up response status
                 var response = {};
                 response.error = error;
                 callback(response);
             } else if(response) {
+                __logger.silly("RequestForwardingHandler.doForwardRequest, request response: ");
+                __logger.silly(response);
                 // If success, add status/code and body if exists
                 response.status = response.statusCode;
                 response.code = response.statusCode;
@@ -688,11 +693,15 @@ RequestForwardingHandler.prototype.doCallback = function(request_id, callback_he
                             }
                         });
                     } else {
-                        var request_data = first_log.request;
-                        request_data.body = finalCallParameters;
+                        __logger.silly("RequestForwardingHandler.doCallback: first_log:");
+                        __logger.silly(JSON.stringify(first_log,null,2));
+                        //var request_data = first_log.request;
+                        var request_data = first_log;
+                        //request_data.body = finalCallParameters;
+                        request_data.request.body = finalCallParameters;
                         // TODO, domain data
                         __logger.silly("RequestForwardingHandler.doCallback: request_data:");
-                        __logger.silly(request_data);
+                        __logger.silly(JSON.stringify(request_data,null,2));
                         self.doForwardRequest(__brokerConfig.broker_ed, request_id, request_data, function(response) {});
                     }
                 });
