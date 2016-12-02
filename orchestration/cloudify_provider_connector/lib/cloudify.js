@@ -59,23 +59,37 @@ Connector.prototype.getServiceData = function(service, callback) {
                 for(var index in response.body.items) {
                     var deployment = response.body.items[index];
                     var outputs = deployment.outputs;
-                    if(outputs && outputs.endpoints) {
-                        var services = outputs.endpoints;
+                    if(outputs) {
+                        var services = Object.keys(outputs);
                         for(var index in services) {
-                            var service = services[index];
-                            if(service.name == given_name && service.host && service.port ) {
-                                try {
-                                    var service_data = {
-                                        name: service.name,
-                                        image: service.image || "",
-                                        host: service.host,
-                                        port: service.port,
-                                        description: service.description || ""};
-                                } catch (error) {
-                                    continue;
-                                }
-                                callback(null, service_data);
-                                return;
+                            var service_name = services[index];
+                            var service = outputs[service_name];
+                            if(service && service_name == given_name) {
+                                var cloudify_data = service.value;
+                                if(cloudify_data) {
+                                    var host_atribute = cloudify_data.host;
+                                    var port_atribute = cloudify_data.port;
+                                    var image_atribute = cloudify_data.image;
+                                    var description = cloudify_data.description;
+                                    if(host_atribute && port_atribute) {
+                                        try {
+                                            var service_data = {
+                                                name: service_name,
+                                                host: host_atribute.get_attribute[1],
+                                                port: port_atribute.get_attribute[1],
+                                            };
+                                            if(image_atribute && description) {
+                                                service_data.description = description;
+                                                service_data.image = image_atribute.get_attribute[1];
+                                            }
+                                        } catch (error) {
+                                            console.log(error)
+                                            continue;
+                                        }
+                                        callback(null, service_data);
+                                        return;
+                                    }
+                                } 
                             }
                         }
                     }
@@ -106,25 +120,34 @@ Connector.prototype.getServiceList = function(callback) {
                 for(var index in response.body.items) {
                     var deployment = response.body.items[index];
                     var outputs = deployment.outputs;
-                    if(outputs && outputs.endpoints) {
-                        var services = outputs.endpoints;
+                    if(outputs) {
+                        var services = Object.keys(outputs);
                         for(var index in services) {
-                            var service = services[index];
-                            if(service.name) {
-                                if(service.name && service.host && service.port) {
-                                    try {
-                                        serviceList.push({
-                                            name: service.name,
-                                            image: service.image || "",
-                                            host: service.host,
-                                            port: service.port,
-                                            description: service.description || ""});
-                                    } catch (error) {
-                                        continue;
+                            var service_name = services[index];
+                            var service = outputs[service_name];
+                            if(service) {
+                                var cloudify_data = service.value;
+                                if(cloudify_data) {
+                                    var host_atribute = cloudify_data.host;
+                                    var port_atribute = cloudify_data.port;
+                                    var image_atribute = cloudify_data.image;
+                                    var description = cloudify_data.description;
+                                    if(host_atribute && port_atribute) {
+                                        try {
+                                            serviceList.push({
+                                                name: service_name,
+                                                host: host_atribute.get_attribute[1],
+                                                port: port_atribute.get_attribute[1],
+                                            });
+                                            if(image_atribute && description) {
+                                                service_data.description = description;
+                                                service_data.image = image_atribute.get_attribute[1];
+                                            }
+                                        } catch (error) {
+                                            continue;
+                                        }
                                     }
-                                } else {
-                                    continue;
-                                }
+                                } 
                             }
                         }
                     }
