@@ -54,6 +54,8 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
     //var request_url = __brokerConfig.protocol + "://" + service_data.host + ":" + service_data.port + request_path;
     var request_url = __brokerConfig.protocol + "://" + service_data.uri + request_path;
     __logger.silly("RequestForwardingHandler.doRestCall, request_url: " + request_url);
+    __logger.silly("RequestForwardingHandler.doRestCall, request_headers:");
+    __logger.silly(JSON.stringify(request_data.request.headers, null, 2));
 
     // Request options
     var options = {
@@ -144,6 +146,33 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
                 response.error = error;
                 callback(response);
             } else if(response) {
+                if((response.body instanceof stream.Stream) || (response.body instanceof Buffer) || (typeof(response.body) == 'string')) {
+                    // Writable body
+                    if (__logger) {
+                        __logger.info("Writable body");
+                        __logger.info(response.body);
+                    }
+                    if ((response.headers["content-type"] || response.headers["Content-Type"]) == 'application/json') {
+                        try {
+                            response.body = JSON.parse(response.body);
+                        } catch(error) {
+                            response.body = {
+                                message: [{
+                                    code:"undefined",
+                                    message: "MALFORMED RESPONSE FROM SERVICE " + service_data.service_id,
+                                    path:[]
+                                }]
+                            };
+                        }
+                    }
+                } else {
+                    // Serializable body
+                    if (__logger) {
+                        __logger.info("Serializable body");
+                        __logger.info(response.body);
+                        __logger.info(JSON.stringify(response.body));
+                    }
+                }
                 __logger.silly("RequestForwardingHandler.doRestCall, request response: ");
                 __logger.silly(response.statusCode);
                 __logger.silly(response.text);
