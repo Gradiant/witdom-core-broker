@@ -940,72 +940,106 @@ RequestForwardingHandler.prototype.doForwardedCallback = function(callback_body,
                 // Found consistent request, return OK
                 callback(null);
                 var first_log = request.request_log[0];
-                ServiceInfo.findWithLocation(first_log.request.service_name, function(error, service) {
-                    if(error) {
-                        // Weird error finding service
-                        self.updateRequest(request_id, 'FINISHED', {
-                            response:{
-                                service_name: first_log.request.service_name,
-                                service_path: first_log.request.service_path,
-                                status: 500,
-                                headers: {},
-                                body: {
-                                    message: [{
-                                        code:"500",
-                                        message: "undefined",
-                                        path:[]
-                                    }]
+
+                // Don't call unprotect if callback_body.response_status != 2xx
+                if (callback_body.response_status >= 300) { //TODO, check the codes
+                    self.updateRequest(callback_body.request_id, 'FINISHED', {
+                        response:{
+                            service_name: first_log.request.service_name,
+                            service_path: first_log.request.service_path,
+                            status: callback_body.response_status,
+                            headers: {},
+                            body: callback_body.response_data
+                        }
+                    }, function(error) {});
+                } else {
+                    ServiceInfo.findWithLocation(first_log.request.service_name, function(error, service) {
+                        if(error) {
+                            // Weird error finding service
+                            self.updateRequest(callback_body.request_id, 'FINISHED', {
+                                response:{
+                                    service_name: first_log.request.service_name,
+                                    service_path: first_log.request.service_path,
+                                    status: 500,
+                                    headers: {},
+                                    body: {
+                                        message: [{
+                                            code:"500",
+                                            message: "undefined",
+                                            path:[]
+                                        }]
+                                    }
                                 }
-                            }
-                        }, function(error) {});
-                    } else {
-                        // TODO, broker callback url
-                        __logger.silly("RequestForwardingHandler.doForwardedCallback: Received body:");
-                        __logger.silly(JSON.stringify(callback_body, null, 2));
-                        protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
-                            if(error) {
-                                // Error with PO communication
-                                self.updateRequest(callback_body.request_id, 'FINISHED', {
-                                    response:{
-                                        service_name: first_log.request.service_name,
-                                        service_path: first_log.request.service_path,
-                                        status: 503,
-                                        headers: {},
-                                        body: {
-                                            message: [{
-                                                code:"503",
-                                                message: "can not reach protection service",
-                                                path:[]
-                                            }]
+                            }, function(error) {});
+                        } else {
+                            // TODO, broker callback url
+                            __logger.silly("RequestForwardingHandler.doForwardedCallback: Received body:");
+                            __logger.silly(JSON.stringify(callback_body, null, 2));
+                            self.getRequest(callback_body.request_id, function(error, request) {
+                                if(error) {
+                                    callback(error);
+                                } else {
+                                    var first_log = request.request_log[0];
+                                    var token = first_log.request.headers['X-Auth-Token'] || first_log.request.headers['x-auth-token'];
+                                    if (token) {
+                                        callback_body.response_headers['X-Auth-Token'] = token;
+                                        __logger.silly("RequestForwardingHandler.doForwardedCallback: token retrieved from first log and saved in response headers:");
+                                        __logger.silly(JSON.stringify(callback_body.response_headers, null, 2));
+                                    }
+                                    protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
+                                        if(error) {
+                                            // Error with PO communication
+                                            self.updateRequest(callback_body.request_id, 'FINISHED', {
+                                                response:{
+                                                    service_name: first_log.request.service_name,
+                                                    service_path: first_log.request.service_path,
+                                                    status: 503,
+                                                    headers: {},
+                                                    body: {
+                                                        message: [{
+                                                            code:"503",
+                                                            message: "can not reach protection service",
+                                                            path:[]
+                                                        }]
+                                                    }
+                                                }
+                                            }, function(error) {});
+                                        } else if(protectionResponse) {
+                                            // Protection in progress
+                                            self.updateRequest(callback_body.request_id, 'UNPROTECTING', {
+                                                response:{
+                                                    service_name: first_log.request.service_name,
+                                                    service_path: first_log.request.service_path,
+                                                    status: 200,    // TODO, we could get status from protector
+                                                    headers: {},    // TODO, we could get headers from protector
+                                                    body: protectionResponse
+                                                }
+                                            }, function(error) {});
+                                        } else if(finalCallParameters) {
+                                            // Protection ended
+                                            self.updateRequest(callback_body.request_id, 'FINISHED', {
+                                                response:{
+                                                    service_name: first_log.request.service_name,
+                                                    service_path: first_log.request.service_path,
+                                                    status: callback_body.response_status,
+                                                    headers: callback_body.response_headers,
+                                                    body: finalCallParameters,
+                                                }
+                                            }, function(error) {});
                                         }
-                                    }
-                                }, function(error) {});
-                            } else if(protectionResponse) {
-                                // Protection in progress
-                                self.updateRequest(callback_body.request_id, 'UNPROTECTING', {
-                                    response:{
-                                        service_name: first_log.request.service_name,
-                                        service_path: first_log.request.service_path,
-                                        status: 200,    // TODO, we could get status from protector
-                                        headers: {},    // TODO, we could get headers from protector
-                                        body: protectionResponse
-                                    }
-                                }, function(error) {});
-                            } else if(finalCallParameters) {
-                                // Protection ended
-                                self.updateRequest(callback_body.request_id, 'FINISHED', {
-                                    response:{
-                                        service_name: first_log.request.service_name,
-                                        service_path: first_log.request.service_path,
-                                        status: callback_body.response_status,
-                                        headers: callback_body.response_headers,
-                                        body: finalCallParameters,
-                                    }
-                                }, function(error) {});
-                            }
-                        });
-                    }
-                });
+                                    });
+                                    
+                                }
+                            });
+                                
+                        }
+                    });
+
+                }
+
+                
+                
+                
             }
         }
     });

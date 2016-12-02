@@ -303,6 +303,7 @@ exports.requestGetresultGET = function(args, res, next) {
                     // Serializable body
                     res.end(JSON.stringify(response_body));
                 }
+                requestForwardingHandler.deleteRequest(args.request_id.value, function(error){});
             } else {
                 // Request has not yet ended
                 res.setHeader('Content-Type', 'application/json');
