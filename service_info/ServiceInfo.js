@@ -6,10 +6,10 @@ var fs = require('fs');
 var orchestrator = require(__brokerConfig.orchestrator.name).Orchestrator;
 
 var options = {
-    key: fs.readFileSync(__base + __brokerConfig.https.broker_key),
-    passphrase: __brokerConfig.https.broker_key_passphrase, // This doesn't work with superagent 
-    cert: fs.readFileSync(__base + __brokerConfig.https.broker_cert),
-    ca: fs.readFileSync(__base + __brokerConfig.https.ca_cert),
+    //key: fs.readFileSync(__base + __brokerConfig.https.broker_key),
+    //passphrase: __brokerConfig.https.broker_key_passphrase, // This doesn't work with superagent 
+    //cert: fs.readFileSync(__base + __brokerConfig.https.broker_cert),
+    //ca: fs.readFileSync(__base + __brokerConfig.https.ca_cert),
 };
 
 var broker_ed = request.agent(options);

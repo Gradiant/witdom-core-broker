@@ -12,8 +12,24 @@ module.exports = {
             ca: './CAs/witdomCA/witdomcacert.pem'
         }
     }*/
+    protocol: "http",
     database: {
         host: 'localhost',
         port: '27017'
+    },
+    orchestrator: {
+        name: 'mock_example',
+        config: {
+            services: {
+                po: {
+                    host: "10.5.1.120",
+                    port: "8080"
+                },
+                service_td: {
+                    host: "10.5.1.120",
+                    port: "8081"
+                }
+            }
+        }
     }
 };

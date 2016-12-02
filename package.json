@@ -50,7 +50,9 @@
     "request-ip": "^1.2.2",
     "swagger-tools": "0.10.1",
     "superagent": "^3.0.0",
-    "unirest": "^0.5.1"
+    "unirest": "^0.5.1",
+    "ursa": "^0.9.4",
+    "winston": "^2.3.0"
   },
   "devDependencies": {
     "should": "~11.1.1",

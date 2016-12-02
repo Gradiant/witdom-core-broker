@@ -11,13 +11,13 @@ var protector = require('../protection/po_connector').Protector;
 exports.requestCallbackPOST = function(args, res, next) {
   /**
    * parameters expected in the args:
-   * service (Result)
+   * result (Result)
    * request_id (String)
    **/
 
   var request_id = args.request_id.value;
-  requestForwardingHandler.doCallback(args.request_id.value, args.headers.value, args.service.value, function(error) {
-      if(error) {
+  requestForwardingHandler.doCallback(args.request_id.value, args.headers.value, args.result.value, function(error) {
+        if(error) {
             if(error.name == "CastError") {
                 // Error parsing ID
                 res.setHeader('Content-Type', 'application/json');
@@ -163,17 +163,26 @@ var requestCreate_blocker = function(request_data, res, next) {
         } else {
             // Save res (connected socket) with watcher function (activates once each 0.5 seconds)
             var watcher = setInterval(function(){
+                if (__logger) {
+                    __logger.info("Checking status of request " + request_id);
+                }
                 // Function itself
                 var self = watcher;
                 // Saved response object (socket)
                 var response_object = res;
                 requestForwardingHandler.getRequest(request_id, function(error, request) {
                     if(error || !request) {
+                        if (__logger) {
+                            __logger.info("Error getting the status");
+                        }
                         // We can not get the request from the database
                         clearInterval(watcher);
                     } else {
                         // Got request
                         if(request.status == 'FINISHED') {
+                            if (__logger) {
+                                __logger.info("The status is FINISHED");
+                            }
                             // Request is already finished
                             var response_data = request.request_log[request.request_log.length - 1];
                             var response_body = response_data.response.body || {};
@@ -182,6 +191,12 @@ var requestCreate_blocker = function(request_data, res, next) {
                             // Set headers
                             var keys = Object.keys(response_headers);
                             for(var index in keys) {
+                                if (keys[index].toLowerCase() === "content-length") {//Skip content-length header because it may be different from the original if the json serialization uses different tabulation
+                                    continue;
+                                }
+                                if (__logger) {
+                                    __logger.info("Setting header: " + keys[index]);
+                                }
                                 response_object.setHeader(keys[index], response_headers[keys[index]]);
                             }
                             // Set status
@@ -189,14 +204,27 @@ var requestCreate_blocker = function(request_data, res, next) {
                             // Send body
                             if((response_body instanceof stream.Stream) || (response_body instanceof Buffer) || (typeof(response_body) == 'string')) {
                                 // Writable body
+                                if (__logger) {
+                                    __logger.info("Writable body");
+                                    __logger.info(response_body);
+                                }
                                 response_object.end(response_body);
                             } else {
                                 // Serializable body
+                                if (__logger) {
+                                    __logger.info("Serializable body");
+                                    __logger.info(response_body);
+                                    __logger.info(JSON.stringify(response_body));
+                                }
                                 response_object.end(JSON.stringify(response_body));
                             }
                             // Stop watcher
                             clearInterval(watcher);
                             requestForwardingHandler.deleteRequest(request_id, function(error){});
+                        } else {
+                            if (__logger) {
+                                __logger.info("The status is " + request.status);
+                            }
                         }
                     }
                 });
@@ -259,6 +287,9 @@ exports.requestGetresultGET = function(args, res, next) {
                 // Set headers
                 var keys = Object.keys(response_headers);
                 for(var index in keys) {
+                    if (keys[index].toLowerCase() === "content-length") {//Skip content-length header because it may be different from the original if the json serialization uses different tabulation
+                        continue;
+                    }
                     res.setHeader(keys[index], response_headers[keys[index]]);
                 }
                 // Set status

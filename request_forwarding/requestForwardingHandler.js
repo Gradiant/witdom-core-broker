@@ -1,8 +1,8 @@
 'use strict';
 
 var request = require('request');
-var brokerConfig = require('../config');
-var orchestrator = require(brokerConfig.orchestrator.name).Orchestrator;
+//var brokerConfig = require('../config');
+var orchestrator = require(__brokerConfig.orchestrator.name).Orchestrator;
 var mongoose = require('mongoose');
 var Request = require('../models/mongo/request');
 var Service = require('../models/mongo/service');
@@ -11,6 +11,7 @@ var fs = require('fs');
 var stream = require('stream');
 var ServiceInfo = require('../service_info/ServiceInfo');
 var protector = require('../protection/po_connector').Protector;
+var superagent = require('superagent');
 
 /**
  * 
@@ -21,6 +22,7 @@ function RequestForwardingHandler()
     this.ca;
     this.certificate_key;
     this.certificate;
+    this.agent;
 }
 
 /**
@@ -32,6 +34,8 @@ RequestForwardingHandler.prototype.initialize = function(config, callback) {
         this.ca = fs.readFileSync(config.ca);
         this.certificate_key = fs.readFileSync(config.certificate_key);
         this.certificate = fs.readFileSync(config.certificate);
+
+        this.agent = superagent.agent();
         callback(null); // no error
     } catch (error) {
         callback(error);
@@ -47,7 +51,9 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
     var request_path = request_data.request.service_path || "";
     if(request_path.charAt(0) != '/') request_path = '/' + request_path;
     // URL generation
-    var request_url = brokerConfig.protocol + "://" + service_data.host + ":" + service_data.port + request_path;
+    //var request_url = __brokerConfig.protocol + "://" + service_data.host + ":" + service_data.port + request_path;
+    var request_url = __brokerConfig.protocol + "://" + service_data.uri + request_path;
+    //console.log("request_url: " + request_url);
 
     // Request options
     var options = {
@@ -60,6 +66,9 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
         //strictSSL: true,  // TODO forces agent not to be empty
         //agent: "¿?"
     };
+    if (__logger) {
+        __logger.info(options.headers);
+    }
 
     // Check if the request can use body
     if(request_data.request.method == 'POST' || request_data.request.method == 'PUT' || request_data.request.method == 'PATCH') {
@@ -157,12 +166,39 @@ RequestForwardingHandler.prototype.doRestCall = function(service_data, request_d
 }
 
 /**
+ * Creates the REST call using the parameters given.
+ */
+RequestForwardingHandler.prototype.doRestCall2 = function(service_data, request_data, callback) {
+    // Arrange path
+    var request_path = request_data.request.service_path || "";
+    if(request_path.charAt(0) != '/') request_path = '/' + request_path;
+    // URL generation
+    var request_url = __brokerConfig.protocol + "://" + service_data.uri + request_path;
+    //console.log("request_url: " + request_url);
+
+    if (request_data.request.method == 'GET') {
+        this.agent.get(request_url)
+        .set(request_data.request.headers)
+        .end(callback);
+    } else if (request_data.request.method == 'POST') {
+        this.agent.post(request_url)
+        .set(request_data.request.headers)
+        .send(request_data.request.body).end(callback);
+    } else {
+        callback({error: "Wrong method: " + request_data.request.method});
+    }
+    /*this.agent(request_data.request.method, request_url)
+    .set(request_data.request.headers)
+    .send(body).end(callback);*/
+}
+
+/**
  * Forwards the request to the given domain.
  */
 RequestForwardingHandler.prototype.doForwardRequest = function(domain_data, request_id, request_data, callback) {
     
     // URL generation
-    var request_url = brokerConfig.protocol + "://" + domain_data.http.host + ":" + domain_data.http.port + '/v1/forward/domain';
+    var request_url = __brokerConfig.protocol + "://" + domain_data.http.host + ":" + domain_data.http.port + '/v1/forward/domain';
 
     // Forward body
     var body = {
@@ -256,7 +292,7 @@ RequestForwardingHandler.prototype.doForwardRequest = function(domain_data, requ
  */
 RequestForwardingHandler.prototype.doForwardCallback = function(domain_data, callback_data, callback) {
     // URL generation
-    var request_url = brokerConfig.protocol + "://" + domain_data.http.host + ":" + domain_data.http.port + '/v1/forward/callback';
+    var request_url = __brokerConfig.protocol + "://" + domain_data.http.host + ":" + domain_data.http.port + '/v1/forward/callback';
 
     // Request options
     var options = {
@@ -385,7 +421,8 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
             }
         } else if(service) {
             if(service.location == 'local') {
-                self.doRestCall(service.service_data, request_data, function(response) {
+                request_data.request.headers['X-Broker-Callback-URL'] = '/request/callback?request_id=' + request_id;
+                self.doRestCall(service.details, request_data, function(response) {//TODO: we need to pass request_id to doRestCall, because it is needed to build the callback URL
                     if(!response.status) {
                         // If communication fails, we update service on database
                         ServiceInfo.updateService(service_id, function(error, service) {
@@ -426,7 +463,7 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                     }, function(error) {});
                                 }
                             } else if(service) {
-                                self.doRestCall(service.service_data, request_data, function(response) {
+                                self.doRestCall(service.details, request_data, function(response) {
                                     if(!response.status) {
                                         // TODO, If communication fails try to deploy it with cloudify. For now, we asume we can not do anything
                                         self.updateRequest(request_id, 'FINISHED', {
@@ -518,7 +555,7 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                         // Protection ended
                         request_data.request.body = finalCallParameters;
                         // TODO, domain data
-                        self.doForwardRequest(brokerConfig.broker_ed, request_id, request_data, function(response) {
+                        self.doForwardRequest(__brokerConfig.broker_ed, request_id, request_data, function(response) {
                             if(!response.status) {
                                 // Error communicating with UD broker
                                 self.updateRequest(request_id, 'FINISHED', {
@@ -578,12 +615,17 @@ RequestForwardingHandler.prototype.doCallback = function(request_id, callback_he
         } else {
             // Got request, return OK
             callback(null);
+            if (__logger) {
+                __logger.info("Receive callback for request " + request_id);
+                __logger.info("request.origin: " + request.origin);
+                __logger.info("request.status: " + request.status);
+            }
             // 
             if(request.origin != 'local') {
                 //Return request to origin domain
                 var first_log = request.request_log[0];
                 var original_id = first_log.request.original_id;
-                var origin = brokerConfig.broker_ed; // TODO get origin data
+                var origin = __brokerConfig.broker_ed; // TODO get origin data
                 var callback_data = {
                     response_data: callback_body,
                     response_headers: callback_headers,
@@ -592,7 +634,7 @@ RequestForwardingHandler.prototype.doCallback = function(request_id, callback_he
                 }
                 self.doForwardCallback(origin, callback_data, function(response) {
                     // For now we asume that if it fails we can not do anything, so we simply delete de request in the database
-                    requestForwardingHandler.deleteRequest(request_id, function(error) {});
+                    self.deleteRequest(request_id, function(error) {});
                 });
             } else if(request.status == 'PROTECTING') {
                 // Protection process finished
@@ -621,7 +663,7 @@ RequestForwardingHandler.prototype.doCallback = function(request_id, callback_he
                         var request_data = first_log.request;
                         request_data.body = finalCallParameters;
                         // TODO, domain data
-                        self.doForwardRequest(brokerConfig.broker_ed, request_id, request_data, function(response) {});
+                        self.doForwardRequest(__brokerConfig.broker_ed, request_id, request_data, function(response) {});
                     }
                 });
             } else if(request.status == 'UNPROTECTING') {
@@ -660,10 +702,13 @@ RequestForwardingHandler.prototype.doCallback = function(request_id, callback_he
                         }, function(error) {});
                     }
                 });
-            } else if(request.status == 'PROCESSING') {
+            } else if(request.status == 'IN_PROGRESS') {
+                if (__logger) {
+                    __logger.info("Received callback for request " + request_id + ", and it has finished");
+                }
                 // Local request finished
                 var first_log = request.request_log[0];
-                requestForwardingHandler.updateRequest(request_id, 'FINISHED', {
+                self.updateRequest(request_id, 'FINISHED', {
                     response: {
                         service_name: first_log.request.service_name,
                         service_path: first_log.request.service_path,

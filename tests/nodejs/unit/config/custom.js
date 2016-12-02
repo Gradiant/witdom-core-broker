@@ -1,6 +1,6 @@
 module.exports = {
     database: {
-        host: '192.168.122.221',
+        host: 'localhost',
         port: '27017'
     }
 };

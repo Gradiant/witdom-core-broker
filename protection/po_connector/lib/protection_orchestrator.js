@@ -33,12 +33,12 @@ Connector.prototype.connect = function(config, callback) {
     //this.host = po_info.uri.split(":")[0];
     //this.port = config.port;
     //this.port = po_info.uri.split(":")[1];
-    this.auth_token = config.auth_token;
+    //this.auth_token = config.auth_token;
     this.po_id = config.po_id;
     try {
-        this.ca = fs.readFileSync(config.ca);
-        this.certificate_key = fs.readFileSync(config.certificate_key);
-        this.certificate = fs.readFileSync(config.certificate);
+        //this.ca = fs.readFileSync(config.ca);
+        //this.certificate_key = fs.readFileSync(config.certificate_key);
+        //this.certificate = fs.readFileSync(config.certificate);
         callback(null); // no error
     } catch (error) {
         callback(error);

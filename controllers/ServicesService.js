@@ -10,7 +10,7 @@ function sendResponse(error, response, response_data, next) {
     if (error) {
         response.setHeader('Content-Type', 'application/json');
         response.writeHead(error.code);
-        respone.end(JSON.stringify({message: [error]}));
+        response.end(JSON.stringify({message: [error]}));
     } else {
         response.setHeader('Content-Type', 'application/json');
         response.end(JSON.stringify(response_data || {}, null, 2));
@@ -29,7 +29,7 @@ exports.serviceDetailsGET = function(args, response, next) {
     var service_id = args.service.value;
 
     ServiceInfo.find(service_id, function(error, service) {
-        sendResponse(error, response, ervice, next);
+        sendResponse(error, response, service, next);
     });    
 }
 

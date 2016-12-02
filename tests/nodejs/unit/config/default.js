@@ -38,11 +38,11 @@ module.exports = {
             services: {
                 google_http: {
                     host: "www.google.com",
-                    port: "443"
+                    port: "80"
                 },
                 google_https: {
                     host: "www.google.com",
-                    port: "80"
+                    port: "443"
                 }
             }
         }

@@ -14,8 +14,28 @@ var clientAuthHandler = require('./utils/clientAuthHandler');
 var authHandler = require('./utils/authHandler');
 var httpAuthValidator = require('./utils/httpAuthValidator');
 var requestHeadersParser = require('./utils/requestHeadersParser');
-
+var winston = require('winston');
+global.__logger = new winston.Logger({
+    level: 'info',
+    transports: [
+      new (winston.transports.Console)(),
+      new (winston.transports.File)({ filename: 'broker.log' })
+    ]
+});
 var mongoose = require('mongoose');
+var protection = require('./protection/po_connector');
+var protector = protection.Protector;
+
+var protectorConfig = {
+    protocol: __brokerConfig.protocol,
+    po_id: "po"
+};
+
+protector.connect(protectorConfig, function (error) {
+    if (error) {
+        console.log(error);
+    }
+});
 
 // Safe load of orchestrator module from configuration
 try {
@@ -55,6 +75,16 @@ var httpsOptions = {
     requestCert: true, 
     rejectUnauthorized: false
 };
+
+
+////// TODO Implement decryption of private key where required
+/*var ursa = require('ursa');
+var key = ursa.createPrivateKey(httpsOptions.key, httpsOptions.passphrase);
+console.log(key.toPrivatePem().toString());
+console.log(httpsOptions.key.toString());
+httpsOptions.key = key.toPrivatePem();
+httpsOptions.passphrase = '';*/
+
 
 
 // Orchestrator connection
@@ -105,6 +135,8 @@ orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
                 console.log('Your server is listening on port %d (https://localhost:%d)', brokerConfig.https.port, brokerConfig.https.port);
                 console.log('Swagger-ui is available on https://localhost:%d/docs', brokerConfig.https.port);
             });
+
+            __logger.info("Broker intialized successfully");
         });
     }
 });
