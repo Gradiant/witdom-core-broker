@@ -386,6 +386,9 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
         if(error) {
             if(error.code == 404) {
                 // If we get a system error we update request and exit
+                __logger.warn("RequestForwardingHandler.doRequest: Can not find service " + service_id);
+                __logger.debug("RequestForwardingHandler.doRequest: trace:");
+                __logger.debug(error);
                 self.updateRequest(request_id, 'FINISHED', {
                     response:{
                         service_name: request_data.request.service_name,
@@ -403,6 +406,9 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                 }, function(error) {});
             } else {
                 // If we get a system error we update request and exit
+                __logger.warn("RequestForwardingHandler.doRequest: got error finding service " + service_id);
+                __logger.debug("RequestForwardingHandler.doRequest: trace:");
+                __logger.debug(error);
                 self.updateRequest(request_id, 'FINISHED', {
                     response:{
                         service_name: request_data.request.service_name,
@@ -412,7 +418,7 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                         body: {
                             message: [{
                                 code:"500",
-                                message: "internal server error",
+                                message: "internal server error, can not access database",
                                 path:[]
                             }]
                         }
@@ -421,6 +427,7 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
             }
         } else if(service) {
             if(service.location == 'local') {
+                __logger.silly("RequestForwardingHandler.doRequest: Found service " + service_id + " in local domain.");
                 request_data.request.headers['X-Broker-Callback-URL'] = '/request/callback?request_id=' + request_id;
                 self.doRestCall(service.details, request_data, function(response) {//TODO: we need to pass request_id to doRestCall, because it is needed to build the callback URL
                     if(!response.status) {
@@ -428,6 +435,9 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                         ServiceInfo.updateService(service_id, function(error, service) {
                             if(error) {
                                 if(error.code == 404) {
+                                    __logger.warn("RequestForwardingHandler.doRequest: Can not find new service " + service_id + " info");
+                                    __logger.debug("RequestForwardingHandler.doRequest: trace:");
+                                    __logger.debug(error);
                                     // If we get a system error we update request and exit
                                     self.updateRequest(request_id, 'FINISHED', {
                                         response:{
@@ -445,6 +455,9 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                         }
                                     }, function(error) {});
                                 } else {
+                                    __logger.warn("RequestForwardingHandler.doRequest: got error updating service " + service_id + " info");
+                                    __logger.debug("RequestForwardingHandler.doRequest: trace:");
+                                    __logger.debug(error);
                                     // If we get a system error we update request and exit
                                     self.updateRequest(request_id, 'FINISHED', {
                                         response:{
@@ -455,7 +468,7 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                             body: {
                                                 message: [{
                                                     code:"500",
-                                                    message: "internal server error",
+                                                    message: "internal server error, can not update database",
                                                     path:[]
                                                 }]
                                             }
@@ -463,8 +476,12 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                     }, function(error) {});
                                 }
                             } else if(service) {
+                                __logger.silly("RequestForwardingHandler.doRequest: Found new service " + service_id + " info.");
                                 self.doRestCall(service.details, request_data, function(response) {
                                     if(!response.status) {
+                                        __logger.warn("RequestForwardingHandler.doRequest: Got error contacting service " + service_id);
+                                        __logger.debug("RequestForwardingHandler.doRequest: trace:");
+                                        __logger.debug(response.error);
                                         // TODO, If communication fails try to deploy it with cloudify. For now, we asume we can not do anything
                                         self.updateRequest(request_id, 'FINISHED', {
                                             response:{
@@ -482,6 +499,7 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                             }
                                         }, function(error) {});
                                     } else {
+                                        __logger.silly("RequestForwardingHandler.doRequest: Success on contating with service " + service_id);
                                         var status;
                                         if(response.status == 202) {
                                             status = 'IN_PROGRESS';
@@ -521,9 +539,13 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                 });
             } else {
                 // TODO, broker callback url
+                __logger.silly("RequestForwardingHandler.doRequest: Found service on untrusted domain.")
                 protector.protect("/request/callback?request_id=" + request_id, service, request_data.request.headers, request_data.request.body,
                 function(error, protectionResponse, finalCallParameters) {
                     if(error) {
+                        __logger.warn("RequestForwardingHandler.doRequest: Got error protecting request " + request_id);
+                        __logger.debug("RequestForwardingHandler.doRequest: trace:");
+                        __logger.debug(error);
                         // Error with PO communication
                         self.updateRequest(request_id, 'FINISHED', {
                             response:{
@@ -541,6 +563,7 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                             }
                         }, function(error) {});
                     } else if(protectionResponse) {
+                        __logger.silly("RequestForwardingHandler.doRequest: Protection process started.");
                         // Protection in progress
                         self.updateRequest(request_id, 'PROTECTING', {
                             response:{
@@ -552,11 +575,15 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                             }
                         }, function(error) {});
                     } else if(finalCallParameters) {
+                        __logger.silly("RequestForwardingHandler.doRequest: Protection process ended.");
                         // Protection ended
                         request_data.request.body = finalCallParameters;
                         // TODO, domain data
                         self.doForwardRequest(__brokerConfig.broker_ed, request_id, request_data, function(response) {
                             if(!response.status) {
+                                __logger.warn("RequestForwardingHandler.doRequest: Got error forwarding request " + request_id);
+                                __logger.debug("RequestForwardingHandler.doRequest: Trace:");
+                                __logger.debug(response.error);
                                 // Error communicating with UD broker
                                 self.updateRequest(request_id, 'FINISHED', {
                                     response:{
@@ -574,6 +601,7 @@ RequestForwardingHandler.prototype.doRequest = function(request_id, request_data
                                     }
                                 }, function(error) {});
                             } else {
+                                __logger.silly("RequestForwardingHandler.doRequest: forwading process started.");
                                 var status;
                                 if(response.status == 202) {
                                     status = 'FORWARDED';
@@ -639,7 +667,7 @@ RequestForwardingHandler.prototype.doCallback = function(request_id, callback_he
             } else if(request.status == 'PROTECTING') {
                 // Protection process finished
                 var first_log = request.request_log[0];
-                var originalCallParameters = first_log.response.body;
+                var originalCallParameters = first_log.request.body;
                 var receivedCallParameters = callback_body;
                 // Change data and forward request
                 protector.endProtection(originalCallParameters, receivedCallParameters, function(error, finalCallParameters) {
@@ -653,7 +681,7 @@ RequestForwardingHandler.prototype.doCallback = function(request_id, callback_he
                                 body: {
                                     message: [{
                                         code:"500",
-                                        message: "internal server error",
+                                        message: "internal server error, can not end protection process",
                                         path:[]
                                     }]
                                 }
@@ -663,6 +691,8 @@ RequestForwardingHandler.prototype.doCallback = function(request_id, callback_he
                         var request_data = first_log.request;
                         request_data.body = finalCallParameters;
                         // TODO, domain data
+                        __logger.silly("RequestForwardingHandler.doCallback: request_data:");
+                        __logger.silly(request_data);
                         self.doForwardRequest(__brokerConfig.broker_ed, request_id, request_data, function(response) {});
                     }
                 });
@@ -684,7 +714,7 @@ RequestForwardingHandler.prototype.doCallback = function(request_id, callback_he
                                 body: {
                                     message: [{
                                         code:"500",
-                                        message: "internal server error",
+                                        message: "internal server error, can not end unprotection process",
                                         path:[]
                                     }]
                                 }
@@ -821,7 +851,11 @@ RequestForwardingHandler.prototype.doForwardedCallback = function(callback_body,
  */
 RequestForwardingHandler.prototype.createRequest = function(request_data, callback) {
     // Save request in the database
+    __logger.silly("RequestForwardingHandler.createRequest: request_data");
+    __logger.silly(request_data);
     var new_request = new Request({origin: 'local', status: 'IN_PROGRESS', request_log: [request_data]});
+    __logger.silly("RequestForwardingHandler.createRequest: newRequest.request_log");
+    __logger.silly(new_request.request_log);
     new_request.save(function(error, request) {
         // Return ID to caller
         callback(error, request.id);

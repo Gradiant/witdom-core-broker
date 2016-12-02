@@ -20,6 +20,9 @@ function getOtherDomainsServices(callback) {
     //TODO: we should have an array of other domains brokers
     broker_ed.get(url_prefix + '/service/domainlist').end(function(error, response) {
         if (error) {
+            __logger.warn("ServiceInfo.getOtherDomainsServices: Error contacting with other domains.");
+            __logger.debug("ServiceInfo.getOtherDomainsServices: Trace:");
+            __logger.debug(error);
             var serviceInfoError = {code: 500, message: "Internal server error"};
             if (typeof callback === 'function') {
                 callback(serviceInfoError);
@@ -68,29 +71,37 @@ module.exports.updateService = function(service_id, callback) {
     orchestrator.getServiceData(service_id, function(error, service_data) {
         if(error) {
             if(error.code == 404) { // Service not found in local orchestrator try to find it in other domain
+                __logger.debug("ServiceInfo.updateService: Service not found in local domain. Look for it in other domains.");
                 getOtherDomainsServices(function(error, services) {
                     if(error) {
+                        __logger.warn("ServiceInfo.updateService: Error contacting with other domains.")
+                        __logger.debug("ServiceInfo.updateService: Trace:")
+                        __logger.debug(error);
                         if (typeof callback === 'function') {
                             callback(error);
                         }
                     } else {
+                        __logger.silly("ServiceInfo.updateService: found " + services.length + " services");
                         for(var index in services) {
                             if(services[index].service_id == service_id) {
                                 if (typeof callback === 'function') {
                                     callback(null, {location: __brokerConfig.broker_ed.domain_name, details: services[index]});
+                                    return;
                                 }
                             }
                         }
                         if (typeof callback === 'function') {
+                            __logger.debug("ServiceInfo.updateService: Service not found in others domains.");
                             callback({code:404, message: "Service not found"});
                         }
                     }
                 });
             } else {
-                response.writeHead(503);
-                response.end(JSON.stringify({code: 503, reason: "service unavaliable"}));
+                __logger.warn("ServiceInfo.updateService: Can not reach orchestration service.");
+                callback({code: 503, reason: "service unavaliable"});
             }
         } else {
+            __logger.silly("ServiceInfo.updateService: Found service" + service_id);
             var service_response = {
                 service_id: service_id,
                 description: service_data.description,
@@ -110,6 +121,9 @@ module.exports.findWithLocation = function(service_id, callback) {
     var self = this;
     Service.findById(service_id, function(error, service) {
         if(error) {
+            __logger.warn("ServiceInfo.findWithLocation: Got error accesing database for service " + service_id);
+            __logger.debug("ServiceInfo.findWithLocation: Trace:");
+            __logger.silly(error);
             var serviceInfoError = {code: 500, message: "Internal server error"};
             if (typeof callback === 'function') {
                 callback(serviceInfoError);
@@ -127,6 +141,7 @@ module.exports.findWithLocation = function(service_id, callback) {
             }
         } else {
             // Update service
+            __logger.debug("ServiceInfo.findWithLocation: Service " + service_id + " not found. Updating.");
             self.updateService(service_id, callback);
         }
     });

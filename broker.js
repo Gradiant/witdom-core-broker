@@ -16,7 +16,7 @@ var httpAuthValidator = require('./utils/httpAuthValidator');
 var requestHeadersParser = require('./utils/requestHeadersParser');
 var winston = require('winston');
 global.__logger = new winston.Logger({
-    level: 'info',
+    level: 'silly',
     transports: [
       new (winston.transports.Console)(),
       new (winston.transports.File)({ filename: 'broker.log' })

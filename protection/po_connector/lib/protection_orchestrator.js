@@ -69,12 +69,15 @@ Connector.prototype.protect = function(callbackUrl, service_info, request_header
         if (error) {
             callback(error);
         } else {
-            var url = this.protocol + '://' + po_info.uri + '/execute/' + service_info.details.service_id + '/protect';
+            var protect_url = this.protocol + '://' + po_info.uri + '/v1/execute/' + service_info.details.service_id + '/protect';
+            __logger.silly("Connector.protect: Final url: " + protect_url);
             var headers = {
-                "X-Auth-Token": request_headers["X-Auth-Token"]
+                "X-Auth-Token": request_headers["x-auth-token"] || request_headers["X-Auth-Token"]
             };
+            __logger.silly("Connector.protect: Headers:");
+            __logger.silly(headers);
             var options = {
-                url: url,
+                url: protect_url,
                 method: 'POST',
                 headers: headers,
                 //cert: this.certificate,
@@ -85,7 +88,7 @@ Connector.prototype.protect = function(callbackUrl, service_info, request_header
                 json: true,
                 body: {
                     callbackUrl: callbackUrl,
-                    serviceCallParameters: serviceCallParameters
+                    serviceCallParameters: serviceCallParameters || {}
                 }
             };
 
@@ -95,9 +98,15 @@ Connector.prototype.protect = function(callbackUrl, service_info, request_header
                     callback(error, null, null);
                 } else if(response) {
                     if(response.statusCode == 200) {
+                        __logger.silly("Connector.protect: Successful response from PO");
                         // If success, we only set protectionResponse
                         callback(null, body, null);
                     } else {
+                        __logger.warn("Connector.protect: Unexpected response from PO");
+                        __logger.debug("Connector.protect: Trace");
+                        __logger.debug(response.status);
+                        __logger.debug(response.text);
+                        __logger.debug(response.body);
                         // If error in protection, we return control to main function
                         callback(new PoError(response.status, "error in protection process"), null, null);
                     }
@@ -159,12 +168,14 @@ Connector.prototype.unprotect = function(callbackUrl, service_info, request_head
         if (error) {
             callback(error);
         } else {
-            var url = this.protocol + '://' + po_info.uri + '/execute/' + service_info.details.service_id + '/unprotect';
+            var unprotect_url = this.protocol + '://' + po_info.uri + '/v1/execute/' + service_info.details.service_id + '/unprotect';
+            __logger.silly("Connector.unprotect: Final url: " + unprotect_url);
             var headers = {
-                "X-Auth-Token": request_headers["X-Auth-Token"]
+                "X-Auth-Token": request_headers["x-auth-token"] || request_headers["X-Auth-Token"]
             };
+            __logger.silly("Connector.protect: Headers: " + headers);
             var options = {
-                url: url,
+                url: unprotect_url,
                 method: 'POST',
                 headers: headers,
                 //cert: this.certificate,
@@ -175,7 +186,7 @@ Connector.prototype.unprotect = function(callbackUrl, service_info, request_head
                 json: true,
                 body: {
                     callbackUrl: callbackUrl,
-                    serviceCallParameters: serviceCallParameters
+                    serviceCallParameters: serviceCallParameters || {}
                 }
             };
 

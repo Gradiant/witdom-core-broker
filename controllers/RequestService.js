@@ -148,6 +148,7 @@ exports.requestCreate_blockerPOST = function(args, res, next) {
 }
 
 var requestCreate_blocker = function(request_data, res, next) {
+    __logger.silly(JSON.stringify(request_data, null, 2));
     requestForwardingHandler.createRequest(request_data, function(error, request_id) {
         if(error) {
             // Malfunction (database) error
