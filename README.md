@@ -325,3 +325,8 @@ In order to make a test of the complete workflow with dummy services deployed by
 Once all the services are up and running, we execute the script 'workflow_test.sh' which creates two request to the untrusted domain and prints the results.
 Below you can find a screenshot of this execution.
 ![RESULTS](./Image.png)
+
+## Testing with dummy services
+The code for the dummy services we used for the workflow test can be foun in [this repository.](https://gitlab-witdom.xlab.si/gonzalo.jimenez/dummy_service_for_testing)
+This code creates a server which exposes three REST APIs; one for the actins as a dummy PO, other for acting as a trusted domain service and the last one for acting as the untrusted service.
+Both trusted and untrusted domains allow responding with callback after a few seconds or in the request response.
