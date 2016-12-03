@@ -1,0 +1,53 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+imports:
+    - http://www.getcloudify.org/spec/fabric-plugin/1.3.1/plugin.yaml
+    - http://www.getcloudify.org/spec/cloudify/3.4/types.yaml
+
+
+#inputs:
+#  image:
+#  flavor:
+#  security_group_name:
+
+node_templates:
+
+  example_node:
+    type: cloudify.nodes.WebServer
+#    properties:
+#      ip: { }
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        start:
+          implementation: fabric.fabric_plugin.tasks.run_script
+          inputs:
+            script_path: scripts/bp1_deployments.sh
+            fabric_env:
+              host_string: replace_with_docker-engine-server-ip-address
+              user: replace_with_docker-engine-ssh-username
+              key: |
+                    -----BEGIN RSA PRIVATE KEY-----
+                    YOUR PRIVATE KEY HERE...
+                    YEP, PRIVATE. Passphrase free, please ;)
+                    -----END RSA PRIVATE KEY-----
+
+#              key_filename: master_ssh_key
+
+#workflows:
+#    execute_operation:
+#        mapping: fabric.fabric_plugin.tests.tests.execute_operation
+#        parameters: { operation: {} }
+
+#node_types:
+#    cloudify.nodes.Compute:
+#        properties: { ip: {} }
+
+outputs:
+  untrusted-service:
+    value:
+      description: W1 Description
+      host: {get_attribute: [example_node, w1_ip_address]}
+      port: {get_attribute: [example_node, w1_internal_port]}
+      image: {get_attribute: [example_node, w1_image_url]}
+      name: {get_attribute: [example_node, w1_name]}
+

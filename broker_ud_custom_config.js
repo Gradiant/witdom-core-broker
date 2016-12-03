@@ -10,14 +10,14 @@ module.exports = {
     },
     protocol: "http",
     broker_ed : { //broker external domain
-        domain_name: "broker-td",
+        domain_name: "broker",
         http: {
-            port: 5000
+            port: 50100
         },
         https: {
             port: 5043
         },
-        http_port: 5000,
+        http_port: 50100,
         https_port: 5043
     },
     tokenValidationService: {
@@ -28,14 +28,15 @@ module.exports = {
         endpoint: "http://iam:5000/v3"
     },
     orchestrator: {
-        name: 'mock_example',
-        config: {
-            services: {
-                service_ud: {
-                    host: "10.5.1.120",
-                    port: "8082"
-                }
-            }
+        name: 'cloudify_provider_connector',
+         config: {
+            protocol: 'http',
+            host: 'cloudify',
+            port: '80',
+            auth_token: 'some token',
+            certificate_key: '../../CAs/witdomCA/client1_key.pem',
+            certificate: '../../CAs/witdomCA/client1_crt.pem',
+            ca: '../../CAs/witdomCA/witdomcacert.pem'
         }
     },
 };

@@ -4,6 +4,7 @@
 The broker repository contains the following directories and files (not all the files in subdirectories are listed):
  - api
    - swagger.yaml (Api specification in swagger format)
+ - blueprints (directory with blueprint prototypes for deploying the trusted and untrusted brokers with some dummy services)
  - certs (server and ca certificates for testing)
  - CAs (several self-signed CAs (along signed server and client certificates) created with testing purposes, and also instructions to create new ones)
  - config (broker configuration)
@@ -11,6 +12,7 @@ The broker repository contains the following directories and files (not all the 
  - dependencies (this directory is a git submodule that clones the IAM repository for access the IAM javascript client module)
  - models (mongoose database models)
  - orchestration (default orchestration connection modules)
+ - protection (default protection orchrestrator communication module)
  - request_forwarding (broker's core module)
  - tests (nodejs tests and java api client library with example calls)
    - nodejs
@@ -43,13 +45,20 @@ There are two included orchestration modules, one for Cloudify and other for tes
     orchestrator: {
         name: 'mock_example',
         config: {
-            host: '127.0.0.1',
-            port: '1234',
-            auth_token: 'some token'
+            services: {
+                service1: {
+                    host: "host1",
+                    port: "port1"
+                },
+                service2: {
+                    host: "host2",
+                    port: "port2"
+                }
+            }
         }
     }
 ```
-None of the parameters means nothing, but they must exist. If not the module will fail to load.
+The module will create a service for each one defined inside services, and will use the host and port defined.
 #### To load the one which communicates with Cloudify
 ```
     orchestrator: {
@@ -65,6 +74,17 @@ None of the parameters means nothing, but they must exist. If not the module wil
         }
     }
 ```
+This module looks for outputs in all cloudify deployments. In orded to be recognized, the outputs in the cloudify blueprint must be defined in this format.
+```
+outputs:
+  service-name:
+    value:
+      description: W1 Description trusted-service
+      host: {get_attribute: [example_node, w1_ip_address]}
+      port: {get_attribute: [example_node, w1_internal_port]}
+      image: {get_attribute: [example_node, w1_image_url]}
+      name: {get_attribute: [example_node, w1_name]}
+```
 
 ## Local deployment of the broker with nodejs
 For locally deploying the broker just run the following command:
@@ -72,13 +92,21 @@ For locally deploying the broker just run the following command:
 $ npm start
 ```
 
-It will install all the needed dependencies and start the broker. 
+It will install all the needed dependencies and start the broker with the configuration inside the config directory. 
 
 ## Deployment of the broker with Dockerfile
-First edit the file 'dockerFileCustom.js' to configure the access to the IAM. The ports of the broker and the configuration of the certificates can be also be set up in this file.
-Then build the docker image
+First edit the files 'broker_td_custom_config.js' and 'broker_ud_custom_config.js' to configure the tusted domain broker and untrusted domain broker. The ports of the broker and the configuration of the certificates can be also be set up in this file.
+Then edit the 'broker_docker.sh' script and set 'DOCKER_HOST_IP'
 ```
-$ docker build -t witdom-core-broker .
+DOCKER_HOST_IP="10.5.1.120"
+```
+Then build the docker image for the trusted broker:
+```
+./broker_docker.sh --command=rebuild-images --dockerfile=Dockerfile_td --image-name=witdom-core-broker-td --container-name=broker_td
+```
+And for the untrusted broker:
+```
+./broker_docker.sh --command=build-images --dockerfile=Dockerfile_ud --image-name=witdom-core-broker-ud --container-name=broker_ud
 ```
 The broker needs a running instance a running instance of the IAM.
 
@@ -87,9 +115,13 @@ Then run the mongo container
 $ docker run --name mongo-broker -d mongo
 ```
 
-Then run the docker container
+Then run the trusted docker container:
 ```
-$ docker run --name broker -p 5000:5000 -p 5043:5043 --link mongo-broker:mongo -d witdom-core-broker
+./broker_docker.sh --command=run-containers --image-name=witdom-core-broker-td --container-name=broker_td --mongo-container=mongo-broker-td --container-http-port=5000 --container-https-port=5043 --host-http-port=5000 --host-https-port=5043 --remote-host=localhost --remote-http-port=5100 --remote-https-port=5143 --other-domain-name=broker-ud --use-iam=yes --iam-container=iam
+```
+And the untrusted docker container:
+```
+./broker_docker.sh --command=run-containers --image-name=witdom-core-broker-ud --container-name=broker_ud --mongo-container=mongo-broker-ud --container-http-port=5000 --container-https-port=5043 --host-http-port=5100 --host-https-port=5143 --remote-host=localhost --remote-http-port=5000 --remote-https-port=5043 --other-domain-name=broker-td
 ```
 
 If the instance of the IAM is run in a container inside the same docker host as the broker, run the broker container with the following command to link the broker container to the IAM container
@@ -97,19 +129,25 @@ If the instance of the IAM is run in a container inside the same docker host as 
 $ docker run --name broker -p 5000:5000 -p 5043:5043 --link mongo-broker:mongo --link iam_container:iam_host_name -d witdom-core-broker
 ``` 
 
-To stop the container
+To stop the trusted container:
 ```
-$ docker stop broker
+./broker_docker.sh --command=stop-containers --container-name=broker_td
+```
+Same for the untrusted container:
+```
+./broker_docker.sh --command=stop-containers --container-name=broker_ud
 ```
 
-To start the container again
+To start the containers again
 ```
-$ docker start broker
+./broker_docker.sh --command=start-containers --container-name=broker_td
+./broker_docker.sh --command=start-containers --container-name=broker_ud
 ```
 
 To fresh start the container from the image first run (with the container stopped)
 ```
-$ docker rm broker
+$ docker rm broker_td
+$ docker rm broker_ud
 ```
 
 And then run it again with the 'docker run' command
@@ -281,3 +319,9 @@ For further information regarding the Java test refer to the file [tests/java/RE
 ## Using HTTP for testing
 
 For testing and developing purposes, we allow communication over non-secured http protocol on port 5000 instead of 5043 (default configuration). When the broker receives an http connection acts as if the client had provided a valid certificate, so the request will allways be authorized. This means that in order to test token validation an https connection is needed.
+
+## Example of complete workflow execution
+In order to make a test of the complete workflow with dummy services deployed by cloudify we created two blueprints. We then deployed 2 brokers, 2 services (one in the TD and other in the UD) and a dummy PO component with these blueprints.
+Once all the services are up and running, we execute the script 'workflow_test.sh' which creates two request to the untrusted domain and prints the results.
+Below you can find a screenshot of this execution.
+![RESULTS](./Image.png)

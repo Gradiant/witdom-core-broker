@@ -30,9 +30,9 @@ Connector.prototype.connect = function(config, callback) {
     this.port = config.port;
     this.auth_token = config.auth_token;
     try {
-        this.ca = fs.readFileSync(config.ca);
-        this.certificate_key = fs.readFileSync(config.certificate_key);
-        this.certificate = fs.readFileSync(config.certificate);
+        //this.ca = fs.readFileSync(config.ca);
+        //this.certificate_key = fs.readFileSync(config.certificate_key);
+        //this.certificate = fs.readFileSync(config.certificate);
         callback(null); // no error
     } catch (error) {
         callback(error);
@@ -44,59 +44,22 @@ Connector.prototype.connect = function(config, callback) {
  */
 Connector.prototype.getServiceData = function(service, callback) {
 
+    var checked = 0;
     var given_name = service;
-    var url = this.protocol + '://' + this.host + ':' + this.port + '/api/v2/deployments';
-    unirest.options({
-            ca: this.ca,
-            key: this.certificate_key,
-            cert: this.certificate
-        });
-    unirest.get(url)
-        .end(function(response) {
-            if(response.status != 200) {
-                callback(new OrchestrationError(response.status, response.error), null);
-            } else {
-                for(var index in response.body.items) {
-                    var deployment = response.body.items[index];
-                    var outputs = deployment.outputs;
-                    if(outputs) {
-                        var services = Object.keys(outputs);
-                        for(var index in services) {
-                            var service_name = services[index];
-                            var service = outputs[service_name];
-                            if(service && service_name == given_name) {
-                                var cloudify_data = service.value;
-                                if(cloudify_data) {
-                                    var host_atribute = cloudify_data.host;
-                                    var port_atribute = cloudify_data.port;
-                                    var image_atribute = cloudify_data.image;
-                                    var description = cloudify_data.description;
-                                    if(host_atribute && port_atribute) {
-                                        try {
-                                            var service_data = {
-                                                name: service_name,
-                                                host: host_atribute.get_attribute[1],
-                                                port: port_atribute.get_attribute[1],
-                                            };
-                                            if(image_atribute && description) {
-                                                service_data.description = description;
-                                                service_data.image = image_atribute.get_attribute[1];
-                                            }
-                                        } catch (error) {
-                                            console.log(error)
-                                            continue;
-                                        }
-                                        callback(null, service_data);
-                                        return;
-                                    }
-                                } 
-                            }
-                        }
-                    }
+    var self = this;
+    self.getServiceList(function(error, services) {
+        if(error) {
+            callback(error, null);
+        } else {
+            for(var index in services) {
+                if(services[index].name == given_name) {
+                    callback(null, services[index]);
+                    return;
                 }
-                callback(new OrchestrationError(404, "Unknown service"), null);
             }
-        });
+            callback(new OrchestrationError(404, "Unknown service"), null);
+        }
+    });
 };  
 
 /**
@@ -105,56 +68,93 @@ Connector.prototype.getServiceData = function(service, callback) {
 Connector.prototype.getServiceList = function(callback) {
     
     var serviceList = [];
+    var self = this;
+    this.getDeploymentList(function(error, deployments) {
+        if(error) {
+            console.log("can not connect with cloudify");
+            callback(new OrchestrationError(response.status, response.error), null);
+        } else {
+            self.addDeploymentServices(serviceList, deployments, callback);
+        }
+    });
+};
+
+/**
+ * Recursive add services to serviceList
+ */
+Connector.prototype.addDeploymentServices = function(serviceList, deployments, callback) {
+    var self = this;
+    //console.log(serviceList.length)
+    //console.log(deployments.length)
+    if(deployments.length == 0) {
+        callback(null, serviceList);
+    } else {
+        var deployment_id = deployments[0];
+        deployments.shift();
+        var url = self.protocol + '://' + self.host + ':' + self.port + '/deployments/' + deployment_id + '/outputs';
+        unirest.get(url)
+            .end(function(response) {
+                //console.log("deployment");
+                if(response.status != 200) {
+                    //callback(new OrchestrationError(response.status, response.error), null);
+                    self.addDeploymentServices(serviceList, deployments, callback);
+                } else {
+                    if(response.body && response.body.outputs) {
+                        var outputs = response.body.outputs;
+                        var services = Object.keys(outputs);
+                        for(var index in services) {
+                            //console.log("service");
+                            var service_name = services[index];
+                            //console.log(service_name)
+                            var service = outputs[service_name];
+                            if(service && service.port && service.host) {
+                                try {
+                                    serviceList.push({
+                                        name: service_name,
+                                        host: service.host,
+                                        port: service.port,
+                                        description: service.description || "",
+                                        image: service.image || ""
+                                    });
+                                } catch (error) {
+                                }
+                            }
+                        }
+                        self.addDeploymentServices(serviceList, deployments, callback);
+                    }
+                }
+            });
+    }
+}
+
+/**
+ * Gets the information of all the deployments
+ */
+Connector.prototype.getDeploymentList = function(callback) {
 
     var url = this.protocol + '://' + this.host + ':' + this.port + '/api/v2/deployments';
-    unirest.options({
-            ca: this.ca,
-            key: this.certificate_key,
-            cert: this.certificate
-        });
+
     unirest.get(url)
         .end(function(response) {
             if(response.status != 200) {
                 callback(new OrchestrationError(response.status, response.error), null);
             } else {
+                //console.log(JSON.stringify(response.body.items, null, 2))
+                var deploymentList = [];
                 for(var index in response.body.items) {
+                    //console.log(index);
                     var deployment = response.body.items[index];
-                    var outputs = deployment.outputs;
-                    if(outputs) {
-                        var services = Object.keys(outputs);
-                        for(var index in services) {
-                            var service_name = services[index];
-                            var service = outputs[service_name];
-                            if(service) {
-                                var cloudify_data = service.value;
-                                if(cloudify_data) {
-                                    var host_atribute = cloudify_data.host;
-                                    var port_atribute = cloudify_data.port;
-                                    var image_atribute = cloudify_data.image;
-                                    var description = cloudify_data.description;
-                                    if(host_atribute && port_atribute) {
-                                        try {
-                                            serviceList.push({
-                                                name: service_name,
-                                                host: host_atribute.get_attribute[1],
-                                                port: port_atribute.get_attribute[1],
-                                            });
-                                            if(image_atribute && description) {
-                                                service_data.description = description;
-                                                service_data.image = image_atribute.get_attribute[1];
-                                            }
-                                        } catch (error) {
-                                            continue;
-                                        }
-                                    }
-                                } 
-                            }
+                    if(deployment) {
+                        var deployment_id = deployment.blueprint_id;
+                        if(deployment_id) {
+                            deploymentList.push(deployment_id);
                         }
                     }
                 }
-                callback(null, serviceList);
+                callback(null, deploymentList);
             }
         });
-};
+
+}
 
 var connector = module.exports = exports = new Connector;
