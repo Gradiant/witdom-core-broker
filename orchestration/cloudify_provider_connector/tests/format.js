@@ -5,7 +5,7 @@ var orchestration = require('../index');
 
 var config = {
         protocol: 'http',
-        host: '10.10.30.4',
+        host: '10.5.0.85',
         port: '80',
         auth_token: 'some token',
         certificate_key: '../../CAs/witdomCA/client1_key.pem',
@@ -111,7 +111,7 @@ before(function(done) {
 
 describe("Services : ", function() {
     it("get service2 data", function(done) {
-        orchestrator.getServiceData('untrusted-service', function(error, service_data) {
+        orchestrator.getServiceData('trusted-service', function(error, service_data) {
             should.not.exist(error);
             should.exist(service_data);
             service_data.image.should.be.a.string;
@@ -134,14 +134,14 @@ describe("Services : ", function() {
         });
     });*/
 
-    it("get unknown service data", function(done) {
+    /*it("get unknown service data", function(done) {
         orchestrator.getServiceData('unknown', function(error, service_data) {
             should.exist(error);
             error.code.should.equal(404);
             should.not.exist(service_data);
             done();
         });
-    });
+    });*/
 
     /*it("get malfomed service data", function(done) {
         orchestrator.getServiceData('service4', function(error, service_data) {
@@ -174,7 +174,7 @@ describe("Services : ", function() {
         orchestrator.getServiceList(function(error, services) {
             should.not.exist(error);
             should.exist(services);
-            services.length.should.equal(1);
+            services.length.should.equal(2);
             for(i=1; i<services.length; i++) {
                 services[i].name.should.be.a.string;
                 services[i].image.should.be.a.string;
