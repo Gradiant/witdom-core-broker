@@ -23,6 +23,8 @@ COPY validators/. validators/
 COPY service_info/. service_info/
 COPY request_forwarding/. request_forwarding/
 COPY protection/. protection/
+COPY tests/. tests/
+COPY CAs/. CAs/
 
 EXPOSE 5000
 EXPOSE 5043
