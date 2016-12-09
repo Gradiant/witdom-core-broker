@@ -10,14 +10,14 @@ module.exports = {
     },
     protocol: "http",
     broker_ed : { //broker external domain
-        domain_name: "broker",
+        domain_name: "172.16.117.31",
         http: {
-            port: 50000
+            port: 5000
         },
         https: {
             port: 5143
         },
-        http_port: 50000,
+        http_port: 5000,
         https_port: 5143
     },
     tokenValidationService: {
@@ -27,7 +27,7 @@ module.exports = {
         },
         endpoint: "http://iam:5000/v3"
     },
-    orchestrator: {
+    /*orchestrator: {
         name: 'cloudify_provider_connector',
          config: {
             protocol: 'http',
@@ -38,5 +38,20 @@ module.exports = {
             certificate: '../../CAs/witdomCA/client1_crt.pem',
             ca: '../../CAs/witdomCA/witdomcacert.pem'
         }
+    }*/
+    orchestrator: {
+        name: 'mock_example',
+        config: {
+            services: {
+                service1: {                    
+                    host: "172.16.117.31",           
+                    port: "8081"               
+                } ,
+                google: {
+                    host: "www.google.com",
+                    port: "80" 
+                }        
+            }      
+        }   
     }
 };

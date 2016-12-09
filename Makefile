@@ -1,8 +1,8 @@
-all: get_iam build run install_locally test clean
+all: get_iam build run install test clean
 
 build: build_trusted build_untrusted
 
-test: test_trusted #test_untrusted
+test: test
 
 clean: remove_containers remove_files
 
@@ -20,10 +20,10 @@ run:
 	./broker_docker.sh --command=run-containers --image-name=witdom-core-broker-td --container-name=broker_td --mongo-container=mongo-broker-td --container-http-port=5000 --container-https-port=5043 --host-http-port=5000 --host-https-port=5043 --remote-host=localhost --remote-http-port=5100 --remote-https-port=5143 --other-domain-name=broker-ud #--use-iam=yes --iam-container=iam
 	./broker_docker.sh --command=run-containers --image-name=witdom-core-broker-ud --container-name=broker_ud --mongo-container=mongo-broker-ud --container-http-port=5000 --container-https-port=5043 --host-http-port=5100 --host-https-port=5143 --remote-host=localhost --remote-http-port=5000 --remote-https-port=5043 --other-domain-name=broker-td
 
-install_locally:
+install:
 	npm install
 
-test_trusted:
+test:
 	npm test
 
 remove_containers:
