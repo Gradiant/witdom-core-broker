@@ -10,48 +10,43 @@ var options = {
 };
 
 // server to test
-var server = supertest.agent("https://localhost:5043/v1", options)
+var server = supertest.agent("https://" + config.https.host + ":" + config.https.port +"/v1", options)
 
 
 describe("Syntax (https): ", function() {
     // services test
     describe("Services : ", function() {
         // services list
-        it("list", function(done) {
+        it("list : OK", function(done) {
             server
             .get('/service/list')
             .set('Accept', /json/)
-            .query({ 
-                user: "string",
-                token: 'string'
+            .set({
+                'X-Auth-Token': 'string'
             })
             .expect(200)
-            .expect('Content-type',/json/)
+            .expect('Content-type', /json/)
             .end(function(error, response) {
                 if (error) {
                     done(error);
                 }
                 else {
                     response.body.should.be.an.Array;
-                    service1 = response.body[0];
-                    Object.keys(service1).should.have.length(4);
-                    service1.should.have.property('image').which.is.a.String;
-                    service1.should.have.property('service_id').which.is.a.String;
-                    service1.should.have.property('description').which.is.a.String;
-                    service1.should.have.property('uri').which.is.a.String;
+                    for(index in response.body) {
+                        checkServiceFormat(response.body[index]);
+                    }
                     done();
                 }
             });
         });
 
         // services domain list
-        it("domain list", function(done) {
+        it("domain list : OK", function(done) {
             server
             .get('/service/domainlist')
             .set('Accept', /json/)
-            .query({ 
-                user: "string",
-                token: 'string'
+            .set({
+                'X-Auth-Token': 'string'
             })
             .expect(200)
             .expect('Content-type',/json/)
@@ -61,25 +56,21 @@ describe("Syntax (https): ", function() {
                 }
                 else {
                     response.body.should.be.an.Array;
-                    service1 = response.body[0];
-                    Object.keys(service1).should.have.length(4);
-                    service1.should.have.property('image').which.is.a.String;
-                    service1.should.have.property('service_id').which.is.a.String;
-                    service1.should.have.property('description').which.is.a.String;
-                    service1.should.have.property('uri').which.is.a.String;
+                    for(index in response.body) {
+                        checkServiceFormat(response.body[index]);
+                    }
                     done();
                 }
             });
         });
 
         // services outside list
-        it("outside list", function(done) {
+        it("outside list : OK", function(done) {
             server
             .get('/service/outsidelist')
             .set('Accept', /json/)
-            .query({ 
-                user: "string",
-                token: 'string'
+            .set({
+                'X-Auth-Token': 'string'
             })
             .expect(200)
             .expect('Content-type',/json/)
@@ -88,22 +79,24 @@ describe("Syntax (https): ", function() {
                     done(error);
                 }
                 else {
-                    // No untrusted domain for now
                     response.body.should.be.an.Array;
-                    response.body.should.have.length(0);
+                    for(index in response.body) {
+                        checkServiceFormat(response.body[index]);
+                    }
                     done();
                 }
             });
         });
 
         // service details
-        it("details", function(done) {
+        it("details : OK", function(done) {
             server
             .get('/service/details')
             .set('Accept', /json/)
+            .set({
+                'X-Auth-Token': 'string'
+            })
             .query({
-                user: "string",
-                token: 'string',
                 service: 'service1'
             })
             .expect(200)

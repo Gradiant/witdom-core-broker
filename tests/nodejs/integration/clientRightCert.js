@@ -10,7 +10,7 @@ var options = {
 };
 
 // server to test
-var server = supertest.agent("https://localhost:5043/v1", options)
+var server = supertest.agent("https://" + config.https.host + ":" + config.https.port +"/v1", options)
 
 
 describe("Right cert : ", function() {

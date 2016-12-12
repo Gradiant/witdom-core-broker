@@ -37,7 +37,7 @@ exports.forwardDomainPOST = function(args, res, next) {
             }));
         } else {
             // Request created
-            res.setHeader('Content-Type', 'application/text');
+            res.setHeader('Content-Type', 'text/plain');
             res.writeHead(202);
             res.end(request_id);
         }

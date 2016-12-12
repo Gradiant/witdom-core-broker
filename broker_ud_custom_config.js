@@ -10,14 +10,14 @@ module.exports = {
     },
     protocol: "http",
     broker_ed : { //broker external domain
-        domain_name: "172.16.117.31",
+        domain_name: "broker",
         http: {
-            port: 5010
+            port: 5000
         },
         https: {
             port: 5043
         },
-        http_port: 5010,
+        http_port: 5000,
         https_port: 5043
     },
     tokenValidationService: {

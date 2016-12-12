@@ -256,7 +256,7 @@ run-containers)
     # Then run the broker container and its ambassadors
     #echo "sudo docker run --name ${CONTAINER_NAME}_ambassador_client --expose $REMOTE_HTTP_PORT -e ${CONTAINER_NAME^^}_HTTP_PORT_${REMOTE_HTTP_PORT}_TCP=tcp://10.5.1.120:${REMOTE_HTTP_PORT} --expose ${REMOTE_HTTPS_PORT} -e ${CONTAINER_NAME^^}_HTTPS_PORT_${REMOTE_HTTPS_PORT}_TCP=tcp://10.5.1.120:${REMOTE_HTTPS_PORT} -d svendowideit/ambassador"
     echo "Running '${CONTAINER_NAME}_ambassador_client' container..."
-    sudo docker run --name ${CONTAINER_NAME}_ambassador_client --expose $REMOTE_HTTP_PORT -e ${CONTAINER_NAME^^}_HTTP_PORT_${REMOTE_HTTP_PORT}_TCP=tcp://${DOCKER_HOST_IP}:${REMOTE_HTTP_PORT} --expose ${REMOTE_HTTPS_PORT} -e ${CONTAINER_NAME^^}_HTTPS_PORT_${REMOTE_HTTPS_PORT}_TCP=tcp://${DOCKER_HOST_IP}:${REMOTE_HTTPS_PORT} -d svendowideit/ambassador
+    sudo docker run --name ${CONTAINER_NAME}_ambassador_client --expose $REMOTE_HTTP_PORT -e ${CONTAINER_NAME^^}_HTTP_PORT_${REMOTE_HTTP_PORT}_TCP=tcp://${REMOTE_HOST}:${REMOTE_HTTP_PORT} --expose ${REMOTE_HTTPS_PORT} -e ${CONTAINER_NAME^^}_HTTPS_PORT_${REMOTE_HTTPS_PORT}_TCP=tcp://${REMOTE_HOST}:${REMOTE_HTTPS_PORT} -d svendowideit/ambassador
     #echo "sudo docker run --name ${CONTAINER_NAME} $IAM_LINK --link $MONGO_CONTAINER:mongo --link ${CONTAINER_NAME}_ambassador_client:$OTHER_DOMAIN_NAME -d $IMAGE_NAME"
     echo "Running '${CONTAINER_NAME}' container..."
     sudo docker run --name ${CONTAINER_NAME} $IAM_LINK --link $MONGO_CONTAINER:mongo --link ${CONTAINER_NAME}_ambassador_client:$OTHER_DOMAIN_NAME -d $IMAGE_NAME

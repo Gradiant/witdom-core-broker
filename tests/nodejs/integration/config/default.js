@@ -1,6 +1,10 @@
 module.exports = {
-    http: { port: 5000 },
+    http: {
+        host: "localhost", 
+        port: 5000
+     },
     https: {
+        host: "broker-td",
         port: 5043,
         right_client_key: 'CAs/witdomCA/client1_key.pem',
         right_client_cert: 'CAs/witdomCA/client1_crt.pem',
