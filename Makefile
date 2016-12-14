@@ -21,7 +21,7 @@ USE_IAM="yes"
 IAM_NAME="iam"
 
 
-all: clean get_iam build run install test
+all: clean build run install test
 
 build: build_trusted build_untrusted
 
