@@ -1,3 +1,4 @@
+global.__base = __dirname + "/../../../";
 var should = require("should");
 
 // database models
@@ -37,12 +38,12 @@ after(function (done) {
         for (var i in mongoose.connection.collections) {
             mongoose.connection.collections[i].remove(function() {});
         }
-        return done();
+        //return done();
     }
 
     clearDB()
     mongoose.disconnect();
-    return done();
+    done();
 });
 
 
@@ -132,9 +133,10 @@ describe("Requests : ", function() {
 
     it("new request", function(done) {
         var request = new Request({
-            user_id: "fakeUser",
+            //user_id: "fakeUser",
+            origin: 'local',
             status: "IN_PROGRESS",
-            requests_log: [{
+            request_log: [{
                 request:{
                     name:"first request"}
                 }]
@@ -142,12 +144,12 @@ describe("Requests : ", function() {
         request.save(function(error, savedRequest) {
             should.not.exist(error);
             savedRequest.id.should.be.a.String;
-            savedRequest.user_id.should.be.a.String;
-            savedRequest.user_id.should.equal("fakeUser")
+            //savedRequest.user_id.should.be.a.String;
+            //savedRequest.user_id.should.equal("fakeUser")
             savedRequest.status.should.be.a.String;
             savedRequest.status.should.equal("IN_PROGRESS")
-            savedRequest.requests_log.should.be.an.Array;
-            savedRequest.requests_log[0].request.name.should.equal("first request");
+            savedRequest.request_log.should.be.an.Array;
+            savedRequest.request_log[0].request.name.should.equal("first request");
             request_id = savedRequest.id;
             done();
         });
@@ -173,7 +175,7 @@ describe("Requests : ", function() {
         Request.findById(request_id, function(error, savedRequest) {
             should.not.exist(error);
             should.exist(savedRequest);
-            var log = savedRequest.requests_log;
+            var log = savedRequest.request_log;
             log.push({
                 response:{
                     name:"last response"
@@ -183,7 +185,7 @@ describe("Requests : ", function() {
                 should.not.exist(error);
                 Request.findById(request_id, function(error, savedRequest) {
                     should.not.exist(error);
-                    savedRequest.requests_log[1].response.name.should.equal("last response");
+                    savedRequest.request_log[1].response.name.should.equal("last response");
                     done();
                 });
             });

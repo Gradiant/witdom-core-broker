@@ -25,7 +25,7 @@ module.exports = {
             user: "admin",
             pass: "adminpw"
         },
-        endpoint: "http://127.0.0.1:5001/v3"
+        endpoint: "http://127.0.0.1:5000/v3"
     },
     tokenValidationModule: "openstack-token-utils",
     database: {
