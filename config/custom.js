@@ -31,5 +31,12 @@ module.exports = {
                 }
             }
         }
+    },
+    tokenValidationService: {
+        admin: {
+            user: "admin",
+            pass: "adminpw"
+        },
+        endpoint: "http://172.16.118.243:5001/v3"
     }
 };
