@@ -25,7 +25,7 @@ module.exports = {
             user: "admin",
             pass: "adminpw"
         },
-        endpoint: "http://iam:5000/v3"
+        endpoint: "http://iam:5001/v3"
     },
     /*orchestrator: {
         name: 'cloudify_provider_connector',
@@ -44,7 +44,7 @@ module.exports = {
         config: {
             services: {
                 service2: {
-                    host: "172.16.117.31", //"172.16.117.31",
+                    host: "127.0.0.1", //"172.16.117.31",
                     port: "8080" 
                 }      
             }      
