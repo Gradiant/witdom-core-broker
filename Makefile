@@ -23,7 +23,7 @@ IAM_NAME="iam"
 
 all: clean get_iam build run install test
 
-ci: clean build run install test
+ci: build run install test
 
 test: test_unit test_api
 
