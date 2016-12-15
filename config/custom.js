@@ -37,6 +37,6 @@ module.exports = {
             user: "admin",
             pass: "adminpw"
         },
-        endpoint: "http://172.16.118.243:5001/v3"
+        endpoint: "http://10.10.43.20:5001/v3"
     }
 };
