@@ -44,18 +44,17 @@ build_untrusted:
 run:
 	./broker_docker.sh --command=run-containers --image-name=$(BROKER_TD_IMAGE) --container-name=$(BROKER_TD_NAME) --mongo-container=$(MONGO_TD_NAME) --container-http-port=5000 --container-https-port=5043 --host-http-port=5000 --host-https-port=5043 --remote-host=$(REMOTE_HOST) --remote-http-port=5100 --remote-https-port=5143 --other-domain-name=$(OTHER_DOMAIN_NAME) --use-iam=$(USE_IAM) --iam-container=$(IAM_NAME)
 	./broker_docker.sh --command=run-containers --image-name=$(BROKER_UD_IMAGE) --container-name=$(BROKER_UD_NAME) --mongo-container=$(MONGO_UD_NAME) --container-http-port=5000 --container-https-port=5043 --host-http-port=5100 --host-https-port=5143 --remote-host=$(REMOTE_HOST) --remote-http-port=5000 --remote-https-port=5043 --other-domain-name=$(OTHER_DOMAIN_NAME)
-
+	docker run --name mongo-broker-td-test -d -p 27017:27017 mongo
+	
 install:
 	npm install
 
 test_unit:
-	docker run --name mongo-broker-td-test -d -p 27017:27017 mongo
 	npm run db_test
 	npm run unit_test
 	npm run si_test
 	npm run mocksi_test
 	npm run request_test
-	docker stop mongo-broker-td-test && docker rm mongo-broker-td-test
 
 test_api:
 	# Before API tests, sleep
@@ -68,6 +67,7 @@ remove_containers:
 	-./broker_docker.sh --command=stop-containers --container-name=$(BROKER_UD_NAME)
 	-./broker_docker.sh --command=remove-containers --container-name=$(BROKER_TD_NAME)
 	-./broker_docker.sh --command=remove-containers --container-name=$(BROKER_UD_NAME)
+	-docker stop mongo-broker-td-test && docker rm mongo-broker-td-test
 	-docker stop $(MONGO_TD_NAME)
 	-docker stop $(MONGO_UD_NAME)
 	-docker rm $(MONGO_TD_NAME)
