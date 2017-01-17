@@ -72,7 +72,8 @@ Connector.prototype.getServiceList = function(callback) {
     this.getDeploymentList(function(error, deployments) {
         if(error) {
             console.log("can not connect with cloudify");
-            callback(new OrchestrationError(response.status, response.error), null);
+            //callback(new OrchestrationError(response.status, response.error), null);
+            callback(error, null);
         } else {
             self.addDeploymentServices(serviceList, deployments, callback);
         }
