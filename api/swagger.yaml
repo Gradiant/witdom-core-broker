@@ -20,6 +20,8 @@ paths:
         This path can only be accessed from a trusted component, so a valid client 
         certificate must be present on the request.
       operationId: "forwardDomainPOST"
+      produces:
+      - text/plain
       parameters:
       - in: "body"
         name: "service"
@@ -28,7 +30,7 @@ paths:
         schema:
           $ref: "#/definitions/Forward_Request"
       responses:
-        200:
+        202:
           description: "Request ID"
           schema:
             type: string
@@ -66,9 +68,7 @@ paths:
           $ref: "#/definitions/Forward_Callback"
       responses:
         200:
-          description: "Request ID"
-          schema:
-            type: string
+          description: "Callback received correctly"
         400:
           description: "Request parameters validation error"
           schema:

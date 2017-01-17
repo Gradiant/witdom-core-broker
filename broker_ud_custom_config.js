@@ -12,12 +12,12 @@ module.exports = {
     broker_ed : { //broker external domain
         domain_name: "broker",
         http: {
-            port: 50100
+            port: 5000
         },
         https: {
             port: 5043
         },
-        http_port: 50100,
+        http_port: 5000,
         https_port: 5043
     },
     tokenValidationService: {
@@ -25,9 +25,9 @@ module.exports = {
             user: "admin",
             pass: "adminpw"
         },
-        endpoint: "http://iam:5000/v3"
+        endpoint: "http://iam:5001/v3"
     },
-    orchestrator: {
+    /*orchestrator: {
         name: 'cloudify_provider_connector',
          config: {
             protocol: 'http',
@@ -38,5 +38,16 @@ module.exports = {
             certificate: '../../CAs/witdomCA/client1_crt.pem',
             ca: '../../CAs/witdomCA/witdomcacert.pem'
         }
-    },
+    },*/
+    orchestrator: {
+        name: 'mock_example',
+        config: {
+            services: {
+                service2: {
+                    host: "127.0.0.1", //"172.16.117.31",
+                    port: "8080" 
+                }      
+            }      
+        }   
+    }
 };

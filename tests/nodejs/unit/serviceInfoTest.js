@@ -3,6 +3,13 @@ var brokerConfig = require('./config');
 global.__brokerConfig = brokerConfig;
 var should = require('should');
 var mongoose = require('mongoose');
+var winston = require('winston');
+global.__logger = new winston.Logger({
+    level: 'info',
+    transports: [
+      new (winston.transports.Console)()
+    ]
+});
 
 var ServiceInfo = require(__base + 'service_info/ServiceInfo');
 var nock = require("nock");
@@ -168,13 +175,13 @@ describe("Service Info: domainList: ", function() {
                 {
                     "service_id": "google_http",
                     "description": "service_description",
-                    "uri": "www.google.com:443",
+                    "uri": "www.google.com:80",
                     "image": "image_url"
                 },
                 {
                     "service_id": "google_https",
                     "description": "service_description",
-                    "uri": "www.google.com:80",
+                    "uri": "www.google.com:443",
                     "image": "image_url",
                 }
             ]);
@@ -224,13 +231,13 @@ describe("Service Info: list: ", function() {
                 {
                     "service_id": "google_http",
                     "description": "service_description",
-                    "uri": "www.google.com:443",
+                    "uri": "www.google.com:80",
                     "image": "image_url"
                 },
                 {
                     "service_id": "google_https",
                     "description": "service_description",
-                    "uri": "www.google.com:80",
+                    "uri": "www.google.com:443",
                     "image": "image_url",
                 },
                 {

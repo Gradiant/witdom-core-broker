@@ -1,5 +1,5 @@
+global.__base = __dirname + "/../../../";
 global.__brokerConfig = require('./config');
-global.__base = __dirname + "/../../../"; 
 __brokerConfig.tokenValidationModule = __base + "validators/dummyTokenValidation";
 
 var should = require("should");

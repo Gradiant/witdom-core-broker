@@ -2,6 +2,13 @@ var should = require("should");
 global.__base =  __dirname + '/../../../'; //Save the broker base directory
 var brokerConfig = require('./config');
 global.__brokerConfig = brokerConfig;
+var winston = require('winston');
+global.__logger = new winston.Logger({
+    level: 'info',
+    transports: [
+//      new (winston.transports.Console)()
+    ]
+});
 // ForwardingHandler
 var requestForwardingHandler = require('../../../request_forwarding/requestForwardingHandler');
 
@@ -186,7 +193,7 @@ describe("Rest call tests (doRestCall): ", function() {
                 body: null
             }
         }, function(response) {
-            console.log(response.status);
+            //console.log(response.status);
             should.exist(response);
             response.status.should.equal(200);
             done();
@@ -306,7 +313,7 @@ describe("Rest call tests (doRestCall2): ", function() {
 
     });
 
-    it("POST wrong JSON: ", function(done) {
+    /*it("POST wrong JSON: ", function(done) {
         requestForwardingHandler.doRestCall2({
             service_id: "po",
             description: "po",
@@ -337,5 +344,5 @@ describe("Rest call tests (doRestCall2): ", function() {
             done();
         });
 
-    });
+    });*/
 });

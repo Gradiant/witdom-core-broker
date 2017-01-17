@@ -240,10 +240,12 @@ exports.requestGetresultGET = function(args, res, next) {
      * request_id (String)
      * xAuthToken (String)
      **/
-
+    __logger.silly("RequestService.requestGetresultGET: request_id: " + args.request_id.value);
     requestForwardingHandler.getRequest(args.request_id.value, function(error, request) {
         if(error) {
             if(error.name == "CastError") {
+                __logger.silly("RequestService.requestGetresultGET: CastError:");
+                __logger.silly(error.message);
                 // Error parsing ID
                 res.setHeader('Content-Type', 'application/json');
                 res.writeHead(404);
@@ -255,6 +257,7 @@ exports.requestGetresultGET = function(args, res, next) {
                     }]
                 }));
             } else {
+                __logger.silly("RequestService.requestGetresultGET: database error");
                 // Malfunction (database) error
                 res.setHeader('Content-Type', 'application/json');
                 res.writeHead(500);
@@ -267,6 +270,7 @@ exports.requestGetresultGET = function(args, res, next) {
                 }));
             }
         } else if(!request) {
+            __logger.silly("RequestService.requestGetresultGET: request does not exist");
             // Request does not exist
             res.setHeader('Content-Type', 'application/json');
             res.writeHead(404);
@@ -280,6 +284,7 @@ exports.requestGetresultGET = function(args, res, next) {
         } else {
             // Got request
             if(request.status == 'FINISHED') {
+                __logger.silly("RequestService.requestGetresultGET: request has finished");
                 // Request is already finished
                 var response_data = request.request_log[request.request_log.length - 1];
                 var response_body = response_data.response.body || {};
@@ -305,6 +310,7 @@ exports.requestGetresultGET = function(args, res, next) {
                 }
                 requestForwardingHandler.deleteRequest(args.request_id.value, function(error){});
             } else {
+                __logger.silly("RequestService.requestGetresultGET: request has not finished");
                 // Request has not yet ended
                 res.setHeader('Content-Type', 'application/json');
                 res.writeHead(202);

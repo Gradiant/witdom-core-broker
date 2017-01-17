@@ -1,8 +1,10 @@
 var supertest = require("supertest");
 var should = require("should");
+var config = require('./config');
 
 // server to test
-var server = supertest.agent("http://localhost:5000/v1")
+var server = supertest.agent("http://" + config.http.host + ":" + config.http.port +"/v1")
+//var server = supertest.agent("http://localhost:5000/v1")
 
 describe("Syntax : ", function() {
     // services test
@@ -365,14 +367,15 @@ describe("Syntax : ", function() {
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
             .send({
+                "request_id": "string",
                 "service_name": "string",
                 "request_type": "string",
                 "request_uri": "string",
                 "request_headers" : {},
                 "request_data": {}
             })
-            .expect('Content-type', /json/)
-            .expect(200)
+            .expect('Content-type', 'text/plain')
+            .expect(202)
             .end(function(error, response) {
                 if (error) {
                     done(error);
@@ -431,19 +434,18 @@ describe("Syntax : ", function() {
         });
 
         // forward callback
-        it("callback : OK", function(done) {
+        it("callback : 404 : request not found", function(done) {
             server
             .post('/forward/callback')
             .set('Accept', /json/)
             .set('Content-type', 'application/json')
             .send({
                 "request_id": "string",
-                "response_status": "string",
+                "response_status": 0,
                 "response_headers" : {},
                 "response_data": {}
             })
-            .expect('Content-type', /json/)
-            .expect(200)
+            .expect(404)
             .end(function(error, response) {
                 if (error) {
                     done(error);

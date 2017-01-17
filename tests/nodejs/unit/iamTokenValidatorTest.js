@@ -1,5 +1,5 @@
-global.__brokerConfig = require('./config');
 global.__base = __dirname + "/../../../";
+global.__brokerConfig = require('./config');
 __brokerConfig.tokenValidationModule = "openstack-token-utils";
 
 
