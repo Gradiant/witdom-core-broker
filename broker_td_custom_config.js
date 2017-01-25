@@ -10,7 +10,7 @@ module.exports = {
     },
     protocol: "http",
     broker_ed : { //broker external domain
-        domain_name: "broker",
+        domain_name: "broker-ud",
         http: {
             port: 5100
         },
@@ -25,7 +25,7 @@ module.exports = {
             user: "admin",
             pass: "adminpw"
         },
-        endpoint: "http://iam:5001/v3"
+        endpoint: "http://iam:5000/v3"
     },
     /*orchestrator: {
         name: 'cloudify_provider_connector',

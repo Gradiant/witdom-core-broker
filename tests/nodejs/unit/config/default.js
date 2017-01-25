@@ -10,7 +10,7 @@ module.exports = {
     protocol: "http",
     //protocol: "https",
     broker_ed : { //broker external domain
-        domain_name: "broker-ud",
+        domain_name: "broker_ud",
         http: {
             port: 5100
         },
@@ -29,7 +29,7 @@ module.exports = {
     },
     tokenValidationModule: "openstack-token-utils",
     database: {
-        host: 'mongo',
+        host: '127.0.0.1',
         port: '27017'
     },
     orchestrator: {
