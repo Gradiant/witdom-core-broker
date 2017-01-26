@@ -29,7 +29,7 @@ module.exports = {
     },
     tokenValidationModule: "openstack-token-utils",
     database: {
-        host: 'mongo',
+        host: '127.0.0.1',
         port: '27017'
     },
     orchestrator: {
