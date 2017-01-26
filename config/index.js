@@ -1,6 +1,10 @@
 var _ = require("lodash");
 var defaults = require("./default.js");
-var config = require("./custom.js");
+
+console.log('Custom config file: ' + __customConfigFile);
+
+//var config = require("./custom.js");
+var config = require(__customConfigFile);
 
 function customizer(objValue, srcValue) {
   if (_.isObject(objValue)) {

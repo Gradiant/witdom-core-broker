@@ -10,7 +10,7 @@ module.exports = {
     },
     protocol: "http",
     broker_ed : { //broker external domain
-        domain_name: "broker",
+        domain_name: "broker-ud",
         http: {
             port: 5100
         },

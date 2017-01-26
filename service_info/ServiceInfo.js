@@ -20,6 +20,7 @@ function getOtherDomainsServices(callback) {
     //TODO: we should have an array of other domains brokers
     broker_ed.get(url_prefix + '/service/domainlist').end(function(error, response) {
         if (error) {
+            __logger.info("url: " + url_prefix + "/service/domainlist");
             __logger.warn("ServiceInfo.getOtherDomainsServices: Error contacting with other domains.");
             __logger.debug("ServiceInfo.getOtherDomainsServices: Trace:");
             __logger.debug(error);
@@ -184,6 +185,7 @@ module.exports.domainList = function(callback) {
                             image: services[index].image                            
                         };
                         services_response.push(service);
+                        //console.log("Found service locally: " + JSON.stringify(service));
                     }
                     if (typeof callback === 'function') {
                         callback(null, services_response);

@@ -7,6 +7,10 @@ var https = require('https');
 var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
 var fs = require('fs');
+global.__customConfigFile = process.argv[2] || 'config/custom.js';
+if (__customConfigFile.charAt(0) != '/') {
+    __customConfigFile = __base + __customConfigFile;
+}
 var brokerConfig = require('./config');
 global.__brokerConfig = brokerConfig;
 var errorHandler = require('./utils/errorHandler')
