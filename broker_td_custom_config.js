@@ -12,13 +12,13 @@ module.exports = {
     broker_ed : { //broker external domain
         domain_name: "broker-ud",
         http: {
-            port: 5100
+            port: 5000
         },
         https: {
-            port: 5143
+            port: 5043
         },
-        http_port: 5100,
-        https_port: 5143
+        http_port: 5000,
+        https_port: 5043
     },
     tokenValidationService: {
         admin: {
@@ -26,6 +26,10 @@ module.exports = {
             pass: "adminpw"
         },
         endpoint: "http://iam:5000/v3"
+    },
+    database: {
+        host: 'mongo',
+        port: '27017'
     },
     /*orchestrator: {
         name: 'cloudify_provider_connector',

@@ -27,6 +27,10 @@ module.exports = {
         },
         endpoint: "http://iam:5000/v3"
     },
+    database: {
+        host: 'mongo2',
+        port: '27017'
+    },
     /*orchestrator: {
         name: 'cloudify_provider_connector',
          config: {

@@ -2,10 +2,16 @@ version: '2'
 
 services:
   mongo:
-    container_name: mongo-broker
+    container_name: mongo-broker-td
     image: mongo
     ports:
       - 27017:27017
+
+  mongo2:
+    container_name: mongo-broker-ud
+    image: mongo
+    expose:
+      - "27017"
 
   iam:
     container_name: iam
@@ -37,3 +43,4 @@ services:
       - 5143:5043
     depends_on:
       - broker-td
+      - mongo2
