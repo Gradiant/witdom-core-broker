@@ -1,0 +1,22 @@
+{
+  "name": "po_connector",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "mocha --timeout 60000 ./tests/calls.js"
+  },
+  "author": "Gonzalo Jiménez Balsa <gjimenez@gradiant.org>",
+  "license": "ISC",
+  "dependencies": {
+    "superagent": "^3.4.1"
+  },
+  "devDependencies": {
+    "mocha": "^3.2.0",
+    "nock": "^9.0.2",
+    "should": "^11.1.1"
+  }
+}

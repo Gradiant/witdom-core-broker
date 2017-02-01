@@ -11,6 +11,10 @@ global.__logger = new winston.Logger({
     ]
 });
 
+var rest = require(__base + 'request/rest');
+var restCaller = rest.Rest;
+restCaller.init({});
+
 var ServiceInfo = require(__base + 'service_info/ServiceInfo');
 var nock = require("nock");
 var url_prefix = __brokerConfig.protocol + "://" + __brokerConfig.broker_ed.domain_name + ":" + __brokerConfig.broker_ed[__brokerConfig.protocol].port +"/v1";

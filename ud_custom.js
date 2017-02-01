@@ -7,7 +7,8 @@ module.exports = {
         broker_cert: 'certs/broker_ud_crt.pem',
         ca_cert: 'certs/witdomcacert.pem'
     },
-    protocol: "http",
+    //protocol: "http",
+    protocol: "https",
     database: {
         host: 'localhost',
         port: '27018'
@@ -31,7 +32,7 @@ module.exports = {
         endpoint: "http://10.10.43.20:5001/v3"
     },
     broker_ed : { //broker external domain
-        domain_name: "localhost",
+        domain_name: "broker-td",
         http: {
             port: 5000
         },

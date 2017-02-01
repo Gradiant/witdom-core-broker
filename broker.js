@@ -26,6 +26,26 @@ global.__logger = new winston.Logger({
       new (winston.transports.File)({ filename: 'broker.log' })
     ]
 });
+
+var ursa = require('ursa');
+var privatekey = ursa.createPrivateKey(fs.readFileSync(brokerConfig.https.broker_key), brokerConfig.https.broker_key_passphrase);
+
+// Https server configuration
+var httpsOptions = {
+    //key: fs.readFileSync(brokerConfig.https.broker_key), 
+    //passphrase: brokerConfig.https.broker_key_passphrase,
+    key: privatekey.toPrivatePem(),
+    cert: fs.readFileSync(brokerConfig.https.broker_cert), 
+    ca: fs.readFileSync(brokerConfig.https.ca_cert),
+    requestCert: true, 
+    rejectUnauthorized: false
+};
+__brokerConfig.httpsOptions = httpsOptions;
+
+var restCaller = require('./request/rest').Rest;
+
+restCaller.init(httpsOptions);
+
 var mongoose = require('mongoose');
 var protection = require('./protection/po_connector');
 var protector = protection.Protector;
@@ -69,16 +89,6 @@ var options = {
 // The Swagger document (require it, build it programmatically, fetch it from a URL, ...)
 var spec = fs.readFileSync('./api/swagger.yaml', 'utf8');
 var swaggerDoc = jsyaml.safeLoad(spec);
-
-// Https server configuration
-var httpsOptions = {
-    key: fs.readFileSync(brokerConfig.https.broker_key), 
-    passphrase: brokerConfig.https.broker_key_passphrase,
-    cert: fs.readFileSync(brokerConfig.https.broker_cert), 
-    ca: fs.readFileSync(brokerConfig.https.ca_cert),
-    requestCert: true, 
-    rejectUnauthorized: false
-};
 
 
 ////// TODO Implement decryption of private key where required
