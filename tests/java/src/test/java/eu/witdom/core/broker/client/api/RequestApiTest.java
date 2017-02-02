@@ -62,20 +62,43 @@ public class RequestApiTest {
     @Test
     public void requestCallbackPOSTTest() throws ApiException {
 
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode objectNode = mapper.createObjectNode();
-        objectNode.put("data", "String");
-        Result result = new Result().resultData(objectNode);
-
+        Result result = new Result();
+        
         String requestId = "string";
 
-        Result response = api.requestCallbackPOST(result, requestId);
+        try {
+            api.requestCallbackPOST(result, requestId);
+        } catch (Exception ex) {
+
+        }
 
         // TODO: test validations
     }
     
     /**
-     * Forwards a request to a service or module in a blocking manner
+     * Forwards a GET request to a service or module in a blocking manner
+     *
+     * This requests works the same as /request/create, the main difference  is that this one will not answer with a request_id, but with the result of the operations  performed by the target service. This means that the connection will be open until the  service ends the requested operations and may reach timeout if the operations take to long.  The access authorization remains the same, it can be accessed with a valid certificate or  a valid token. 
+     *
+     * @throws ApiException
+     *          if the Api call fails
+     */
+    @Test
+    public void requestCreateBlockerGETTest() throws ApiException {
+        String serviceId = "google";
+        String serviceUri = "some_path";
+        String xAuthToken = "string";
+        try {
+            Result response = api.requestCreateBlockerGET(serviceId, serviceUri, xAuthToken);
+        } catch (Exception ex) {
+
+        }
+
+        // TODO: test validations
+    }
+
+    /**
+     * Forwards a POST request to a service or module in a blocking manner
      *
      * This requests works the same as /request/create, the main difference  is that this one will not answer with a request_id, but with the result of the operations  performed by the target service. This means that the connection will be open until the  service ends the requested operations and may reach timeout if the operations take to long.  The access authorization remains the same, it can be accessed with a valid certificate or  a valid token. 
      *
@@ -84,54 +107,69 @@ public class RequestApiTest {
      */
     @Test
     public void requestCreateBlockerPOSTTest() throws ApiException {
-
-        String user = "string";
-        String token = "string";
-        Request request = new Request();
-
-        request.setServiceName("string");
-
-        request.setRequestType("string");
-
-        request.setRequestUri("string");
-
+        String serviceId = "google";
+        String serviceUri = "some_path";
+        //Request requestData = new Request();
+        Object requestData;
+        String xAuthToken = "string";
+        
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objectNode = mapper.createObjectNode();
-        objectNode.put("data", "String");
-        request.setRequestData(objectNode);
+        requestData = objectNode;
 
-        Result response = api.requestCreateBlockerPOST(request, user, token);
+        try {
+            Result response = api.requestCreateBlockerPOST(serviceId, serviceUri, requestData, xAuthToken);
+        } catch(Exception ex) {
+            
+        }
 
         // TODO: test validations
     }
     
     /**
-     * Forwarding a request to a service or module
+     * Forwards a GET request to a service or module
      *
-     * With this request starts the forwarding process; where the broker will locate the target service and will perform the previous steps (like moving the data to the untrusted domain) needed to allow the service to do the requested operations.   The broker will answer with a request_id which should be used to later request the operations result or state.   To access this path a external client must provide a valid user token granted by theIAM. For an internal module/service, it&#39;s fine to provide a valid certificate signed by the witdom CA. 
+     * With this request starts the forwarding process; where the broker  will locate the target service and will perform the previous steps (like asking the PO to protect and move the data to the untrusted domain) needed to allow the service to do the requested operations.  The broker will answer with a request_id which should be used to later request  the operations result or state.  To access this path a external client must provide a valid user token granted by  the IAM. For an internal module/service, it&#39;s fine to provide a valid certificate  signed by the witdom CA. 
+     *
+     * @throws ApiException
+     *          if the Api call fails
+     */
+    @Test
+    public void requestCreateGETTest() throws ApiException {
+        String serviceId = "google";
+        String serviceUri = "some_path";
+        String xAuthToken = "string";
+        try {
+            String response = api.requestCreateGET(serviceId, serviceUri, xAuthToken);
+        } catch (Exception ex) {
+
+        }
+
+        // TODO: test validations
+    }
+
+    /**
+     * Forwards a POST request to a service or module
+     *
+     * With this request starts the forwarding process; where the broker  will locate the target service and will perform the previous steps (like asking the PO to protect and move the data to the untrusted domain) needed to allow the service to do the requested operations.  The broker will answer with a request_id which should be used to later request  the operations result or state.  To access this path a external client must provide a valid user token granted by  the IAM. For an internal module/service, it&#39;s fine to provide a valid certificate  signed by the witdom CA. 
      *
      * @throws ApiException
      *          if the Api call fails
      */
     @Test
     public void requestCreatePOSTTest() throws ApiException {
-        
-        String user = "string";
-        String token = "string";
-        Request request = new Request();
-
-        request.setServiceName("string");
-
-        request.setRequestType("string");
-
-        request.setRequestUri("string");
+        String serviceId = "google";
+        String serviceUri = "some_path";
+        //Request requestData = new Request();
+        Object requestData = new Object();
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objectNode = mapper.createObjectNode();
-        objectNode.put("data", "String");
-        request.setRequestData(objectNode);
+        requestData = objectNode;
 
-        String response = api.requestCreatePOST(request, user, token);
+        String xAuthToken = "string";
+
+        String response = api.requestCreatePOST(serviceId, serviceUri, requestData, xAuthToken);
 
         // TODO: test validations
     }
@@ -146,12 +184,13 @@ public class RequestApiTest {
      */
     @Test
     public void requestGetresultGETTest() throws ApiException {
-
-        String user = "string";
-        String token = "string";
         String requestId = "string";
+        String xAuthToken = "string";
+        try {
+            Result response = api.requestGetresultGET(requestId, xAuthToken);
+        } catch (Exception ex) {
 
-        Result response = api.requestGetresultGET(user, token, requestId);
+        }
 
         // TODO: test validations
     }

@@ -28,7 +28,6 @@ package eu.witdom.core.broker.client.model;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import eu.witdom.core.broker.client.model.ErrorData;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.ArrayList;
@@ -36,20 +35,39 @@ import java.util.List;
 
 
 /**
- * Error
+ * ErrorData
  */
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2017-02-02T21:19:29.686+01:00")
-public class Error   {
-  @JsonProperty("message")
-  private List<ErrorData> message = new ArrayList<ErrorData>();
+public class ErrorData   {
+  @JsonProperty("code")
+  private Integer code = null;
 
-  public Error message(List<ErrorData> message) {
-    this.message = message;
+  @JsonProperty("message")
+  private String message = null;
+
+  @JsonProperty("path")
+  private List<String> path = new ArrayList<String>();
+
+  public ErrorData code(Integer code) {
+    this.code = code;
     return this;
   }
 
-  public Error addMessageItem(ErrorData messageItem) {
-    this.message.add(messageItem);
+   /**
+   * Get code
+   * @return code
+  **/
+  @ApiModelProperty(example = "null", required = true, value = "")
+  public Integer getCode() {
+    return code;
+  }
+
+  public void setCode(Integer code) {
+    this.code = code;
+  }
+
+  public ErrorData message(String message) {
+    this.message = message;
     return this;
   }
 
@@ -58,12 +76,35 @@ public class Error   {
    * @return message
   **/
   @ApiModelProperty(example = "null", required = true, value = "")
-  public List<ErrorData> getMessage() {
+  public String getMessage() {
     return message;
   }
 
-  public void setMessage(List<ErrorData> message) {
+  public void setMessage(String message) {
     this.message = message;
+  }
+
+  public ErrorData path(List<String> path) {
+    this.path = path;
+    return this;
+  }
+
+  public ErrorData addPathItem(String pathItem) {
+    this.path.add(pathItem);
+    return this;
+  }
+
+   /**
+   * Get path
+   * @return path
+  **/
+  @ApiModelProperty(example = "null", required = true, value = "")
+  public List<String> getPath() {
+    return path;
+  }
+
+  public void setPath(List<String> path) {
+    this.path = path;
   }
 
 
@@ -75,21 +116,25 @@ public class Error   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Error error = (Error) o;
-    return Objects.equals(this.message, error.message);
+    ErrorData errorData = (ErrorData) o;
+    return Objects.equals(this.code, errorData.code) &&
+        Objects.equals(this.message, errorData.message) &&
+        Objects.equals(this.path, errorData.path);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(message);
+    return Objects.hash(code, message, path);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class Error {\n");
+    sb.append("class ErrorData {\n");
     
+    sb.append("    code: ").append(toIndentedString(code)).append("\n");
     sb.append("    message: ").append(toIndentedString(message)).append("\n");
+    sb.append("    path: ").append(toIndentedString(path)).append("\n");
     sb.append("}");
     return sb.toString();
   }

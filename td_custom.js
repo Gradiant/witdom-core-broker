@@ -1,6 +1,6 @@
 module.exports = {
     //protocol: "http",
-    protocol: "https",
+    protocol: "http",
     http: { port: 5000 },
     https: {
         port: 5043,
@@ -17,12 +17,20 @@ module.exports = {
         name: 'mock_example',
         config: {
             services: {
+                service1: {                    
+                    host: "127.0.0.1",           
+                    port: "8081"               
+                },
+                google: {
+                    host: "www.google.com",
+                    port: "80" 
+                },
                 po: {
-                    host: "10.5.1.120",
+                    host: "localhost",
                     port: "8080"
                 },
                 service_td: {
-                    host: "10.5.1.120",
+                    host: "localhost",
                     port: "8081"
                 }
             }
@@ -33,7 +41,7 @@ module.exports = {
             user: "admin",
             pass: "adminpw"
         },
-        endpoint: "http://10.10.43.20:5001/v3"
+        endpoint: "http://localhost:5001/v3"
     },
     broker_ed : { //broker external domain
         domain_name: "broker-ud",

@@ -18,7 +18,7 @@ module.exports = {
         config: {
             services: {
                 service_ud: {
-                    host: "10.5.1.120",
+                    host: "localhost",
                     port: "8082"
                 }
             }
@@ -29,7 +29,7 @@ module.exports = {
             user: "admin",
             pass: "adminpw"
         },
-        endpoint: "http://10.10.43.20:5001/v3"
+        endpoint: "http://localhost:5001/v3"
     },
     broker_ed : { //broker external domain
         domain_name: "broker-td",

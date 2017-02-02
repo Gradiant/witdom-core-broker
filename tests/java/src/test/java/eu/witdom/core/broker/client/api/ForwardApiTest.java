@@ -27,9 +27,9 @@ package eu.witdom.core.broker.client.api;
 
 import eu.witdom.core.broker.client.ApiClient;
 import eu.witdom.core.broker.client.ApiException;
-import eu.witdom.core.broker.client.model.Request;
 import eu.witdom.core.broker.client.model.Error;
-import java.math.BigDecimal;
+import eu.witdom.core.broker.client.model.ForwardCallback;
+import eu.witdom.core.broker.client.model.ForwardRequest;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -52,6 +52,41 @@ public class ForwardApiTest {
 
     
     /**
+     * Forward request response to a WITDOM domain
+     *
+     * This request allows the broker to forward one response to the  broker in the trusted domain, where the target application is located.  This path can only be accessed from a trusted component, so a valid client  certificate must be present on the request. 
+     *
+     * @throws ApiException
+     *          if the Api call fails
+     */
+    @Test
+    public void forwardCallbackPOSTTest() throws ApiException {
+        ForwardCallback forwardCallback = new ForwardCallback();
+
+        forwardCallback.setRequestId("string");
+        forwardCallback.setResponseStatus(0);
+        
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode objectNode = mapper.createObjectNode();
+        objectNode.put("X-header", "header value");
+
+        forwardCallback.setResponseHeaders(objectNode);
+
+        objectNode = mapper.createObjectNode();
+        objectNode.put("Key", "value");
+
+        forwardCallback.setResponseData(objectNode);
+
+        try {
+            api.forwardCallbackPOST(forwardCallback);
+        } catch(Exception ex) {
+            
+        }
+
+        // TODO: test validations
+    }
+
+    /**
      * Forward request to a WITDOM domain
      *
      * This request allows the broker to forward one request to the broker in the untrusted domain, where the target service is located. This path can only be accessed from a trusted component, so a valid client certificate must be present on the request.
@@ -61,21 +96,26 @@ public class ForwardApiTest {
      */
     @Test
     public void forwardDomainPOSTTest() throws ApiException {
-        
-        Request request = new Request();
 
-        request.setServiceName("string");
+        ForwardRequest forwardRequest = new ForwardRequest();
 
-        request.setRequestType("string");
-
-        request.setRequestUri("string");
+        forwardRequest.setRequestId("string");
+        forwardRequest.setServiceName("string");
+        forwardRequest.setRequestType("string");
+        forwardRequest.setRequestUri("string");
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objectNode = mapper.createObjectNode();
-        objectNode.put("data", "String");
-        request.setRequestData(objectNode);
+        objectNode.put("X-header", "header value");
 
-        String response = api.forwardDomainPOST(request);
+        forwardRequest.setRequestHeaders(objectNode);
+
+        objectNode = mapper.createObjectNode();
+        objectNode.put("Key", "value");
+
+        forwardRequest.setRequestData(objectNode);
+
+        String response = api.forwardDomainPOST(forwardRequest);
 
         // TODO: test validations
     }
