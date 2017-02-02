@@ -1,5 +1,14 @@
 module.exports = {
-    protocol: "http",
+    //protocol: "http",
+    protocol: "https",
+    http: { port: 5000 },
+    https: {
+        port: 5043,
+        broker_key: 'certs/broker_td_key.pem',
+        broker_key_passphrase: 'W1td0mBr0k3r',
+        broker_cert: 'certs/broker_td_crt.pem',
+        ca_cert: 'certs/witdomcacert.pem'
+    },
     database: {
         host: 'localhost',
         port: '27017'
@@ -27,7 +36,7 @@ module.exports = {
         endpoint: "http://10.10.43.20:5001/v3"
     },
     broker_ed : { //broker external domain
-        domain_name: "localhost",
+        domain_name: "broker-ud",
         http: {
             port: 5100
         },
