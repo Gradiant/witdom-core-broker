@@ -1,219 +1,104 @@
 'use strict';
 
-var request = require('request');
-//var brokerConfig = require('../config');
-var orchestrator = require(__brokerConfig.orchestrator.name).Orchestrator;
-var mongoose = require('mongoose');
-var Request = require('../models/mongo/request');
-var Service = require('../models/mongo/service');
-var unirest = require('unirest');
-var fs = require('fs');
-var stream = require('stream');
-var ServiceInfo = require('../service_info/ServiceInfo');
-var protector = require('../protection/po_connector').Protector;
-var superagent = require('superagent');
+var Request = require(__base + 'models/mongo/request');
+var Service = require(__base + 'models/mongo/service');
+var ServiceInfo = require(__base + 'service_info/ServiceInfo');
+var protector = require(__base + 'protection/po_connector').Protector;
+var RequestHandler = require('./requests');
 
 /**
  * Manages the request flow, taking care of the service location and the database updates for
  * the requests and services, if needed.
  * Works asynchronously and does not provide any output, it only updates the database.
  */
-ForwardingHandler.prototype.request = function(request_id, request_data) {
+ForwardingHandler.prototype.request = function(origin, request_data, callback) {
+
+    __logger.debug("ForwardingHandler.request: new request");
 
     // Save request to database
+    RequestHandler.createRequest(origin, request_data, function(error, request) {
+        if(error) {
 
-    // Retrieve service from database
-    var service_id = request_data.request.service_name;
+            __logger.error("ForwardingHandler.request: can not create request ");
+            __logger.debug("ForwardingHandler.request: trace:");
+            __logger.debug(error);
+
+            callback(error, null);
+        } else {
+
+            __logger.debug("ForwardingHandler.request: new request");
+
+            // Return request id and continue
+            var request_id = request.id;
+            callback(error, request_id);
+
+            // Retrieve service from database
+            var service_id = request_data.request.service_name;
+            ServiceInfo.findWithLocation(service_id, function(error, service) {
+                if(error) {
+                    var code, message;
+                    if(error.code == 404) {
+                        __logger.warn("ForwardingHandler.request: can not find service " + service_id);
+                        __logger.silly("ForwardingHandler.request: trace:");
+                        __logger.silly(error);
+
+                        code = 404;
+                        message = "service not found";
+                    } else {
+                        __logger.warn("ForwardingHandler.request: got error finding service " + service_id);
+                        __logger.silly("ForwardingHandler.request: trace:");
+                        __logger.silly(error);
+
+                        code = 500;
+                        message = "internal server error, can not access database";
+                    }
+
+                    // If we get an error we update request and exit
+                    self.updateRequest(request_id, 'FINISHED', {
+                        response:{
+                            service_name: request_data.request.service_name,
+                            service_path: request_data.request.service_path,
+                            status: code,
+                            headers: {},
+                            body: {
+                                message: [{
+                                    code: code.toString(),
+                                    message: message,
+                                    path:[]
+                                }]
+                            }
+                        }
+                    }, function(error) {});
+
+                } else if(service) {
+                    if(service.location == 'local') {
+
+                        __logger.debug("ForwardingHandler.request: Found service " + service_id + " in local domain.");
+
+
+                    } else {
+
+                    }
+                }
+            });
+        }
+    });
+    // TODO -> Move the major part of this to the rest.js file
     var self = this;
     ServiceInfo.findWithLocation(service_id, function(error, service) {
         if(error) {
-            if(error.code == 404) {
-
-                __logger.warn("ForwardingHandler.request: can not find service " + service_id);
-                __logger.debug("ForwardingHandler.request: trace:");
-                __logger.debug(error);
-
-                var code = 404;
-                var message = "service not found";
-
-            } else {
-
-                __logger.warn("ForwardingHandler.request: got error finding service " + service_id);
-                __logger.debug("ForwardingHandler.request: trace:");
-                __logger.debug(error);
-
-                var code = 500;
-                var message = "internal server error, can not access database";
-            }
-
-            // If we get an error we update request and exit
-                self.updateRequest(request_id, 'FINISHED', {
-                    response:{
-                        service_name: request_data.request.service_name,
-                        service_path: request_data.request.service_path,
-                        status: code,
-                        headers: {},
-                        body: {
-                            message: [{
-                                code: code,
-                                message: message,
-                                path:[]
-                            }]
-                        }
-                    }
-                }, function(error) {});
-
+            // Moved
         } else if(service) {
             if(service.location == 'local') {
-                __logger.silly("ForwardingHandler.doRequest: Found service " + service_id + " in local domain.");
+
+                __logger.silly("ForwardingHandler.request: Found service " + service_id + " in local domain.");
+
                 request_data.request.headers['X-Broker-Callback-URL'] = '/request/callback?request_id=' + request_id;
                 self.doRestCall(service.details, request_data, function(response) {//TODO: we need to pass request_id to doRestCall, because it is needed to build the callback URL
                     if(!response.status) {
-                        // If communication fails, we update service on database
-                        ServiceInfo.updateService(service_id, function(error, service) {
-                            if(error) {
-                                if(error.code == 404) {
-                                    __logger.warn("ForwardingHandler.doRequest: Can not find new service " + service_id + " info");
-                                    __logger.debug("ForwardingHandler.doRequest: trace:");
-                                    __logger.debug(error);
-                                    // If we get a system error we update request and exit
-                                    self.updateRequest(request_id, 'FINISHED', {
-                                        response:{
-                                            service_name: request_data.request.service_name,
-                                            service_path: request_data.request.service_path,
-                                            status: 404,
-                                            headers: {},
-                                            body: {
-                                                message: [{
-                                                    code:"404",
-                                                    message: "service not found",
-                                                    path:[]
-                                                }]
-                                            }
-                                        }
-                                    }, function(error) {});
-                                } else {
-                                    __logger.warn("ForwardingHandler.doRequest: got error updating service " + service_id + " info");
-                                    __logger.debug("ForwardingHandler.doRequest: trace:");
-                                    __logger.debug(error);
-                                    // If we get a system error we update request and exit
-                                    self.updateRequest(request_id, 'FINISHED', {
-                                        response:{
-                                            service_name: request_data.request.service_name,
-                                            service_path: request_data.request.service_path,
-                                            status: 500,
-                                            headers: {},
-                                            body: {
-                                                message: [{
-                                                    code:"500",
-                                                    message: "internal server error, can not update database",
-                                                    path:[]
-                                                }]
-                                            }
-                                        }
-                                    }, function(error) {});
-                                }
-                            } else if(service) {
-                                __logger.silly("ForwardingHandler.doRequest: Found new service " + service_id + " info.");
-                                self.doRestCall(service.details, request_data, function(response) {
-                                    if(!response.status) {
-                                        __logger.warn("ForwardingHandler.doRequest: Got error contacting service " + service_id);
-                                        __logger.debug("ForwardingHandler.doRequest: trace:");
-                                        __logger.debug(response.error);
-                                        // TODO, If communication fails try to deploy it with cloudify. For now, we asume we can not do anything
-                                        self.updateRequest(request_id, 'FINISHED', {
-                                            response:{
-                                                service_name: request_data.request.service_name,
-                                                service_path: request_data.request.service_path,
-                                                status: 503,
-                                                headers: {},
-                                                body: {
-                                                    message: [{
-                                                        code:"503",
-                                                        message: "can not reach service",
-                                                        path:[]
-                                                    }]
-                                                }
-                                            }
-                                        }, function(error) {});
-                                    } else {
-                                        __logger.silly("ForwardingHandler.doRequest: Success on contating with service " + service_id);
-                                        var status;
-                                        if(response.status == 202) {
-                                            status = 'IN_PROGRESS';
-                                        } else {
-                                            status = 'FINISHED';
-                                        }
-                                        self.updateRequest(request_id, status, {
-                                            response: {
-                                                service_name: request_data.request.service_name,
-                                                service_path: request_data.request.service_path,
-                                                status: response.status,
-                                                headers: response.headers,
-                                                body: response.body
-                                            }
-                                        }, function(error) {});
-                                    }
-                                });
-                            }
-                        });
+                        // Moved to rest.js
                     } else {
-                        var status;
-                        var new_log = {
-                            response:{
-                                service_name: request_data.request.service_name,
-                                service_path: request_data.request.service_path,
-                                status: response.status,
-                                headers: response.headers,
-                                body: response.body
-                            }
-                        };
-                        if(response.status == 202) {
-                            status = 'IN_PROGRESS';
-                            self.updateRequest(request_id, status, new_log, function(error) {
-                                if(error) {
-                                    __logger.warn("ForwardingHandler.doRequest: Error updating request in database");
-                                    __logger.debug("ForwardingHandler.doRequest: Trace:");
-                                    __logger.debug(error);
-                                }
-                            });
-                        } else {
-                            status = 'FINISHED';
-                            Request.findById(request_id, function(error, request) {
-                                if(!error) {
-                                    // Successful request forwading
-                                    if(request.origin != 'local') {
-                                        var first_log = request.request_log[0];
-                                        var original_id = first_log.request.original_id;
-                                        self.doForwardCallback(__brokerConfig.broker_ed, original_id, new_log, function(response) {
-                                            if(!response.status || response.status != 200) {
-                                                __logger.warn("ForwardingHandler.doRequest: Error doing forward callback to origin");
-                                                __logger.debug("ForwardingHandler.doRequest: Trace:");
-                                                __logger.debug(response.status);
-                                                __logger.debug(response.text);
-                                                __logger.debug(response.body);
-                                                __logger.debug(response.error);
-                                            }
-                                            self.deleteRequest(request_id, function(error) {
-                                                if(error) {
-                                                    __logger.warn("ForwardingHandler.doRequest: Error deleting request in database");
-                                                    __logger.debug("ForwardingHandler.doRequest: Trace:");
-                                                    __logger.debug(error);
-                                                }
-                                            });
-                                        });
-                                    } else {
-                                        self.updateRequest(request_id, status, new_log, function(error) {
-                                            if(error) {
-                                                __logger.warn("ForwardingHandler.doRequest: Error updating request in database");
-                                                __logger.debug("ForwardingHandler.doRequest: Trace:");
-                                                __logger.debug(error);
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-                        }
+                        // Moved to rest.js
                     }
                 });
             } else {

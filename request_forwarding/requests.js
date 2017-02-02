@@ -7,7 +7,7 @@ var Request = require(__base + 'models/mongo/request');
  */
 RequestHandler.prototype.createRequest = function(origin, request_data, callback) {
 
-    __logger.debug("RequestHandler.createRequest")
+    __logger.debug("RequestHandler.createRequest");
     __logger.silly("RequestHandler.createRequest: request_data");
     __logger.silly(request_data);
 
@@ -16,6 +16,8 @@ RequestHandler.prototype.createRequest = function(origin, request_data, callback
     new_request.save(function(error, request) {
         if(error) {
             __logger.error("RequestHandler.createRequest: error saving request to database");
+            __logger.debug("RequestHandler.createRequest: trace");
+            __logger.debug(error);
         }
         // Return error or data
         callback(error, request);
@@ -35,6 +37,8 @@ RequestHandler.prototype.updateRequest = function(request_id, status, new_data, 
     Request.findById(request_id, function(error, request) {
         if(error) {
             __logger.error("RequestHandler.updateRequest: error finding request in database");
+            __logger.debug("RequestHandler.updateRequest: trace");
+            __logger.debug(error);
             callback(error, null);
         } else {
             // Push new_data to request log
@@ -44,6 +48,8 @@ RequestHandler.prototype.updateRequest = function(request_id, status, new_data, 
             request.update(status, new_log, function(error) {
                 if(error) {
                     __logger.error("RequestHandler.updateRequest: error saving request to database");
+                    __logger.debug("RequestHandler.updateRequest: trace");
+                    __logger.debug(error);
                 }
                 callback(error, request);
             });
@@ -62,7 +68,9 @@ RequestHandler.prototype.getRequest = function(request_id, callback) {
     // Get request identified by given request_id
     Request.findById(request_id, function(error, request) {
         if(error) {
-            __logger.warn("RequestHandler.updateRequest: error finding request in database");
+            __logger.warn("RequestHandler.getRequest: error finding request in database");
+            __logger.silly("RequestHandler.getRequest: trace");
+            __logger.silly(error);
         }
         callback(error, request);
     });
@@ -80,6 +88,8 @@ RequestHandler.prototype.deleteRequest = function(request_id, callback) {
     Request.remove({_id: request_id}, function(error, request) {
         if(error) {
             __logger.error("RequestHandler.deleteRequest: error deleting request from database");
+            __logger.debug("RequestHandler.deleteRequest: trace");
+            __logger.debug(error);
         }
         callback(error, request);
     });
