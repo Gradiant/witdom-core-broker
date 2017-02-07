@@ -7,6 +7,7 @@ var unirest = require('unirest');
 var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
 var stream = require('stream');
 var protector = require('../protection/po_connector').Protector;
+var PoError = require(__base + 'protection/po_connector/lib/poError');
 
 exports.requestCallbackPOST = function(args, res, next) {
   /**
@@ -309,6 +310,32 @@ exports.requestGetresultGET = function(args, res, next) {
                     res.end(JSON.stringify(response_body));
                 }
                 requestForwardingHandler.deleteRequest(args.request_id.value, function(error){});
+            } else if (request.status == 'PROTECTING' || request.status == 'UNPROTECTING') {
+                __logger.silly("RequestService.requestGetresultGET: request is in PROTECTING or UNPROTECTING state");
+                // The request is in PROTECTING or UNPROTECTING state
+                var response_data = request.request_log[request.request_log.length - 1];
+                __logger.silly(request.request_log);
+                console.log(response_data.response.body);
+                var response_body = response_data.response.body || {}; // this is the 'processInstanceId'
+                protector.getProcessStatus(response_body, args.headers.value, function(error, statusResponse) {
+                    if (error) {
+                        if (error instanceof PoError) {
+                            res.writeHead(503); // ??Other error
+                            res.end({message: [{"code": error.code, "message": error.reason, "path": ""}]});
+                        } else if (error.status == 404) {
+                            res.setHeader('Content')
+                            res.writeHead(404);
+                            res.end({message: [{"code": 404, "message": "Request not found in PO", "path": ""}]});
+                        }
+                        // Maybe mark the request as finished
+                    } else {
+                        res.setHeader('Content-Type', 'application/json');
+                        res.writeHead(202);
+                        res.end(JSON.stringify(statusResponse));
+                    }
+                });
+
+            
             } else {
                 __logger.silly("RequestService.requestGetresultGET: request has not finished");
                 // Request has not yet ended

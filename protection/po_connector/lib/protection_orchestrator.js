@@ -100,7 +100,7 @@ Connector.prototype.protect = function(callbackUrl, service_info, request_header
                 } else if (response) {
                     if (response.status == 200) {
                         // If success, we only set protectionResponse
-                        callback(null, response.body, null);
+                        callback(null, response.text, null);
                     } else {
                         __logger.warn("Connector.protect: Unexpected response from PO");
                         __logger.debug("Connector.protect: Trace");
@@ -219,7 +219,7 @@ Connector.prototype.unprotect = function(callbackUrl, service_info, request_head
                     if (response.status == 200) {
                         __logger.silly("Connector.unprotect: Successful response from PO");
                         // If success, we only set protectionResponse
-                        callback(null, response.body, null);
+                        callback(null, response.text, null);
                     } else {
                         __logger.warn("Connector.unprotect: Unexpected response from PO");
                         __logger.debug("Connector.unprotect: Trace");
@@ -278,6 +278,45 @@ Connector.prototype.endUnprotection = function(originalCallParameters, receivedC
         // In other case we return an error
         callback(new PoError(receivedCallParameters.status, "error protecting data"), null);
     }
+}
+
+
+Connector.prototype.getProcessStatus = function(processInstanceId, request_headers, callback) {
+    //Get the uri of the PO from services
+    ServiceInfo.find(this.po_id, function(error, po_info) {
+        if (error) {
+            callback(error);
+        } else {
+            var status_url = this.protocol + '://' + po_info.uri + '/v1/processstatus/' + processInstanceId;
+            __logger.silly("Connector.getProcessStatus: Final url: " + status_url);
+            var headers = {
+                "X-Auth-Token": request_headers["x-auth-token"] || request_headers["X-Auth-Token"]
+            };
+            __logger.silly("Connector.getProcessStatus: Headers:");
+            __logger.silly(headers);
+
+            restCaller.doCall(status_url, 'GET', headers, null, 4, function(error, response) { // TODO read number of retries from config
+                if (error) {
+                    // If we can not reach server, we return control to main function
+                    callback(error, null);
+                } else if (response) {
+                    if (response.status == 200) {
+                        __logger.silly("Connector.getProcessStatus: Successful response from PO");
+                        // If success, we only set protectionResponse
+                        callback(null, response.body);
+                    } else {
+                        __logger.warn("Connector.getProcessStatus: Unexpected response from PO");
+                        __logger.debug("Connector.getProcessStatus: Trace");
+                        __logger.debug(response.status);
+                        __logger.debug(response.text);
+                        __logger.debug(response.body);
+                        // If error in unprotection, we return control to main function
+                        callback(new PoError(response.status, "error in processstatus"));
+                    }
+                }
+            });
+        }
+    }.bind(this));
 }
 
 var connector = module.exports = exports = new Connector;

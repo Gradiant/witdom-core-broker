@@ -318,6 +318,8 @@ paths:
           description: "Request result"
           schema:
             $ref: "#/definitions/Result"
+        202:
+          description: "Request is in progress"
         400:
           description: "Request parameters validation error"
           schema:

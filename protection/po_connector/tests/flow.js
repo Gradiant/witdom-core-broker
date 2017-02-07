@@ -120,6 +120,59 @@ describe("Protection : ", function() {
     });
 });
 
+describe("Status",  function() {
+    before(function(done){
+        nock(config.protocol + '://' + host + ':' + port)
+        .get('/v1/processstatus/' + 123456)
+        .reply(200,{'code': 0, 'message': 'STATE_PENDING'});
+        done();
+    });
+    it("Proctection status", function(done) {
+        protector.getProcessStatus(123456, {'X-Auth-Token': 'token'}, function(error, statusResponse) {
+            should.not.exist(error);
+            should.exist(statusResponse);
+            statusResponse.should.be.an.object;
+            statusResponse.should.have.property('code');
+            statusResponse.code.should.equal(0);
+            statusResponse.should.have.property('message');
+            statusResponse.message.should.equal('STATE_PENDING');
+            done();
+        });
+    });
+    before(function(done){
+        nock(config.protocol + '://' + host + ':' + port)
+        .get('/v1/processstatus/' + 123456)
+        .reply(404);
+        done();
+    });
+    it("Proctection status: NOT FOUND", function(done) {
+        protector.getProcessStatus(123456, {'X-Auth-Token': 'token'}, function(error, statusResponse) {
+            should.exist(error);
+            should.not.exist(statusResponse);
+            error.status.should.equal(404);
+            done();
+        });
+    });
+    before(function(done){
+        nock(config.protocol + '://' + host + ':' + port)
+        .get('/v1/processstatus/' + 555555)
+        .reply(200,{'code': 1, 'message': 'STATE_ACTIVE'});
+        done();
+    });
+    it("Unproctection status", function(done) {
+        protector.getProcessStatus(555555, {'X-Auth-Token': 'token'}, function(error, statusResponse) {
+            should.not.exist(error);
+            should.exist(statusResponse);
+            statusResponse.should.be.an.object;
+            statusResponse.should.have.property('code');
+            statusResponse.code.should.equal(1);
+            statusResponse.should.have.property('message');
+            statusResponse.message.should.equal('STATE_ACTIVE');
+            done();
+        });
+    });
+});
+
 describe("Unprotection : ", function() {
     it("OK", function(done) {
         var originalBody = {
