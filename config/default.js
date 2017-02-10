@@ -8,6 +8,8 @@ module.exports = {
         broker_cert: 'certs/broker_crt.pem',
         ca_cert: 'certs/witdomcacert.pem'
     },
+    numberOfRetries: 10,
+    po_id: 'po',
     broker_ed : { //broker external domain
         domain_name: "broker-ud",
         http: {

@@ -52,7 +52,8 @@ var protector = protection.Protector;
 
 var protectorConfig = {
     protocol: __brokerConfig.protocol,
-    po_id: "po"//TODO: Make configurable
+    po_id: __brokerConfig.po_id,
+    numberOfRetries: __brokerConfig.numberOfRetries
 };
 
 protector.connect(protectorConfig, function (error) {

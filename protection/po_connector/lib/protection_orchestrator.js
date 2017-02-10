@@ -36,6 +36,7 @@ Connector.prototype.connect = function(config, callback) {
     //this.port = po_info.uri.split(":")[1];
     //this.auth_token = config.auth_token;
     this.po_id = config.po_id;
+    this.numberOfRetries = config.numberOfRetries;
     try {
         //this.ca = fs.readFileSync(config.ca);
         //this.certificate_key = fs.readFileSync(config.certificate_key);
@@ -93,7 +94,7 @@ Connector.prototype.protect = function(callbackUrl, service_info, request_header
                 }
             };
 
-            restCaller.doCall(protect_url,'POST', headers, options.body, 4, function(error, response) { // TODO read number of retries from config
+            restCaller.doCall(protect_url,'POST', headers, options.body, this.numberOfRetries, function(error, response) { // TODO read number of retries from config
                 if (error) {
                     // If we can not reach server, we return control to main function
                     callback(error, null, null);
@@ -211,7 +212,7 @@ Connector.prototype.unprotect = function(callbackUrl, service_info, request_head
                 }
             };
 
-            restCaller.doCall(unprotect_url,'POST', headers, options.body, 4, function(error, response) { // TODO read number of retries from config
+            restCaller.doCall(unprotect_url,'POST', headers, options.body, this.numberOfRetries, function(error, response) { // TODO read number of retries from config
                 if (error) {
                     // If we can not reach server, we return control to main function
                     callback(error, null, null);
@@ -295,7 +296,7 @@ Connector.prototype.getProcessStatus = function(processInstanceId, request_heade
             __logger.silly("Connector.getProcessStatus: Headers:");
             __logger.silly(headers);
 
-            restCaller.doCall(status_url, 'GET', headers, null, 4, function(error, response) { // TODO read number of retries from config
+            restCaller.doCall(status_url, 'GET', headers, null, this.numberOfRetries, function(error, response) { // TODO read number of retries from config
                 if (error) {
                     // If we can not reach server, we return control to main function
                     callback(error, null);

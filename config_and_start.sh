@@ -89,6 +89,14 @@ elif [ "$ORCHESTRATOR" == "mock_example" ]; then
     fi
 fi
 
+if [ -z "$RETRIES" ]; then
+    RETRIES="10"
+fi
+
+if [ -z "$PO_ID" ]; then
+    PO_ID="po"
+fi
+
 
 ## Write the custom configuration file
 
@@ -103,6 +111,8 @@ module.exports = {
         broker_cert: '${BROKER_CERT}',
         ca_cert: '${CA_CERT}'
     },
+    numberOfRetries: ${RETRIES},
+    po_id: '${PO_ID}',
     protocol: "${BROKER_PROTOCOL}",
     broker_ed : { //broker external domain
         domain_name: "${BROKER_ED_HOST}",
@@ -139,7 +149,5 @@ EOF
 
 
 ## Start the Broker using the created custom configuration file
-
-cat custom_config.js
 
 npm start -- custom_config.js

@@ -8,6 +8,7 @@ module.exports = {
         broker_cert: 'certs/broker_td_crt.pem',
         ca_cert: 'certs/witdomcacert.pem'
     },
+    numberOfRetries: 10,
     protocol: "http",
     broker_ed : { //broker external domain
         domain_name: "broker-ud",
@@ -28,13 +29,13 @@ module.exports = {
         endpoint: "http://iam:5000/v3"
     },
     database: {
-        host: 'localhost',
+        host: 'mongo',
         port: '27017'
     },
     orchestrator: {
         name: 'mock_example',
         config: {
-            services: {po:{host:"po",port:"8080"}, "trusted-service":{host:"trusted-service",port:"8080"}}
+            services: {}
         }   
     }
 };
