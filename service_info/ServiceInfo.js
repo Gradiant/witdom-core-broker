@@ -22,7 +22,7 @@ __logger.info("ServiceInfo: url_prefix: " + url_prefix);
 
 function getOtherDomainsServices(callback) {
     //TODO: we should have an array of other domains brokers
-    restCaller.doCall(url_prefix + '/service/domainlist','GET', {}, {}, 0, function(error, response) {
+    restCaller.doCall(url_prefix + '/service/domainlist','GET', {}, {}, __brokerConfig.numberOfRetries, function(error, response) {
     //broker_ed.get(url_prefix + '/service/domainlist').end(function(error, response) {
         if (error) {
             __logger.info("url: " + url_prefix + "/service/domainlist");
