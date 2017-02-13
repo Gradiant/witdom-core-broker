@@ -3,11 +3,11 @@
 var brokerConfig = require('../config');
 var mongoose = require('mongoose');
 var Service = require('../models/mongo/service');
-var unirest = require('unirest');
 var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
 var stream = require('stream');
 var protector = require('../protection/po_connector').Protector;
 var PoError = require(__base + 'protection/po_connector/lib/poError');
+var requestWatcher = require(__base + 'request/requestWatcher');
 
 exports.requestCallbackPOST = function(args, res, next) {
   /**
@@ -163,7 +163,11 @@ var requestCreate_blocker = function(request_data, res, next) {
                 }]
             }));
         } else {
-            // Save res (connected socket) with watcher function (activates once each 0.5 seconds)
+            // Save the request in the request watcher
+            __logger.silly("requestCreate_blocker: adding request " + request_id);
+            requestWatcher.addRequest(request_id, res);
+
+/*            // Save res (connected socket) with watcher function (activates once each 0.5 seconds)
             var watcher = setInterval(function(){
                 if (__logger) {
                     __logger.info("Checking status of request " + request_id);
@@ -230,7 +234,7 @@ var requestCreate_blocker = function(request_data, res, next) {
                         }
                     }
                 });
-            }, 500);
+            }, 500);*/
         }
     });
 }
