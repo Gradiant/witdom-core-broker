@@ -242,6 +242,7 @@ CLOUDIFY_HOST=cloudify                      # Hostname of Cloudify (only for mod
 CLOUDIFY_PORT=80                            # Port of Cloudify (only for module 'cloudify_provider_connector')
 RETRIES=8                                   # Number of retries to do when there is a network error when communicating with other components
 PO_ID=po                                    # ID of the PO defined in the cloud orchestrator
+LOGGING_LEVEL=silly                         # Logging level (error|warn|info|verbose|debug|silly)
 ```
 
 It's not recommended to change the value of 'BROKER_HTTP_PORT' and 'BROKER_HTTPS_PORT' because the default values are hardcoded in 'Dockerfile', for this reason if any of those values are changed the 'Dockerfile' has also to be changed accordingly and the docker image has to be rebuilt.

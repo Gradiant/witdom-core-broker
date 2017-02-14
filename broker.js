@@ -20,7 +20,7 @@ var httpAuthValidator = require('./utils/httpAuthValidator');
 var requestHeadersParser = require('./utils/requestHeadersParser');
 var winston = require('winston');
 global.__logger = new winston.Logger({
-    level: 'silly',
+    level: __brokerConfig.logging_level || 'silly',
     transports: [
       new (winston.transports.Console)(),
       new (winston.transports.File)({ filename: 'broker.log' })
@@ -141,14 +141,14 @@ orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
 
             // Start the server
             http.createServer(app).listen(brokerConfig.http.port, function () {
-                console.log('Your server is listening on port %d (http://localhost:%d)', brokerConfig.http.port, brokerConfig.http.port);
-                console.log('Swagger-ui is available on http://localhost:%d/docs', brokerConfig.http.port);
+                __logger.info('Your server is listening on port %d (http://localhost:%d)', brokerConfig.http.port, brokerConfig.http.port);
+                __logger.info('Swagger-ui is available on http://localhost:%d/docs', brokerConfig.http.port);
             });
 
             // Start the https server
             https.createServer(httpsOptions,app).listen(brokerConfig.https.port, function () {
-                console.log('Your server is listening on port %d (https://localhost:%d)', brokerConfig.https.port, brokerConfig.https.port);
-                console.log('Swagger-ui is available on https://localhost:%d/docs', brokerConfig.https.port);
+                __logger.info('Your server is listening on port %d (https://localhost:%d)', brokerConfig.https.port, brokerConfig.https.port);
+                __logger.info('Swagger-ui is available on https://localhost:%d/docs', brokerConfig.https.port);
             });
 
             __logger.info("Broker intialized successfully");

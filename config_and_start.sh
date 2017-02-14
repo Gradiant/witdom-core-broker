@@ -97,6 +97,10 @@ if [ -z "$PO_ID" ]; then
     PO_ID="po"
 fi
 
+if [ -z "$LOGGING_LEVEL" ]; then
+    LOGGING_LEVEL="silly"
+fi
+
 
 ## Write the custom configuration file
 
@@ -141,7 +145,8 @@ module.exports = {
         config: {
             ${ORCHESTRATOR_CONFIG}
         }   
-    }
+    },
+    logging_level: '${LOGGING_LEVEL}'
 };
 
 
