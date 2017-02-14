@@ -15,6 +15,7 @@ The broker repository contains the following directories and files (not all the 
  - protection (default protection orchrestrator communication module)
  - request (contains a module for doing rest calls)
  - request_forwarding (broker's core module)
+ - service_info (an utility module to retrieve info about available services)
  - tests (nodejs tests and java api client library with example calls)
    - nodejs
    - java
@@ -71,15 +72,11 @@ The module will create a service for each one defined inside 'services' element,
         config: {
             protocol: 'http',                                   // Connection protocol
             host: 'localhost',                                  // Cloudify API host
-            port: '1234',                                       // Cloudify API port
-            auth_token: 'some token',                           // Auth mechanism (TBD)
-            certificate_key: './CAs/witdomCA/client1_key.pem',  // Client certificate key
-            certificate: './CAs/witdomCA/client1_crt.pem',      // Client certificate
-            ca: './CAs/witdomCA/witdomcacert.pem'               // Client trusted CA
+            port: '1234'                                        // Cloudify API port
         }
     }
 ```
-//TODO Review the parameters passed in Cloudify orchestrator config
+
 This module looks for outputs in all cloudify deployments. In orded to be recognized, the outputs in the cloudify blueprint must be defined in this format.
 ```yaml
 outputs:
@@ -119,7 +116,7 @@ For locally deploying the broker just run the following command:
 $ npm start
 ```
 
-It will install all the needed dependencies and start the broker with the configuration inside the config directory. It is also posible to provided a custom config when starting the Broker using the following command:
+It will install all the needed dependencies and start the broker with the configuration inside the config directory. It is also posible to provide a custom config when starting the Broker using the following command:
 ```bash
 $ nmp start -- custom_config.js
 ```
@@ -131,6 +128,10 @@ This will start the broker using the contents of the file `custom_config.js` to 
 Also the TD broker needs a mongo server listening in the port 27017 and the UD broker a mongo server in the port 27018. An IAM listening at the port 5001 is also needed.
 
 ## Deployment of the broker with Dockerfile
+There are two provided ways to deploy the trusted domain and the untrusted domain instances of the Broker. The first one creates a docker image for each domain (using a custom Dockerfile for each one) and the configuration for the domain is set at the time the docker image is built, so in order to change the configuration of that Broker instance it's necessary to rebuild the image. The other way uses the same Dockerfile for all domains, and is configurable through an environment variables file that is read when the container is started. This way it's possible to change the container configuration just by running it again with a different environment file without the need of rebuilding the docker image. The first way is explained first.
+
+### Using one docker image for each Broker domain
+
 First edit the files 'broker_td_custom_config.js' and 'broker_ud_custom_config.js' to configure the trusted domain broker and untrusted domain broker. The ports of the broker and the configuration of the certificates can be also be set up in these files.
 For example to change the port of the HTTP connector edit the custom file of one of the Brokers and edit the following line:
 
@@ -145,9 +146,9 @@ EXPOSE <https_port>
 ```
 Note that any change made to the configuration of the custom files for each broker will need to be reflected in the explanations that are shown below.
 
-Once the configuration is done there are two ways to deploy a testing environment with both brokers. The first one is using the provided script `broker_docker.sh` that uses docker ambassador containers to interconnect both Brokers. The other is using Dockercompose with the provided yaml configuration in the file `docker-compose.yml`, this second way is way easier than the first one, so it is recommended. Below the deployment with both methods is explained.
+Once the configuration is done there are two ways to deploy a testing environment with both brokers. The first one is using the provided script `broker_docker.sh` that uses docker ambassador containers to interconnect both Brokers. The other is using docker-compose with the provided yaml configuration in the file `docker-compose.yml`, this second way is way easier than the first one, so it is recommended. Below the deployment with both methods is explained.
 
-### Using broker_docker.sh
+#### Using broker_docker.sh
 
 The first thing to do is build the images for both Brokers. To build the docker image for the trusted broker run the following command:
 ```
@@ -198,19 +199,67 @@ $ ./broker_docker.sh --command=remove-containers --container-name=broker_ud
 And then run them again as it was explained above.
 
 
-### Using Dockercompose
+#### Using Dockercompose
 
 For using dockercompose the file docker-compose.yml is provided. To build and run the containers run the following commands:
 ```bash
 $ docker-compose build  # Builds images
-$ docker-compose up     # Starts and starts containers
+$ docker-compose up     # Creates and starts containers
 ```
-After running the above commands, you will see the output log of all the depoyed docker commands in the same window. If you want to prevent this behaviour, you can add the '-d' option to the `docker-compose up` command, which will start the containers in detached mode. In this case, standard output of all docker containers can be obtained by running `docker-compose logs`.
+After running the above commands, you will see the output log of all the deployed docker containers in the same window. If you want to prevent this behaviour, you can add the '-d' option to the `docker-compose up` command, which will start the containers in detached mode. In this case, standard output of all docker containers can be obtained by running `docker-compose logs`.
 
-To stop and remove the cointainer run the following command (if you run the cointers with `docker-compose up` you'll to open a new terminal window in the same directory to run the command)
+To stop and remove the cointainers run the following command (if you run the cointers with `docker-compose up` you'll need to open a new terminal window in the same directory to run the command)
 ```bash
 $ docker-compose down
 ```
+
+
+### Using the same docker image for each Broker container
+
+A Dockerfile file is provided for building a docker image that can be used for both Broker domains ('Dockerfile'). Once the docker image is built the configuration of the container can be customized when running it by providing a environment file like the following:
+
+```
+BROKER_HTTP_PORT=5000                       # HTTP port of the Broker inside the container
+BROKER_HTTPS_PORT=5043                      # HTTPS port of the Broker inside the container
+BROKER_CERT=certs/broker_td_crt.pem         # TLS certificate of the Broker
+BROKER_KEY=certs/broker_td_key.pem          # Key of the certificate
+BROKER_KEY_PASSPHRASE=W1td0mBr0k3r          # Passphrase of the key (in case it's encrypted)
+CA_CERT=certs/witdomcacert.pem              # Certificate of the CA that provided the certificates of the WITDOM services
+BROKER_PROTOCOL=http                        # Protocol used by the Broker to communicate with other components (http|http)
+BROKER_ED_HOST=broker-ud                    # Host name of the Broker in the external domain (For the TD Broker this will be the hostname of the UD Broker and vice versa)
+BROKER_ED_HTTP_PORT=5000                    # HTTP port of the Broker in the external domain
+BROKER_ED_HTTPS_PORT=5043                   # HTTPS port of the Broker in the external domain
+IAM_HOST=iam                                # Host name of the IAM service
+IAM_PORT=5000                               # Port of the IAM
+IAM_PROTOCOL=http                           # Protocol to use to connect to the IAM
+IAM_ADMIN_USER=admin                        # Admin user of the IAM
+IAM_ADMIN_PASSWORD=adminpw                  # Admin user password of the IAM
+MONGO_HOST=mongo                            # Hostname of the mongo engine used by this Broker instance
+MONGO_PORT=27017                            # Port of the mongo engine
+ORCHESTRATOR=mock_example                   # Module used for communicate with the orchestrator (cloudify_provider_connector|mock_example)
+MOCK_SERVICES=po:{host:"po",port:"8080"}    # List of services in JSON format to configure in the 'mock_example' module
+CLOUDIFY_HOST=cloudify                      # Hostname of Cloudify (only for module 'cloudify_provider_connector')
+CLOUDIFY_PORT=80                            # Port of Cloudify (only for module 'cloudify_provider_connector')
+RETRIES=8                                   # Number of retries to do when there is a network error when communicating with other components
+PO_ID=po                                    # ID of the PO defined in the cloud orchestrator
+```
+
+It's not recommended to change the value of 'BROKER_HTTP_PORT' and 'BROKER_HTTPS_PORT' because the default values are hardcoded in 'Dockerfile', for this reason if any of those values are changed the 'Dockerfile' has also to be changed accordingly and the docker image has to be rebuilt.
+
+A docker-compose file ('docker-compose-one-image.yml') is provided in order to launch a testing environment using the image created with 'Dockerfile', this environment launches two Broker containers (TD and UD) along with a mongo container for each one and an IAM container. The configuration used in each Broker is contained in the files `td.env` and `ud.env`.
+
+To build the images and run the containers use the following commands:
+
+```bash
+$ docker-compose -f docker-compose-one-image.yml build  # Builds images
+$ docker-compose -f docker-compose-one-image.yml up     # Creates and starts containers
+```
+
+And to stop and remove them:
+```bash
+$ docker-compose -f docker-compose-one-image.yml down
+```
+
 
 ## Launching nodejs integration tests
 
@@ -388,3 +437,20 @@ Below you can find a screenshot of this execution.
 The code for the dummy services we used for the workflow test can be foun in [this repository.](https://gitlab-witdom.xlab.si/gonzalo.jimenez/dummy_service_for_testing)
 This code creates a server which exposes three REST APIs; one for acting as a dummy PO, other for acting as a trusted domain service and the last one for acting as the untrusted service.
 Both trusted and untrusted domain services allow responding with callback after a few seconds or in the request response.
+
+The testing environment for the workflow test can be run locally with docker-compose using the provided file 'docker-compose-one-image-workflow-test.yml'. First it's necessary to build the dummy-service image and give it the name 'dummy-service', after that the environment can be set up with the commands:
+
+```bash
+$ docker-compose -f docker-compose-one-image-workflow_test.yml build  # Builds images
+$ docker-compose -f docker-compose-one-image-workflow_test.yml up     # Creates and starts containers
+```
+
+Once all the containers are up the workflow test can be run with the following command:
+```bash
+$ ./workflow_test.sh
+```
+
+Once the test is done the containers can be stopped and removed:
+```bash
+$ docker-compose -f docker-compose-one-image-workflow_test.yml down
+```

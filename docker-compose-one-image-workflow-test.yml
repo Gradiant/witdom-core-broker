@@ -45,3 +45,21 @@ services:
       - mongo2
     env_file:
       - ud.env
+
+  po:
+    container_name: po
+    image: dummy-service
+    ports:
+      - 8080:8080
+
+  service-td:
+    container_name: service_td
+    image: dummy-service
+    ports:
+      - 8081:8080
+
+  service-ud:
+    container_name: service_ud
+    image: dummy-service
+    ports:
+      - 8082:8080
