@@ -281,7 +281,12 @@ Connector.prototype.endUnprotection = function(originalCallParameters, receivedC
     }
 }
 
-
+/**
+ * Calls the PO method to get the process status
+ * @param {string} processInstanceId The ID of the process instance
+ * @param {object} request_headers The request headers to pass in the request to the PO
+ * @param {function} callback A callback function used to return the result to the caller
+ */
 Connector.prototype.getProcessStatus = function(processInstanceId, request_headers, callback) {
     //Get the uri of the PO from services
     ServiceInfo.find(this.po_id, function(error, po_info) {
