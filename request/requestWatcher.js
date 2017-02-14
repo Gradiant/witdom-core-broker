@@ -10,7 +10,16 @@ function RequestWatcher() {
     this.timeoutId;
     this.intervalLength = 500;
 }
-
+/**
+ * This method recursiverly checks the pending blocker requests. It checks the request requests[theindex]
+ * and then calls itself incrementing 'theindex'. In each call if a request is already finished it is added
+ * to the array 'toDelete'. Finally, the last time this function is called, the finished requests are
+ * deleted from 'watcher.requests' and the watcher timeout is restarted.
+ * @param {array} requests An array of objects containing request of the form '{requestId:requestId,requestResponse:requestResponse}'
+ * @param {number} theindex The index that is goint to be checked from requests in this call
+ * @param {array} toDelete An array of indexes to delete from watcher.requests
+ * @param {object} watcher The instance of RequestWatcher
+ */
 function checkRequest(requests, theindex, toDelete, watcher) {
     /*if (__logger) {
         __logger.silly("------------------------------------");
@@ -94,6 +103,9 @@ function checkRequest(requests, theindex, toDelete, watcher) {
     }
 }
 
+/**
+ * This function is called by a timeout to start the checking of the pending blocker requests
+ */
 function checkRequests() {
     // Process requests
     if (__logger) {
@@ -103,6 +115,11 @@ function checkRequests() {
     checkRequest(this.requests, index, [], this);
 }
 
+/**
+ * This function adds a request to the request watcher
+ * @param {string} requestId Id of the request used to retrieve the status of the request from DB.
+ * @param {object} requestResponse Http response object holding the active connection with the client.
+ */
 RequestWatcher.prototype.addRequest = function(requestId, requestResponse) {
     this.requests.push({requestId:requestId,requestResponse:requestResponse});
     if (__logger) {
@@ -123,13 +140,5 @@ RequestWatcher.prototype.addRequest = function(requestId, requestResponse) {
         }
     }
 }
-
-/*RequestWatcher.prototype.removeRequest = function(requestId) {
-    this.requests.forEach(function (element, index, array) {
-        if (element.requestId == requestId) { // If we found the element we delete it
-            array.splice(index, 1);
-        }
-    }, this);
-}*/
 
 var requestWatcher = module.exports = exports = new RequestWatcher;
