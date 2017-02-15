@@ -113,7 +113,25 @@ RestHandler.prototype.forwardRequest = function(domain_data, request_data, reque
 /**
  * Returns forwarded request to its origin
  */
-RestHandler.prototype.forwardCallback = function(domain_data, request_id, callback_data, callback) {
+RestHandler.prototype.forwardCallback = function(domain_data, callback_data, request_id, callback) {
     
+    // TODO create url for external's domain broker
 
+    // TODO, fake method
+    //==========================
+    RestMod.rest(url, method, headers, body, retries, function(error, response) {
+    //==========================
+        if(!response.status) {
+            __logger.error("RestHandler.forwardCallback: Got error forwarding callback " + request_id);
+            __logger.debug("RestHandler.forwardRforwardCallbackequest: Trace:");
+            __logger.debug(response.error);
+
+            callback({code: 503, message: "can not reach external domain"}, null);
+
+        } else {
+            __logger.debug("RestHandler.forwardCallback: Success on forwading request to external domain.");
+
+            callback(null, response);
+        }
+    });
 }
