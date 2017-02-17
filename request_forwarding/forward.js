@@ -169,7 +169,7 @@ ForwardingHandler.prototype.request = function(origin, request_data, callback) {
                                 // Update body
                                 request_data.request.body = finalCallParameters;
 
-                                RestHandler.forwardRequest(domain_data, request_data, request_id, function(error, response) {
+                                RestHandler.forwardRequest(origin, request_data, request_id, function(error, response) {
                                     if(error) {
 
                                         __logger.debug("ForwardingHandler.request: Got error forwarding request to external domain.");
@@ -363,6 +363,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                                                     }
                                                 }
                                             }, function(error) {});
+
                                         } else {
 
                                             __logger.debug("ForwardingHandler.requestCallback: Successful request. Got status " + response.status + ".");
@@ -390,7 +391,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                                     
                                     __logger.debug("RequestForwardingHandler.requestCallback: Forwarding request " + request_id + " to external domain.");
                                     
-                                    RestHandler.forwardRequest(domain_data, request_data, request_id, function(error, response) {
+                                    RestHandler.forwardRequest(service.location, request_data, request_id, function(error, response) {
                                         if(error) {
 
                                             __logger.debug("ForwardingHandler.requestCallback: Got error forwarding request to external domain.");
@@ -450,7 +451,6 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                 // Recover original response
                 var last_response_log = request.request_log[request.request_log.length - 2];    // Substract 1 for the last element (request) in the array and another for the last response.
                                                                                                 // FIXME, this does not look like a proper way to recover last response
-                var first_log = request.request_log[0];
                 var originalResponseParameters = last_response_log.response.body;
                 var receivedResponseParameters = callback_body;
                 // Change data and end request
@@ -480,6 +480,10 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
 
                         __logger.debug("ForwardingHandler.requestCallback: Successful body un-transformation.");
 
+                        // Update body
+                        var response_data = last_response_log;
+                        response_data.request.body = finalCallParameters;
+
                         if(request.origin == 'local') {
 
                             __logger.debug("ForwardingHandler.requestCallback: Updating local request.");
@@ -493,11 +497,12 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                                     body: finalCallParameters
                                 }
                             }, function(error) {});
+
                         } else {
 
                             __logger.debug("ForwardingHandler.requestCallback: Forwarding external request.");
                                     
-                            RestHandler.forwardCallback(domain_data, callback_data, request_id, function(error, response) {
+                            RestHandler.forwardCallback(request.origin, response_data, request_id, function(error, response) {
                                 if(error) {
                                     __logger.error("ForwardingHandler.requestCallback: Got error forwarding callback to external domain.");
                                     __logger.debug("ForwardingHandler.requestCallback: Trace:");
@@ -524,6 +529,8 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                     }
                 };
 
+                // TODO, we should check if an unprotection process is needed
+
                 if(request.origin == 'local') {
 
                     __logger.debug("ForwardingHandler.requestCallback: Updating local request.");
@@ -533,7 +540,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
 
                     __logger.debug("ForwardingHandler.requestCallback: Forwarding external request.");
                             
-                    RestHandler.forwardCallback(domain_data, callback_data, request_id, function(error, response) {
+                    RestHandler.forwardCallback(request.origin, callback_data, request_id, function(error, response) {
                         if(error) {
                             __logger.error("ForwardingHandler.requestCallback: Got error forwarding callback to external domain.");
                             __logger.debug("ForwardingHandler.requestCallback: Trace:");
@@ -552,7 +559,8 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
  * location and the database updates for the requests and services, if needed.
  * Works asynchronously and does not provide any output, it only updates the database.
  */
-ForwardingHandler.prototype.forward = function(origin, original_id, request_data) {
+ForwardingHandler.prototype.forward = function(origin, original_id, request_data, callback) {
+    
     // Save request to database
     RequestHandler.createRequest(origin, request_data, function(error, request) {
         if(error) {
@@ -732,29 +740,57 @@ ForwardingHandler.prototype.forward = function(origin, original_id, request_data
 /**
  * Updates the status of the request and makes the needed calls according to callback parameters 
  */
-ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) {
+ForwardingHandler.prototype.forwardCallback = function(origin, original_id, callback_body, callback) {
     
-    var self = this;
-    callback_body.response_data = callback_body.response_data.data;   //FIXME, this is a nhapa 
+    // FIXME: This encapsulation allow us to pass both strings and JSON objects through swagger-tools midleware.
+    // The ideal solution is to allow this on swagger-tools leve, but we can't do that right now.
+    callback_body.response_data = callback_body.response_data.data;
     // Get request
-    self.getRequest(callback_body.request_id, function(error, request) {
+    RequestHandler.getRequest(callback_body.request_id, function(error, request) {
         if(error) {
+
+            __logger.error("ForwardingHandler.forwardCallback: Got error finding request " + request_id);
+            __logger.debug("ForwardingHandler.forwardCallback: Trace ");
+            __logger.debug("ForwardingHandler.forwardCallback:" + error);
+
             callback(error, null);
+
         } else if(!request) {
+
+            __logger.warn("ForwardingHandler.forwardCallback: Can not find request " + request_id);
+            __logger.debug("ForwardingHandler.forwardCallback: Trace ");
+            __logger.debug("ForwardingHandler.forwardCallback:" + error);
+
             callback({name: "CastError", message: "Can not find request"});
+
         } else {
             // Got request
             if(request.status != 'FORWARDED') {
                 // Non consistent request
+
+                __logger.error("ForwardingHandler.forwardCallback: Found request " + request_id + " that is not in FORWARDED state.");
+                __logger.debug("ForwardingHandler.forwardCallback: Trace ");
+                __logger.debug("ForwardingHandler.forwardCallback:" + error);
+
                 callback({name: "CastError", message: "Can not find request"});
+
             } else {
-                // Found consistent request, return OK
+
+                // Found consistent request
+                __logger.debug("ForwardingHandler.forwardCallback: Request is in FORWARDED state, finishing.");
+
+                // Return control and continue on background
                 callback(null);
+
+                // Forwarding process finished
                 var first_log = request.request_log[0];
 
-                // Don't call unprotect if callback_body.response_status != 2xx
+                // Don't call unprotect if response status means error (not 2xx)
                 if (callback_body.response_status >= 300) { //TODO, check the codes
-                    self.updateRequest(callback_body.request_id, 'FINISHED', {
+
+                    __logger.warn("ForwardingHandler.forwardCallback: Got error " + callback_body.response_status + " from external domain.");
+
+                    RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
                         response:{
                             service_name: first_log.request.service_name,
                             service_path: first_log.request.service_path,
@@ -763,11 +799,20 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
                             body: callback_body.response_data
                         }
                     }, function(error) {});
+
                 } else {
+
+                    __logger.debug("ForwardingHandler.forwardCallback: Got successful response code " + callback_body.response_status + " from external domain.");
+
                     ServiceInfo.findWithLocation(first_log.request.service_name, function(error, service) {
                         if(error) {
+
                             // Weird error finding service
-                            self.updateRequest(callback_body.request_id, 'FINISHED', {
+                            __logger.error("ForwardingHandler.forwardCallback: Got error finding service that should exist.");
+                            __logger.debug("ForwardingHandler.forwardCallback: Trace ");
+                            __logger.debug("ForwardingHandler.forwardCallback:" + error);
+
+                            RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
                                 response:{
                                     service_name: first_log.request.service_name,
                                     service_path: first_log.request.service_path,
@@ -782,75 +827,76 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
                                     }
                                 }
                             }, function(error) {});
+
                         } else {
+
                             // TODO, broker callback url
-                            __logger.silly("ForwardingHandler.doForwardedCallback: Received body:");
-                            __logger.silly(JSON.stringify(callback_body, null, 2));
-                            self.getRequest(callback_body.request_id, function(error, request) {
+                            __logger.debug("ForwardingHandler.forwardCallback: Found service where the callback came from.");
+
+                            var first_log = request.request_log[0];
+                            var token = first_log.request.headers['X-Auth-Token'] || first_log.request.headers['x-auth-token'];
+                            if (token) {
+                                callback_body.response_headers['X-Auth-Token'] = token;
+                                __logger.silly("ForwardingHandler.doForwardedCallback: token retrieved from first log and saved in response headers:");
+                                __logger.silly(JSON.stringify(callback_body.response_headers, null, 2));
+                            }
+                            protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
                                 if(error) {
-                                    callback(error);
-                                } else {
-                                    var first_log = request.request_log[0];
-                                    var token = first_log.request.headers['X-Auth-Token'] || first_log.request.headers['x-auth-token'];
-                                    if (token) {
-                                        callback_body.response_headers['X-Auth-Token'] = token;
-                                        __logger.silly("ForwardingHandler.doForwardedCallback: token retrieved from first log and saved in response headers:");
-                                        __logger.silly(JSON.stringify(callback_body.response_headers, null, 2));
-                                    }
-                                    protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
-                                        if(error) {
-                                            // Error with PO communication
-                                            self.updateRequest(callback_body.request_id, 'FINISHED', {
-                                                response:{
-                                                    service_name: first_log.request.service_name,
-                                                    service_path: first_log.request.service_path,
-                                                    status: 503,
-                                                    headers: {},
-                                                    body: {
-                                                        message: [{
-                                                            code:"503",
-                                                            message: "can not reach protection service",
-                                                            path:[]
-                                                        }]
-                                                    }
-                                                }
-                                            }, function(error) {});
-                                        } else if(protectionResponse) {
-                                            // Protection in progress
-                                            self.updateRequest(callback_body.request_id, 'UNPROTECTING', {
-                                                response:{
-                                                    service_name: first_log.request.service_name,
-                                                    service_path: first_log.request.service_path,
-                                                    status: 200,    // TODO, we could get status from protector
-                                                    headers: {},    // TODO, we could get headers from protector
-                                                    body: protectionResponse
-                                                }
-                                            }, function(error) {});
-                                        } else if(finalCallParameters) {
-                                            // Protection ended
-                                            self.updateRequest(callback_body.request_id, 'FINISHED', {
-                                                response:{
-                                                    service_name: first_log.request.service_name,
-                                                    service_path: first_log.request.service_path,
-                                                    status: callback_body.response_status,
-                                                    headers: callback_body.response_headers,
-                                                    body: finalCallParameters,
-                                                }
-                                            }, function(error) {});
-                                        }
-                                    });
                                     
+                                    // Error with PO communication
+                                    __logger.error("ForwardingHandler.forwardCallback: Got error un-transforming body.");
+                                    __logger.debug("ForwardingHandler.forwardCallback: Trace ");
+                                    __logger.debug("ForwardingHandler.forwardCallback:" + error);
+
+                                    RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
+                                        response:{
+                                            service_name: first_log.request.service_name,
+                                            service_path: first_log.request.service_path,
+                                            status: 503,
+                                            headers: {},
+                                            body: {
+                                                message: [{
+                                                    code:"503",
+                                                    message: "can not reach protection service",
+                                                    path:[]
+                                                }]
+                                            }
+                                        }
+                                    }, function(error) {});
+
+                                } else if(protectionResponse) {
+
+                                    // Protection in progress
+                                    __logger.debug("ForwardingHandler.forwardCallback: Un-transformation process started.");
+
+                                    self.updateRequest(callback_body.request_id, 'UNPROTECTING', {
+                                        response:{
+                                            service_name: first_log.request.service_name,
+                                            service_path: first_log.request.service_path,
+                                            status: 200,    // TODO, we could get status from protector
+                                            headers: {},    // TODO, we could get headers from protector
+                                            body: protectionResponse
+                                        }
+                                    }, function(error) {});
+                                } else if(finalCallParameters) {
+
+                                    // Protection ended
+                                    __logger.debug("ForwardingHandler.forwardCallback: Un-transformation process finished.");
+
+                                    self.updateRequest(callback_body.request_id, 'FINISHED', {
+                                        response:{
+                                            service_name: first_log.request.service_name,
+                                            service_path: first_log.request.service_path,
+                                            status: callback_body.response_status,
+                                            headers: callback_body.response_headers,
+                                            body: finalCallParameters,
+                                        }
+                                    }, function(error) {});
                                 }
                             });
-                                
                         }
                     });
-
                 }
-
-                
-                
-                
             }
         }
     });
