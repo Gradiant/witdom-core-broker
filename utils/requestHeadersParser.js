@@ -16,7 +16,7 @@ function requestHeadersParser(request, response, next) {
         next();
         return;
     }
-    if (request.swagger.apiPath.startsWith('/request/create') || request.swagger.apiPath.startsWith('/request/callback')) {
+    if (request.swagger.apiPath.startsWith('/request/create') || request.swagger.apiPath.startsWith('/request/callback') || request.swagger.apiPath.startsWith('/request/getresult')) {
         request.swagger.params['headers'] = {
             value: request.headers
         };

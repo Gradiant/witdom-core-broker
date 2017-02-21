@@ -1,9 +1,11 @@
 'use strict'
 
 var Service = require('../models/mongo/service');
-var request = require('superagent');
+//var request = require('superagent');
 var fs = require('fs');
 var orchestrator = require(__brokerConfig.orchestrator.name).Orchestrator;
+var restCaller = require('../request/rest').Rest;
+
 
 var options = {
     //key: fs.readFileSync(__base + __brokerConfig.https.broker_key),
@@ -12,13 +14,16 @@ var options = {
     //ca: fs.readFileSync(__base + __brokerConfig.https.ca_cert),
 };
 
-var broker_ed = request.agent(options);
+//var broker_ed = request.agent(options);
+//var broker_ed = request.agent(__brokerConfig.httpsOptions);
 var url_prefix = __brokerConfig.protocol + "://" + __brokerConfig.broker_ed.domain_name + ":" + __brokerConfig.broker_ed[__brokerConfig.protocol].port +"/v1";
 
+__logger.info("ServiceInfo: url_prefix: " + url_prefix);
 
 function getOtherDomainsServices(callback) {
     //TODO: we should have an array of other domains brokers
-    broker_ed.get(url_prefix + '/service/domainlist').end(function(error, response) {
+    restCaller.doCall(url_prefix + '/service/domainlist','GET', {}, {}, __brokerConfig.numberOfRetries, function(error, response) {
+    //broker_ed.get(url_prefix + '/service/domainlist').end(function(error, response) {
         if (error) {
             __logger.info("url: " + url_prefix + "/service/domainlist");
             __logger.warn("ServiceInfo.getOtherDomainsServices: Error contacting with other domains.");

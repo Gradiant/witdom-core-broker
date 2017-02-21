@@ -35,16 +35,15 @@ public class ServicesApi {
     this.apiClient = apiClient;
   }
 
-  /**
+/**
    * Details like location of a specific services
-   * With this request the client can get the details of the service identified by the given service  name, if exists.  This method can be accessed by client apps and internal services or even by the broker on  the other domain, so both a valid certificate and a valid token can be used to get access authorization.
+   * With this request the client can get the details of the service identified by the given service  name, if exists.  This method can be accessed by client apps and internal services or even by the broker on  the other domain, so both a valid certificate and a valid token can be used to get access authorization. 
    * @param service Name of the service (required)
-   * @param user user name (optional)
-   * @param token Token of the user (optional)
+   * @param xAuthToken The authentication token of the user (optional)
    * @return Service
    * @throws ApiException if fails to make API call
    */
-  public Service serviceDetailsGET(String service, String user, String token) throws ApiException {
+  public Service serviceDetailsGET(String service, String xAuthToken) throws ApiException {
     Object localVarPostBody = null;
     
     // verify the required parameter 'service' is set
@@ -60,11 +59,11 @@ public class ServicesApi {
     Map<String, String> localVarHeaderParams = new HashMap<String, String>();
     Map<String, Object> localVarFormParams = new HashMap<String, Object>();
 
-    localVarQueryParams.addAll(apiClient.parameterToPairs("", "user", user));
-    localVarQueryParams.addAll(apiClient.parameterToPairs("", "token", token));
     localVarQueryParams.addAll(apiClient.parameterToPairs("", "service", service));
 
-    
+    if (xAuthToken != null)
+      localVarHeaderParams.put("X-Auth-Token", apiClient.parameterToString(xAuthToken));
+
     
     final String[] localVarAccepts = {
       "application/json"
@@ -83,13 +82,12 @@ public class ServicesApi {
       }
   /**
    * List of services available in the domain
-   * This lists all the services located in the asked boker&#39;s domain and their data.  As the \\\&quot;/service/details\\\&quot; method, it accepts both a valid certificate and a valid token to grant access.
-   * @param user user name (optional)
-   * @param token Token of the user (optional)
+   * This lists all the services located in the asked broker&#39;s domain and their data.  As the \\\&quot;/service/details\\\&quot; method, it accepts both a valid certificate and a valid token to grant access. 
+   * @param xAuthToken The authentication token of the user (optional)
    * @return List<Service>
    * @throws ApiException if fails to make API call
    */
-  public List<Service> serviceDomainlistGET(String user, String token) throws ApiException {
+  public List<Service> serviceDomainlistGET(String xAuthToken) throws ApiException {
     Object localVarPostBody = null;
     
     // create path and map variables
@@ -100,10 +98,10 @@ public class ServicesApi {
     Map<String, String> localVarHeaderParams = new HashMap<String, String>();
     Map<String, Object> localVarFormParams = new HashMap<String, Object>();
 
-    localVarQueryParams.addAll(apiClient.parameterToPairs("", "user", user));
-    localVarQueryParams.addAll(apiClient.parameterToPairs("", "token", token));
 
-    
+    if (xAuthToken != null)
+      localVarHeaderParams.put("X-Auth-Token", apiClient.parameterToString(xAuthToken));
+
     
     final String[] localVarAccepts = {
       "application/json"
@@ -122,13 +120,12 @@ public class ServicesApi {
       }
   /**
    * List of services available in WITDOM
-   * This lists all the services deployed in the WITDOM domains and their data.  As the other service methods, it accepts both a valid certificate and a valid token to grant access.
-   * @param user user name (optional)
-   * @param token Token of the user (optional)
+   * This lists all the services deployed in the WITDOM domains and their data.  As the other service methods, it accepts both a valid certificate and a valid token to grant access. 
+   * @param xAuthToken The authentication token of the user (optional)
    * @return List<Service>
    * @throws ApiException if fails to make API call
    */
-  public List<Service> serviceListGET(String user, String token) throws ApiException {
+  public List<Service> serviceListGET(String xAuthToken) throws ApiException {
     Object localVarPostBody = null;
     
     // create path and map variables
@@ -139,10 +136,10 @@ public class ServicesApi {
     Map<String, String> localVarHeaderParams = new HashMap<String, String>();
     Map<String, Object> localVarFormParams = new HashMap<String, Object>();
 
-    localVarQueryParams.addAll(apiClient.parameterToPairs("", "user", user));
-    localVarQueryParams.addAll(apiClient.parameterToPairs("", "token", token));
 
-    
+    if (xAuthToken != null)
+      localVarHeaderParams.put("X-Auth-Token", apiClient.parameterToString(xAuthToken));
+
     
     final String[] localVarAccepts = {
       "application/json"
@@ -160,14 +157,13 @@ public class ServicesApi {
     return apiClient.invokeAPI(localVarPath, "GET", localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localVarReturnType);
       }
   /**
-   * Time Estimates
-   * This lists all the services located outside the asked boker&#39;s domain and their data.  Like the other service methods, it accepts both a valid certificate and a valid token to grant access.
-   * @param user user name (optional)
-   * @param token Token of the user (optional)
+   * List of the services available outside this broker&#39;s domain
+   * This lists all the services located outside the asked broker&#39;s domain and their data.  Like the other service methods, it accepts both a valid certificate and a valid token to grant access. 
+   * @param xAuthToken The authentication token of the user (optional)
    * @return List<Service>
    * @throws ApiException if fails to make API call
    */
-  public List<Service> serviceOutsidelistGET(String user, String token) throws ApiException {
+  public List<Service> serviceOutsidelistGET(String xAuthToken) throws ApiException {
     Object localVarPostBody = null;
     
     // create path and map variables
@@ -178,10 +174,10 @@ public class ServicesApi {
     Map<String, String> localVarHeaderParams = new HashMap<String, String>();
     Map<String, Object> localVarFormParams = new HashMap<String, Object>();
 
-    localVarQueryParams.addAll(apiClient.parameterToPairs("", "user", user));
-    localVarQueryParams.addAll(apiClient.parameterToPairs("", "token", token));
 
-    
+    if (xAuthToken != null)
+      localVarHeaderParams.put("X-Auth-Token", apiClient.parameterToString(xAuthToken));
+
     
     final String[] localVarAccepts = {
       "application/json"

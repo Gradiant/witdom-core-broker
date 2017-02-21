@@ -4,6 +4,7 @@ var request = require('request');
 var PoError = require('./poError');
 var fs = require('fs');
 var ServiceInfo = require(__brokerConfig.serviceInfoModule);
+var restCaller = require(__base + 'request/rest').Rest;
 
 /**
  * Protection orchestration connector
@@ -35,6 +36,7 @@ Connector.prototype.connect = function(config, callback) {
     //this.port = po_info.uri.split(":")[1];
     //this.auth_token = config.auth_token;
     this.po_id = config.po_id;
+    this.numberOfRetries = config.numberOfRetries;
     try {
         //this.ca = fs.readFileSync(config.ca);
         //this.certificate_key = fs.readFileSync(config.certificate_key);
@@ -92,7 +94,26 @@ Connector.prototype.protect = function(callbackUrl, service_info, request_header
                 }
             };
 
-            request(options, function(error, response, body) {
+            restCaller.doCall(protect_url,'POST', headers, options.body, this.numberOfRetries, function(error, response) { // TODO read number of retries from config
+                if (error) {
+                    // If we can not reach server, we return control to main function
+                    callback(error, null, null);
+                } else if (response) {
+                    if (response.status == 200) {
+                        // If success, we only set protectionResponse
+                        callback(null, response.text, null);
+                    } else {
+                        __logger.warn("Connector.protect: Unexpected response from PO");
+                        __logger.debug("Connector.protect: Trace");
+                        __logger.debug(response.status);
+                        __logger.debug(response.text);
+                        __logger.debug(response.body);
+                        // If error in protection, we return control to main function
+                        callback(new PoError(response.status, "error in protection process"), null, null);
+                    }
+                }
+            });
+            /*request(options, function(error, response, body) {
                 if(error) {
                     // If we can not reach server, we return control to main function
                     callback(error, null, null);
@@ -111,7 +132,7 @@ Connector.prototype.protect = function(callbackUrl, service_info, request_header
                         callback(new PoError(response.status, "error in protection process"), null, null);
                     }
                 } // Should exist either an error or a response, do not bother with more options
-            });
+            });*/
         }
     }.bind(this));
 }
@@ -191,13 +212,33 @@ Connector.prototype.unprotect = function(callbackUrl, service_info, request_head
                 }
             };
 
-            request(options, function(error, response, body) {
+            restCaller.doCall(unprotect_url,'POST', headers, options.body, this.numberOfRetries, function(error, response) { // TODO read number of retries from config
+                if (error) {
+                    // If we can not reach server, we return control to main function
+                    callback(error, null, null);
+                } else if (response) {
+                    if (response.status == 200) {
+                        __logger.silly("Connector.unprotect: Successful response from PO");
+                        // If success, we only set protectionResponse
+                        callback(null, response.text, null);
+                    } else {
+                        __logger.warn("Connector.unprotect: Unexpected response from PO");
+                        __logger.debug("Connector.unprotect: Trace");
+                        __logger.debug(response.status);
+                        __logger.debug(response.text);
+                        __logger.debug(response.body);
+                        // If error in unprotection, we return control to main function
+                        callback(new PoError(response.status, "error in unprotection process"), null, null);
+                    }
+                }
+            });
+/*            request(options, function(error, response, body) {
                 if(error) {
                     // If we can not reach server, we return control to main function
                     callback(error, null, null);
                 } else if(response) {
                     if(response.statusCode == 200) {
-                        __logger.silly("Connector.protect: Successful response from PO");
+                        __logger.silly("Connector.unprotect: Successful response from PO");
                         // If success, we only set protectionResponse
                         callback(null, body, null);
                     } else {
@@ -206,11 +247,11 @@ Connector.prototype.unprotect = function(callbackUrl, service_info, request_head
                         __logger.debug(response.status);
                         __logger.debug(response.text);
                         __logger.debug(response.body);
-                        // If error in protection, we return control to main function
+                        // If error in unprotection, we return control to main function
                         callback(new PoError(response.status, "error in unprotection process"), null, null);
                     }
                 } // Should exist either an error or a response, do not bother with more options
-            });
+            });*/
         }
     }.bind(this));
 }
@@ -238,6 +279,50 @@ Connector.prototype.endUnprotection = function(originalCallParameters, receivedC
         // In other case we return an error
         callback(new PoError(receivedCallParameters.status, "error protecting data"), null);
     }
+}
+
+/**
+ * Calls the PO method to get the process status
+ * @param {string} processInstanceId The ID of the process instance
+ * @param {object} request_headers The request headers to pass in the request to the PO
+ * @param {function} callback A callback function used to return the result to the caller
+ */
+Connector.prototype.getProcessStatus = function(processInstanceId, request_headers, callback) {
+    //Get the uri of the PO from services
+    ServiceInfo.find(this.po_id, function(error, po_info) {
+        if (error) {
+            callback(error);
+        } else {
+            var status_url = this.protocol + '://' + po_info.uri + '/v1/processstatus/' + processInstanceId;
+            __logger.silly("Connector.getProcessStatus: Final url: " + status_url);
+            var headers = {
+                "X-Auth-Token": request_headers["x-auth-token"] || request_headers["X-Auth-Token"]
+            };
+            __logger.silly("Connector.getProcessStatus: Headers:");
+            __logger.silly(headers);
+
+            restCaller.doCall(status_url, 'GET', headers, null, this.numberOfRetries, function(error, response) { // TODO read number of retries from config
+                if (error) {
+                    // If we can not reach server, we return control to main function
+                    callback(error, null);
+                } else if (response) {
+                    if (response.status == 200) {
+                        __logger.silly("Connector.getProcessStatus: Successful response from PO");
+                        // If success, we only set protectionResponse
+                        callback(null, response.body);
+                    } else {
+                        __logger.warn("Connector.getProcessStatus: Unexpected response from PO");
+                        __logger.debug("Connector.getProcessStatus: Trace");
+                        __logger.debug(response.status);
+                        __logger.debug(response.text);
+                        __logger.debug(response.body);
+                        // If error in unprotection, we return control to main function
+                        callback(new PoError(response.status, "error in processstatus"));
+                    }
+                }
+            });
+        }
+    }.bind(this));
 }
 
 var connector = module.exports = exports = new Connector;

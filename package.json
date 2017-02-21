@@ -11,6 +11,7 @@
     "db_test": "./node_modules/.bin/mocha --timeout 5000 tests/nodejs/unit/database.js",
     "request_test": "./node_modules/.bin/mocha --timeout 10000 tests/nodejs/unit/requestForwarding.js",
     "unit_test": "./node_modules/.bin/mocha tests/nodejs/unit/dummyTokenValidatorTest.js; ./node_modules/.bin/mocha --timeout 15000 tests/nodejs/unit/iamTokenValidatorTest.js",
+    "token_test": "./node_modules/.bin/mocha tests/nodejs/unit/dummyTokenValidatorTest.js; ./node_modules/.bin/mocha --timeout 15000 tests/nodejs/unit/iamTokenValidatorTest.js",
     "si_test": "mocha  --timeout 5000 tests/nodejs/unit/serviceInfoTest.js",
     "mocksi_test": "mocha  tests/nodejs/unit/mockServiceInfoTest.js",
     "build_broker_td": "./broker_docker.sh --command=build-images --dockerfile=Dockerfile_td --image-name=witdom-core-broker-td --container-name=broker_td",
@@ -57,7 +58,7 @@
   },
   "devDependencies": {
     "should": "~11.1.1",
-    "supertest": "~2.0.0",
+    "supertest": ">=3.0.0",
     "istanbul": "~0.4.5",
     "nock": "~8.1.0",
     "mocha": "~3.1.2",

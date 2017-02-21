@@ -1,4 +1,5 @@
 module.exports = {
+    protocol: "https",
     http: { port: 5000 },
     https: {
         port: 5043,
@@ -7,7 +8,8 @@ module.exports = {
         broker_cert: 'certs/broker_crt.pem',
         ca_cert: 'certs/witdomcacert.pem'
     },
-    protocol: "https",
+    numberOfRetries: 10,
+    po_id: 'po',
     broker_ed : { //broker external domain
         domain_name: "broker-ud",
         http: {

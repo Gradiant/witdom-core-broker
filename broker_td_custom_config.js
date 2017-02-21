@@ -54,7 +54,15 @@ module.exports = {
                 google: {
                     host: "www.google.com",
                     port: "80" 
-                }        
+                },
+                po: {
+                    host: "po",
+                    port: "8080"
+                },
+                "trusted-service": {
+                    host: "service-td",
+                    port: "8080"
+                } 
             }      
         }   
     }

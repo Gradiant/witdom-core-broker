@@ -10,7 +10,7 @@ package eu.witdom.core.broker.client.api;
 
 import eu.witdom.core.broker.client.ApiClient;
 import eu.witdom.core.broker.client.ApiException;
-import eu.witdom.core.broker.client.model.Request;
+import eu.witdom.core.broker.client.model.ForwardRequest;
 import eu.witdom.core.broker.client.model.Error;
 import java.math.BigDecimal;
 import org.junit.Test;
@@ -56,7 +56,7 @@ import javax.net.ssl.X509KeyManager;
  */
 public class HTTPSApiTest {
 
-    String basePath = "https://localhost:5043/v1";
+    String basePath = "https://broker-td:5043/v1";
 //    private ApiClient client = new ApiClient().setBasePath(basePath).setHttpClient(buildHttpsClient(true));
     private ApiClient client = new ApiClient().setBasePath(basePath);
     private final ForwardApi api = new ForwardApi(client);
@@ -221,20 +221,25 @@ public class HTTPSApiTest {
     @Test
     public void forwardDomainPOSTTest() throws ApiException {
 
-        Request request = new Request();
+        ForwardRequest forwardRequest = new ForwardRequest();
 
-        request.setServiceName("string");
-
-        request.setRequestType("string");
-
-        request.setRequestUri("string");
+        forwardRequest.setRequestId("string");
+        forwardRequest.setServiceName("string");
+        forwardRequest.setRequestType("string");
+        forwardRequest.setRequestUri("string");
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode objectNode = mapper.createObjectNode();
-        objectNode.put("data", "String");
-        request.setRequestData(objectNode);
+        objectNode.put("X-header", "header value");
 
-        String response = api.forwardDomainPOST(request);
+        forwardRequest.setRequestHeaders(objectNode);
+
+        objectNode = mapper.createObjectNode();
+        objectNode.put("Key", "value");
+
+        forwardRequest.setRequestData(objectNode);
+
+        String response = api.forwardDomainPOST(forwardRequest);
 
         // TODO: test validations
     }

@@ -50,7 +50,11 @@ module.exports = {
                 service2: {
                     host: "127.0.0.1", //"172.16.117.31",
                     port: "8080" 
-                }      
+                },
+                "untrusted-service": {
+                    host: "service-ud",
+                    port: "8080"
+                }
             }      
         }   
     }

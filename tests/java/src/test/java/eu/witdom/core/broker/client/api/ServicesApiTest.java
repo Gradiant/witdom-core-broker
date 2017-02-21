@@ -56,12 +56,9 @@ public class ServicesApiTest {
      */
     @Test
     public void serviceDetailsGETTest() throws ApiException {
-
-        String user = "string";        
-        String token = "string";
-        String service = "service_id";
-
-        Service response = api.serviceDetailsGET(service, user, token);
+        String service = "service1";
+        String xAuthToken = "string";
+        Service response = api.serviceDetailsGET(service, xAuthToken);
 
         // TODO: test validations
     }
@@ -76,11 +73,8 @@ public class ServicesApiTest {
      */
     @Test
     public void serviceDomainlistGETTest() throws ApiException {
-        
-        String user = "string";
-        String token = "string";
-
-        List<Service> response = api.serviceDomainlistGET(user, token);
+        String xAuthToken = "string";
+        List<Service> response = api.serviceDomainlistGET(xAuthToken);
 
         // TODO: test validations
     }
@@ -95,11 +89,8 @@ public class ServicesApiTest {
      */
     @Test
     public void serviceListGETTest() throws ApiException {
-        
-        String user = "string";
-        String token = "string";
-
-        List<Service> response = api.serviceListGET(user, token);
+        String xAuthToken = "string";
+        List<Service> response = api.serviceListGET(xAuthToken);
 
         // TODO: test validations
     }
@@ -114,11 +105,8 @@ public class ServicesApiTest {
      */
     @Test
     public void serviceOutsidelistGETTest() throws ApiException {
-        
-        String user = "string";
-        String token = "string";
-
-        List<Service> response = api.serviceOutsidelistGET(user, token);
+        String xAuthToken = "string";
+        List<Service> response = api.serviceOutsidelistGET(xAuthToken);
 
         // TODO: test validations
     }

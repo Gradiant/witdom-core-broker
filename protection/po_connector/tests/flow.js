@@ -1,11 +1,28 @@
 global.__base = __dirname + '/../../../'; //Save the broker base directory
+global.__customConfigFile = __base + 'config/custom.js';
 var brokerConfig = require(__base +'config');
 global.__brokerConfig = brokerConfig;
 var should = require("should");
 var nock = require('nock');
 
+var winston = require('winston');
+global.__logger = new winston.Logger({
+    level: 'info',
+    transports: [
+      new (winston.transports.Console)()
+    ]
+});
+
 //Set the serviceInfoModule to 'mockServiceInfo'
 __brokerConfig.serviceInfoModule = __base + "service_info/mockServiceInfo";
+
+var httpsOptions = {
+    timeout: 4000
+};
+
+var restCaller = require(__base + 'request/rest').Rest;
+
+restCaller.init(httpsOptions);
 
 var ServiceInfo = require(__brokerConfig.serviceInfoModule);
 
@@ -52,11 +69,11 @@ before(function(done) {
 
 beforeEach(function(done){
     nock(config.protocol + '://' + host + ':' + port)
-    .post('/execute/' + service_info.details.service_id + '/protect')
+    .post('/v1/execute/' + service_info.details.service_id + '/protect')
     .reply(200,13456789)
 
     nock(config.protocol + '://' + host + ':' + port)
-    .post('/execute/' + service_info.details.service_id + '/unprotect')
+    .post('/v1/execute/' + service_info.details.service_id + '/unprotect')
     .reply(200,13456788)
     done();
 });
@@ -100,6 +117,59 @@ describe("Protection : ", function() {
                     done();
                 });
             });
+    });
+});
+
+describe("Status",  function() {
+    before(function(done){
+        nock(config.protocol + '://' + host + ':' + port)
+        .get('/v1/processstatus/' + 123456)
+        .reply(200,{'code': 0, 'message': 'STATE_PENDING'});
+        done();
+    });
+    it("Proctection status", function(done) {
+        protector.getProcessStatus(123456, {'X-Auth-Token': 'token'}, function(error, statusResponse) {
+            should.not.exist(error);
+            should.exist(statusResponse);
+            statusResponse.should.be.an.object;
+            statusResponse.should.have.property('code');
+            statusResponse.code.should.equal(0);
+            statusResponse.should.have.property('message');
+            statusResponse.message.should.equal('STATE_PENDING');
+            done();
+        });
+    });
+    before(function(done){
+        nock(config.protocol + '://' + host + ':' + port)
+        .get('/v1/processstatus/' + 123456)
+        .reply(404);
+        done();
+    });
+    it("Proctection status: NOT FOUND", function(done) {
+        protector.getProcessStatus(123456, {'X-Auth-Token': 'token'}, function(error, statusResponse) {
+            should.exist(error);
+            should.not.exist(statusResponse);
+            error.status.should.equal(404);
+            done();
+        });
+    });
+    before(function(done){
+        nock(config.protocol + '://' + host + ':' + port)
+        .get('/v1/processstatus/' + 555555)
+        .reply(200,{'code': 1, 'message': 'STATE_ACTIVE'});
+        done();
+    });
+    it("Unproctection status", function(done) {
+        protector.getProcessStatus(555555, {'X-Auth-Token': 'token'}, function(error, statusResponse) {
+            should.not.exist(error);
+            should.exist(statusResponse);
+            statusResponse.should.be.an.object;
+            statusResponse.should.have.property('code');
+            statusResponse.code.should.equal(1);
+            statusResponse.should.have.property('message');
+            statusResponse.message.should.equal('STATE_ACTIVE');
+            done();
+        });
     });
 });
 

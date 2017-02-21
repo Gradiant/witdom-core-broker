@@ -763,7 +763,7 @@ RequestForwardingHandler.prototype.doCallback = function(request_id, callback_he
             // Got request, return OK
             callback(null);
             if (__logger) {
-                __logger.info("Receive callback for request " + request_id);
+                __logger.info("Received callback for request " + request_id);
                 __logger.info("request.origin: " + request.origin);
                 __logger.info("request.status: " + request.status);
             }

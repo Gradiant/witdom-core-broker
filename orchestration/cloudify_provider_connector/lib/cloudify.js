@@ -13,7 +13,7 @@ function Connector()
     this.protocol;
     this.host;
     this.port;
-    this.auth_token;
+    //this.auth_token;
     this.ca;
     this.certificate_key;
     this.certificate;
@@ -25,10 +25,10 @@ function Connector()
  */
 Connector.prototype.connect = function(config, callback) {
     // Configuration load
-    this.protocol = config.protocol;
+    this.protocol = config.protocol || "http";
     this.host = config.host;
     this.port = config.port;
-    this.auth_token = config.auth_token;
+    //this.auth_token = config.auth_token;
     try {
         //this.ca = fs.readFileSync(config.ca);
         //this.certificate_key = fs.readFileSync(config.certificate_key);
