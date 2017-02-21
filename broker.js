@@ -47,7 +47,7 @@ var restCaller = require('./request/rest').Rest;
 restCaller.init(httpsOptions);
 
 var mongoose = require('mongoose');
-var protection = require('./protection/po_connector');
+var protection = require(brokerConfig.po_connector);
 var protector = protection.Protector;
 
 var protectorConfig = {

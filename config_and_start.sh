@@ -101,6 +101,10 @@ if [ -z "$LOGGING_LEVEL" ]; then
     LOGGING_LEVEL="silly"
 fi
 
+if [ -z "$PO_CONNECTOR" ]; then
+    PO_CONNECTOR="./protection/po_connector"
+fi
+
 
 ## Write the custom configuration file
 
@@ -117,6 +121,7 @@ module.exports = {
     },
     numberOfRetries: ${RETRIES},
     po_id: '${PO_ID}',
+    po_connector: '$PO_CONNECTOR',
     protocol: "${BROKER_PROTOCOL}",
     broker_ed : { //broker external domain
         domain_name: "${BROKER_ED_HOST}",
