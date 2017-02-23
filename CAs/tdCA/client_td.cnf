@@ -1,0 +1,22 @@
+#
+# client_td.cnf
+#
+
+[ req ]
+default_bits		= 4096
+days			= 9999
+prompt                  = no
+distinguished_name      = client_td
+req_extensions          = v3_req
+
+[ client_td ]
+commonName              = client-td
+stateOrProvinceName     = Pontevedra
+countryName             = ES
+emailAddress            = client_td@gradiant.org
+organizationName        = Gradiant
+organizationalUnitName  = Clients
+
+[ v3_req ]
+basicConstraints        = CA:FALSE
+keyUsage                = nonRepudiation, digitalSignature, keyEncipherment

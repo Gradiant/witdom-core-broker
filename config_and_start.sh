@@ -19,12 +19,26 @@ if [ -z "$BROKER_KEY" ]; then
 fi
 
 if [ -z "$BROKER_KEY_PASSPHRASE" ]; then
-    BROKER_KEY_PASSPHRASE="W1td0mBr0k3r"
+    BROKER_KEY_PASSPHRASE="Gr4d14ntBr0k3r"
 fi
 
-if [ -z "$CA_CERT" ]; then
-    CA_CERT="certs/witdomcacert.pem"
+if [ -z "$CA_CERTS" ]; then
+    CA_CERTS="certs/tdcacert.pem"
 fi
+
+CA_CERTS_STRING=
+OIFS=$IFS
+IFS=','
+for cert in $CA_CERTS
+do
+    if [ -z "$CA_CERTS_STRING" ]; then
+        CA_CERTS_STRING=\'$cert\'
+    else
+        CA_CERTS_STRING=${CA_CERTS_STRING},\'$cert\'
+    fi
+done
+IFS=$OIFS
+
 
 if [ -z "$BROKER_PROTOCOL" ]; then
     BROKER_PROTOCOL="http"
@@ -117,7 +131,8 @@ module.exports = {
         broker_key: '${BROKER_KEY}',
         broker_key_passphrase: '${BROKER_KEY_PASSPHRASE}',
         broker_cert: '${BROKER_CERT}',
-        ca_cert: '${CA_CERT}'
+        //ca_cert: '${CA_CERTS}'
+        ca_certs: [${CA_CERTS_STRING}]
     },
     numberOfRetries: ${RETRIES},
     po_id: '${PO_ID}',

@@ -4,13 +4,10 @@ var nock = require('nock');
 var orchestration = require('../index');
 
 var config = {
-        protocol: 'http',
-        host: '10.5.0.85',
-        port: '80',
-        auth_token: 'some token',
-        certificate_key: '../../CAs/witdomCA/client1_key.pem',
-        certificate: '../../CAs/witdomCA/client1_crt.pem',
-        ca: '../../CAs/witdomCA/witdomcacert.pem'}
+    protocol: 'http',
+    host: '10.5.0.85',
+    port: '80'
+}
 
 var orchestrator = orchestration.Orchestrator;
 

@@ -223,8 +223,8 @@ BROKER_HTTP_PORT=5000                       # HTTP port of the Broker inside the
 BROKER_HTTPS_PORT=5043                      # HTTPS port of the Broker inside the container
 BROKER_CERT=certs/broker_td_crt.pem         # TLS certificate of the Broker
 BROKER_KEY=certs/broker_td_key.pem          # Key of the certificate
-BROKER_KEY_PASSPHRASE=W1td0mBr0k3r          # Passphrase of the key (in case it's encrypted)
-CA_CERT=certs/witdomcacert.pem              # Certificate of the CA that provided the certificates of the WITDOM services
+BROKER_KEY_PASSPHRASE=Gr4d14ntBr0k3r        # Passphrase of the key (in case it's encrypted)
+CA_CERTS=certs/tdcacert.pem                 # Certificates of the CAs that provided the certificates of the WITDOM services (more than one CA can be provided using the ',' as separator, for example for using differnet CAs for the trusted and untrusted domains)
 BROKER_PROTOCOL=http                        # Protocol used by the Broker to communicate with other components (http|http)
 BROKER_ED_HOST=broker-ud                    # Host name of the Broker in the external domain (For the TD Broker this will be the hostname of the UD Broker and vice versa)
 BROKER_ED_HTTP_PORT=5000                    # HTTP port of the Broker in the external domain
@@ -280,11 +280,11 @@ These tests also check the functionality of mutual identification with client an
 ```javascript
 module.exports = {
     https: {
-        ca_cert: 'CAs/witdomCA/witdomcacert.pem' // The CA certificate used to verify the server certificate
-        right_client_key: 'CAs/witdomCA/client1_key.pem', // The key of valid client in the CA
-        right_client_cert: 'CAs/witdomCA/client1_crt.pem', // The certificate of a valid client in the CA
+        ca_cert: 'CAs/tdCA/tdcacert.pem', // The CA certificate used to verify the server certificate
+        right_client_key: 'CAs/tdCA/client_td_key.pem', // The key of valid client in the CA
+        right_client_cert: 'CAs/tdCA/client_td_crt.pem', // The certificate of a valid client in the CA
         wrong_client_key: 'CAs/untrustedCA/untrusted_client_key.pem', // The key of an invalid client in CA
-        wrong_client_cert: 'CAs/untrustedCA/untrusted_client_crt.pem', // The certificate of a invalid client in the CA
+        wrong_client_cert: 'CAs/untrustedCA/untrusted_client_crt.pem' // The certificate of a invalid client in the CA
     }
 };
 ``` 
@@ -355,7 +355,7 @@ $ openssl pkcs12 -export -in client_key_crt.pem -out client_keystore.pkcs12 -nam
 ```
 Where `-name client` indicates an alias for the key_cert inside the key store. After executing this command a prompt requesting a password for the key store will appear. After creating the key store it can be converted from PKCS12 to JKS format with the following command:
 ```
-$ keytool -importkeystore -deststorepass <password_of_jks_keystore> -destkeypass <password_of_the_key_in_jks> -destkeystore <jks_file> -srckeystore <pkcs12_file> -srcstoretype PKCS12 -srcstorepass <pkcs12_passwrod> -alias client
+$ keytool -importkeystore -deststorepass <password_of_jks_keystore> -destkeypass <password_of_the_key_in_jks> -destkeystore <jks_file> -srckeystore <pkcs12_file> -srcstoretype PKCS12 -srcstorepass <pkcs12_password> -alias client
 ```
 Use the same password for `-deststorepass`  and `-destkeypass`, and for `-alias` use the same value as in `-name` for the 'openssl' command. To use the created key store in a Java application the JVM must be invoked with the following params for the case of the PKCS12 format:
 ```
