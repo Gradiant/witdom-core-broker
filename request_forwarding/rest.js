@@ -1,82 +1,112 @@
 'use strict';
 
-var request = require('request');
-//var brokerConfig = require('../config');
-var orchestrator = require(__brokerConfig.orchestrator.name).Orchestrator;
-var mongoose = require('mongoose');
-var Request = require('../models/mongo/request');
-var Service = require('../models/mongo/service');
-var unirest = require('unirest');
-var fs = require('fs');
-var stream = require('stream');
 var ServiceInfo = require('../service_info/ServiceInfo');
-var protector = require('../protection/po_connector').Protector;
-var superagent = require('superagent');
+var restCaller = require(__base + 'request/rest').Rest;
 
-function Rest() {
-    // Data
-    this.ca;
-    this.certificate_key;
-    this.certificate;
-    this.agent
-}
+function RestHandler() {}
 
 /**
  * Creates the REST call using the parameters given.
+ * @param {object} service_data Object with the information about the service we are going to call.
+ * @param {object} request_data Object with the information about the request we are going to do.
+ * @param {string} request_id String with the request identifier on the database.
+ * @param {function} callback (error, response) Callback function to call once the REST call is done.
  */
-RestHandler.prototype.request = function(request_data, request_id, callback) {
+RestHandler.prototype.request = function(service_data, request_data, request_id, callback) {
+
+    var service_id = request_data.request.service_name;
     
-    // add extra broker callback header
-    request_data.request.headers['X-Broker-Callback-URL'] = '/request/callback?request_id=' + request_id;
-    // TODO, fake method
-    //==========================
-    RestMod.rest(url, method, headers, body, retries, function(error, response) {
-    //==========================
-        if(!response.status) {
-            __logger.warn("RestHandler.request: no response from service " + service_id);
+    // Arrange path
+    var request_path = request_data.request.service_path || "";
+    if(request_path.charAt(0) != '/') request_path = '/' + request_path;
+    // URL generation
+    var url =  __brokerConfig.protocol + "://" + service_data.details.uri + request_path;
+    // HTTP method
+    var method = request_data.request.method;
+    // Get request headers and add broker callback header
+    var headers = request_data.request.headers;
+    headers['X-Broker-Callback-URL'] = '/request/callback?request_id=' + request_id;
+    // Get body
+    var body = request_data.request.body;
 
-            // If communication fails, we update service on database
-            ServiceInfo.updateService(request_data.request.service_name, function(error, service) {
-                if(error) {
-                    if(error.code == 404) {
-                        __logger.warn("RestHandler.request: can not find service " + service_id + " info");
-                        __logger.silly("RestHandler.request: trace:");
-                        __logger.silly(error);
+    __logger.silly("RestHandler.request: url: " + url);
+    __logger.silly("RestHandler.request: method: " + method);
+    __logger.silly("RestHandler.request: headers: " + headers);
+    __logger.silly("RestHandler.request: body: " + body);
 
-                        callback({code: 404, message: "service not found"}, null);
-                    } else {
-                        __logger.warn("RestHandler.request: got error updating service " + service_id + " info");
-                        __logger.silly("RestHandler.request: trace:");
-                        __logger.silly(error);
+    var retries = 10; // TODO, make configurable
+    restCaller.doCall(url, method, headers, body, retries, function(error, response) {
+        if(error) {
+            if(error.code == 100) {
+                
+                __logger.warn("RestHandler.request: Unsuported method");
+                __logger.debug("RestHandler.request: Trace:");
+                __logger.debug(error);
 
-                        callback({code: 500, message: "internal server error, can not update database"}, null);
-                    }
+                callback({code: 400, message: "unsuported method"}, null);
 
-                } else if(service) {
-                    
-                    __logger.debug("RestHandler.request: updated service " + service_id + " info.");
+            } else if(error.code == 102) {
 
-                    // TODO, fake method
-                    //==========================
-                    RestMod.rest(url, method, headers, body, retries, function(error, response) {
-                    //==========================
-                        if(!response.status) {
-                            __logger.error("RestHandler.request: got error contacting updated service " + service_id);
-                            __logger.debug("RestHandler.request: trace:");
-                            __logger.debug(response.error);
+                __logger.error("RestHandler.request: RestCaller is not initialized");
+                __logger.debug("RestHandler.request: Trace:");
+                __logger.debug(error);
 
-                            callback({code: 503, message: "can not reach service"}, null);
+                callback({code: 500, message: "internal server error, misconfigured rest"}, null);
 
+            } else if(error.code == 101) {
+
+                __logger.warn("RestHandler.request: No response from service " + service_id);
+
+                // If communication fails, we update service on database
+                ServiceInfo.updateService(service_id, function(error, service) {
+                    if(error) {
+
+                        if(error.code == 404) {
+                            __logger.error("RestHandler.request: Can not find service " + service_id + " info");
+                            __logger.debug("RestHandler.request: Trace:");
+                            __logger.debug(error);
+
+                            callback({code: 404, message: "service not found"}, null);
                         } else {
-                            __logger.debug("RestHandler.request: success on contating with updated service " + service_id);
+                            __logger.error("RestHandler.request: Got error updating service " + service_id + " info");
+                            __logger.debug("RestHandler.request: Trace:");
+                            __logger.debug(error);
 
-                            callback(null, response);
+                            callback({code: 500, message: "internal server error, can not update database"}, null);
                         }
-                    });
-                }
-            });
+
+                    } else if(service) {
+                        
+                        __logger.debug("RestHandler.request: Updated service " + service_id + " info.");
+
+                        restCaller.doCall(url, method, headers, body, retries, function(error, response) {
+                            if(error) {
+                                __logger.error("RestHandler.request: Unknown error");
+                                __logger.debug("RestHandler.request: Trace:");
+                                __logger.debug(response.error);
+
+                                callback({code: 503, message: "can not reach service"}, null);
+
+                            } else {
+                                __logger.debug("RestHandler.request: Success on contating with updated service " + service_id);
+
+                                callback(null, response);
+                            }
+                        });
+                    }
+                });
+            } else {
+                __logger.error("RestHandler.request: Unknown error");
+                __logger.debug("RestHandler.request: Trace:");
+                __logger.debug(error);
+                __logger.debug(response.status);
+                __logger.debug(response.text);
+                __logger.debug(response.body);
+
+                callback({code: 500, message: "internal server error"}, null);
+            }
         } else {
-            __logger.debug("RestHandler.request: success on contating with service " + service_id);
+            __logger.debug("RestHandler.request: Success on contating with service " + service_id);
 
             callback(null, response);
         }
@@ -85,22 +115,48 @@ RestHandler.prototype.request = function(request_data, request_id, callback) {
 
 /**
  * Forwards the request to the given domain.
+ * @param {object} domain_data Object with the information about the domain where we are going to forward the request to.
+ * @param {object} request_data Object with the information about the request we are going to forward.
+ * @param {string} request_id String with the request identifier on the database.
+ * @param {function} callback (error, response) Callback function to call once the REST call is done.
  */
 RestHandler.prototype.forwardRequest = function(domain_data, request_data, request_id, callback) {
     
-    // TODO create url for external's domain broker
+    // URL generation
+    var url = __brokerConfig.protocol + "://" + domain_data.domain_name + ":" + domain_data[__brokerConfig.protocol].port + '/v1/forward/domain';
+    // HTTP method
+    var method = 'POST';
+    // Get request headers and add broker callback header
+    var headers = {"content-type": "application/json"};
+    // Forward body
+    var body = {
+        request_data: request_data.request.body,
+        request_headers: request_data.request.headers,
+        request_type: request_data.request.method,
+        request_uri: request_data.request.service_path,
+        service_name: request_data.request.service_name,
+        request_id: request_id
+    }
     
-    // TODO, fake method
-    //==========================
-    RestMod.rest(url, method, headers, body, retries, function(error, response) {
-    //==========================
-        if(!response.status) {
-            __logger.error("RestHandler.forwardRequest: Got error forwarding request " + request_id);
-            __logger.debug("RestHandler.forwardRequest: Trace:");
-            __logger.debug(response.error);
+    var retries = 10; // TODO, make configurable
+    restCaller.doCall(url, method, headers, body, retries, function(error, response) {
+        if(error) {
+            if(error.code == 102) {
 
-            callback({code: 503, message: "can not reach external domain"}, null);
+                __logger.error("RestHandler.forwardRequest: RestCaller is not initialized");
+                __logger.debug("RestHandler.forwardRequest: Trace:");
+                __logger.debug(error);
 
+                callback({code: 500, message: "internal server error, misconfigured rest"}, null);
+
+            } else if(error.code == 101) {
+
+                __logger.error("RestHandler.forwardRequest: Got error forwarding request " + request_id);
+                __logger.debug("RestHandler.forwardRequest: Trace:");
+                __logger.debug(response.error);
+
+                callback({code: 503, message: "can not reach external domain"}, null);
+            }
         } else {
             __logger.debug("RestHandler.forwardRequest: Success on forwading request to external domain.");
 
@@ -111,23 +167,51 @@ RestHandler.prototype.forwardRequest = function(domain_data, request_data, reque
 }
 
 /**
- * Returns forwarded request to its origin
+ * Returns a forwarded request to its origin
+ * @param {object} domain_data Object with the information about the domain where we are going to forward the callback to.
+ * @param {object} request_data Object with the information about the request we are going to forward.
+ * @param {string} request_id String with the request identifier on the database.
+ * @param {function} callback (error, response) Callback function to call once the REST call is done.
  */
 RestHandler.prototype.forwardCallback = function(domain_data, callback_data, request_id, callback) {
     
-    // TODO create url for external's domain broker
+    // URL generation
+    var url = __brokerConfig.protocol + "://" + domain_data.domain_name + ":" + domain_data[__brokerConfig.protocol].port + '/v1/forward/callback';
+    // HTTP method
+    var method = 'POST';
+    // Get request headers and add broker callback header
+    var headers = {"content-type": "application/json"};
+    // Callback body
+    var data = callback_data.response || callback_data.request;
+    var body = {
+        response_data: {
+            data: data.body     //FIXME: This encapsulation allow us to pass both strings and JSON objects through swagger-tools midleware.
+                                // The ideal solution is to allow this at swagger-tools level, but we can't do that right now.
+        },
+        response_headers: data.headers,
+        response_status: data.status,
+        request_id: request_id
+    }
 
-    // TODO, fake method
-    //==========================
-    RestMod.rest(url, method, headers, body, retries, function(error, response) {
-    //==========================
-        if(!response.status) {
-            __logger.error("RestHandler.forwardCallback: Got error forwarding callback " + request_id);
-            __logger.debug("RestHandler.forwardRforwardCallbackequest: Trace:");
-            __logger.debug(response.error);
+    var retries = 10; // TODO, make configurable
+    restCaller.doCall(url, method, headers, body, retries, function(error, response) {
+        if(error) {
+            if(error.code == 102) {
 
-            callback({code: 503, message: "can not reach external domain"}, null);
+                __logger.error("RestHandler.forwardCallback: RestCaller is not initialized");
+                __logger.debug("RestHandler.forwardCallback: Trace:");
+                __logger.debug(error);
 
+                callback({code: 500, message: "internal server error, misconfigured rest"}, null);
+
+            } else if(error.code == 101) {
+
+                __logger.error("RestHandler.forwardCallback: Got error forwarding callback " + request_id);
+                __logger.debug("RestHandler.forwardCallback: Trace:");
+                __logger.debug(response.error);
+
+                callback({code: 503, message: "can not reach external domain"}, null);
+            }
         } else {
             __logger.debug("RestHandler.forwardCallback: Success on forwading request to external domain.");
 
@@ -135,3 +219,5 @@ RestHandler.prototype.forwardCallback = function(domain_data, callback_data, req
         }
     });
 }
+
+var restHandler = module.exports = exports = new RestHandler;

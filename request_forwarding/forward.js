@@ -7,12 +7,18 @@ var protector = require(__base + 'protection/po_connector').Protector;
 var RequestHandler = require('./requests');
 var RestHandler = require('./rest');
 
+function ForwardingHandler() {}
+
 /**
  * Manages the request flow, taking care of the service location and the database updates for
  * the requests and services, if needed.
  * Works asynchronously and does not provide any output, it only updates the database.
+ * @param {object} request_data with the data for the request
+ * @param {function} callback (error, request_id) Callback with the error or the ID for the new request generated
  */
-ForwardingHandler.prototype.request = function(origin, request_data, callback) {
+ForwardingHandler.prototype.request = function(request_data, callback) {
+
+    var origin = 'local';
 
     // Save request to database
     RequestHandler.createRequest(origin, request_data, function(error, request) {
@@ -74,7 +80,7 @@ ForwardingHandler.prototype.request = function(origin, request_data, callback) {
 
                         __logger.debug("ForwardingHandler.request: Found service " + service_id + " in local domain.");
 
-                        RestHandler.request(request_data, request_id, function(error, response) {
+                        RestHandler.request(service, request_data, request_id, function(error, response) {
                             if(error) {
 
                                 __logger.debug("ForwardingHandler.request: Got error on request.");
@@ -169,7 +175,7 @@ ForwardingHandler.prototype.request = function(origin, request_data, callback) {
                                 // Update body
                                 request_data.request.body = finalCallParameters;
 
-                                RestHandler.forwardRequest(origin, request_data, request_id, function(error, response) {
+                                RestHandler.forwardRequest(__brokerConfig['broker_ed'], request_data, request_id, function(error, response) {
                                     if(error) {
 
                                         __logger.debug("ForwardingHandler.request: Got error forwarding request to external domain.");
@@ -227,11 +233,16 @@ ForwardingHandler.prototype.request = function(origin, request_data, callback) {
 }
 
 /**
- * Updates the status of the request and makes the needed calls according to callback parameters 
+ * Updates the status of the request and makes the needed calls according to callback parameters
+ * Works mostly asynchronously and does not provide any output unless the request_id is not correct,
+ * in other case it only updates the database.
+ * @param {string} request_id String with the ID for the request which is being answered
+ * @param {object} callback_headers Object with the headers of the "response"
+ * @param {object} callback_body Object with the body of the "response"
+ * @param {function} callback (error) Callback with the error or null if the request_id is correct
  */
 ForwardingHandler.prototype.requestCallback = function(request_id, callback_headers, callback_body, callback) {
     
-    var self = this;
     // Get request from database
     RequestHandler.getRequest(request_id, function(error, request) {
         if(error) {
@@ -294,7 +305,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                         });
                     } else {
                         // Continue the request forwarding
-                        __logger.debug("ForwardingHandler.requestCallback: Successful body transformation  " + service_id + " resuming forwarding process.");
+                        __logger.debug("ForwardingHandler.requestCallback: Successful body transformation, resuming forwarding process.");
 
                         // Update body
                         var request_data = first_log;
@@ -342,7 +353,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
 
                                     __logger.debug("ForwardingHandler.requestCallback: Found service " + service_id + " in local domain.");
 
-                                    RestHandler.request(request_data, request_id, function(error, response) {
+                                    RestHandler.request(service, request_data, request_id, function(error, response) {
                                         if(error) {
 
                                             __logger.debug("ForwardingHandler.requestCallback: Got error on request.");
@@ -391,7 +402,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                                     
                                     __logger.debug("RequestForwardingHandler.requestCallback: Forwarding request " + request_id + " to external domain.");
                                     
-                                    RestHandler.forwardRequest(service.location, request_data, request_id, function(error, response) {
+                                    RestHandler.forwardRequest(__brokerConfig['broker_ed'], request_data, request_id, function(error, response) {
                                         if(error) {
 
                                             __logger.debug("ForwardingHandler.requestCallback: Got error forwarding request to external domain.");
@@ -463,8 +474,8 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
 
                         RequestHandler.updateRequest(request_id, 'FINISHED', {
                             response: {
-                                service_name: first_log.request.service_name,
-                                service_path: first_log.request.service_path,
+                                service_name: last_response_log.response.service_name,
+                                service_path: last_response_log.response.service_path,
                                 status: 500,
                                 headers: {},
                                 body: {
@@ -482,7 +493,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
 
                         // Update body
                         var response_data = last_response_log;
-                        response_data.request.body = finalCallParameters;
+                        response_data.response.body = finalCallParameters;
 
                         if(request.origin == 'local') {
 
@@ -490,8 +501,8 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
 
                             RequestHandler.updateRequest(request_id, 'FINISHED', {
                                 response: {
-                                    service_name: first_log.request.service_name,
-                                    service_path: first_log.request.service_path,
+                                    service_name: last_response_log.response.service_name,
+                                    service_path: last_response_log.response.service_path,
                                     status: 200,
                                     headers: last_response_log.response.headers,
                                     body: finalCallParameters
@@ -502,7 +513,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
 
                             __logger.debug("ForwardingHandler.requestCallback: Forwarding external request.");
                                     
-                            RestHandler.forwardCallback(request.origin, response_data, request_id, function(error, response) {
+                            RestHandler.forwardCallback(__brokerConfig['broker_ed'], response_data, request_id, function(error, response) {
                                 if(error) {
                                     __logger.error("ForwardingHandler.requestCallback: Got error forwarding callback to external domain.");
                                     __logger.debug("ForwardingHandler.requestCallback: Trace:");
@@ -515,8 +526,10 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                 });
             } else if(request.status == 'IN_PROGRESS') {
                 
-                // Request finished
                 __logger.debug("ForwardingHandler.requestCallback: Request is in IN_PROGRESS state, finishing.");
+                
+                // Request finished
+                var first_log = request.request_log[0];
 
                 // Update data
                 var callback_data = {
@@ -540,7 +553,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
 
                     __logger.debug("ForwardingHandler.requestCallback: Forwarding external request.");
                             
-                    RestHandler.forwardCallback(request.origin, callback_data, request_id, function(error, response) {
+                    RestHandler.forwardCallback(__brokerConfig['broker_ed'], callback_data, request_id, function(error, response) {
                         if(error) {
                             __logger.error("ForwardingHandler.requestCallback: Got error forwarding callback to external domain.");
                             __logger.debug("ForwardingHandler.requestCallback: Trace:");
@@ -558,8 +571,13 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
  * Manages the request flow of a request forwarded from other domain, taking care of the service
  * location and the database updates for the requests and services, if needed.
  * Works asynchronously and does not provide any output, it only updates the database.
+ * @param {string} origin String with the name of the domain who originates the request.
+ * @param {object} request_data Object with the data for the request.
+ * @param {function} callback (error, request_id) Callback with the error or the generated ID for the new request.
  */
-ForwardingHandler.prototype.forward = function(origin, original_id, request_data, callback) {
+ForwardingHandler.prototype.forward = function(origin, request_data, callback) {
+
+    var original_id = request_data.request.original_id;
     
     // Save request to database
     RequestHandler.createRequest(origin, request_data, function(error, request) {
@@ -617,7 +635,7 @@ ForwardingHandler.prototype.forward = function(origin, original_id, request_data
                     };
 
                     // If we get an error, we must call external broker
-                    RestHandler.forwardCallback(origin, original_id, new_log, function(error, response) {
+                    RestHandler.forwardCallback(__brokerConfig['broker_ed'], new_log, original_id, function(error, response) {
                         if(error || response.status != 200) {
                             __logger.error("RestHandler.forward: Error doing forward callback to origin");
                             __logger.debug("RestHandler.forward: Trace:");
@@ -631,7 +649,7 @@ ForwardingHandler.prototype.forward = function(origin, original_id, request_data
 
                         __logger.debug("ForwardingHandler.forward: Found service " + service_id + " in local domain.");
 
-                        RestHandler.request(request_data, request_id, function(error, response) {
+                        RestHandler.request(service, request_data, request_id, function(error, response) {
                             if(error) {
 
                                 __logger.debug("ForwardingHandler.request: Got error on request.");
@@ -654,7 +672,7 @@ ForwardingHandler.prototype.forward = function(origin, original_id, request_data
                                 };
 
                                 // If we get an error, we must call external broker
-                                RestHandler.forwardCallback(origin, original_id, new_log, function(error, response) {
+                                RestHandler.forwardCallback(__brokerConfig['broker_ed'], new_log, original_id, function(error, response) {
                                     if(error || response.status != 200) {
                                         __logger.error("RestHandler.forward: Error doing forward callback to origin");
                                         __logger.debug("RestHandler.forward: Trace:");
@@ -689,8 +707,8 @@ ForwardingHandler.prototype.forward = function(origin, original_id, request_data
                                     __logger.debug("ForwardingHandler.forward: Returning request to original domain.");
 
                                     // Return to original domain
-                                    RestHandler.forwardCallback(origin, original_id, new_log, function(response) {
-                                        if(!response.status || response.status != 200) {
+                                    RestHandler.forwardCallback(__brokerConfig['broker_ed'], new_log, original_id, function(error, response) {
+                                        if(error || response.status != 200) {
                                             __logger.error("RestHandler.forward: Error doing forward callback to origin");
                                             __logger.debug("RestHandler.forward: Trace:");
                                             __logger.debug(response.error);
@@ -722,7 +740,7 @@ ForwardingHandler.prototype.forward = function(origin, original_id, request_data
                         };
 
                         // If we get an error, we must call external broker
-                        RestHandler.forwardCallback(origin, original_id, new_log, function(error, response) {
+                        RestHandler.forwardCallback(__brokerConfig['broker_ed'], new_log, original_id, function(error, response) {
                             if(error || response.status != 200) {
                                 __logger.error("RestHandler.forward: Error doing forward callback to origin");
                                 __logger.debug("RestHandler.forward: Trace:");
@@ -738,12 +756,18 @@ ForwardingHandler.prototype.forward = function(origin, original_id, request_data
 }
 
 /**
- * Updates the status of the request and makes the needed calls according to callback parameters 
+ * Updates the status of the request and makes the needed calls according to callback parameters
+ * Works mostly asynchronously and does not provide any output unless the request_id is not correct,
+ * in other case it only updates the database.
+ * @param {object} callback_body Object with the callback parameters in which the response for the request is contained.
+ * @param {function} callback (error) Callback with the error or null if the original_id is ok.
  */
-ForwardingHandler.prototype.forwardCallback = function(origin, original_id, callback_body, callback) {
+ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) {
+
+    var original_id = callback_body.request_id;
     
     // FIXME: This encapsulation allow us to pass both strings and JSON objects through swagger-tools midleware.
-    // The ideal solution is to allow this on swagger-tools leve, but we can't do that right now.
+    // The ideal solution is to allow this at swagger-tools level, but we can't do that right now.
     callback_body.response_data = callback_body.response_data.data;
     // Get request
     RequestHandler.getRequest(callback_body.request_id, function(error, request) {
@@ -753,7 +777,7 @@ ForwardingHandler.prototype.forwardCallback = function(origin, original_id, call
             __logger.debug("ForwardingHandler.forwardCallback: Trace ");
             __logger.debug("ForwardingHandler.forwardCallback:" + error);
 
-            callback(error, null);
+            callback(error);
 
         } else if(!request) {
 
@@ -869,7 +893,7 @@ ForwardingHandler.prototype.forwardCallback = function(origin, original_id, call
                                     // Protection in progress
                                     __logger.debug("ForwardingHandler.forwardCallback: Un-transformation process started.");
 
-                                    self.updateRequest(callback_body.request_id, 'UNPROTECTING', {
+                                    RequestHandler.updateRequest(callback_body.request_id, 'UNPROTECTING', {
                                         response:{
                                             service_name: first_log.request.service_name,
                                             service_path: first_log.request.service_path,
@@ -883,7 +907,7 @@ ForwardingHandler.prototype.forwardCallback = function(origin, original_id, call
                                     // Protection ended
                                     __logger.debug("ForwardingHandler.forwardCallback: Un-transformation process finished.");
 
-                                    self.updateRequest(callback_body.request_id, 'FINISHED', {
+                                    RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
                                         response:{
                                             service_name: first_log.request.service_name,
                                             service_path: first_log.request.service_path,
@@ -901,3 +925,5 @@ ForwardingHandler.prototype.forwardCallback = function(origin, original_id, call
         }
     });
 }
+
+var forwardingHandler = module.exports = exports = new ForwardingHandler;

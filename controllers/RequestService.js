@@ -4,6 +4,7 @@ var brokerConfig = require('../config');
 var mongoose = require('mongoose');
 var Service = require('../models/mongo/service');
 var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
+var forwardingHandler = require(__base + 'request_forwarding/forward');
 var stream = require('stream');
 var protector = require('../protection/po_connector').Protector;
 var PoError = require(__base + 'protection/po_connector/lib/poError');
@@ -17,7 +18,8 @@ exports.requestCallbackPOST = function(args, res, next) {
    **/
 
   var request_id = args.request_id.value;
-  requestForwardingHandler.doCallback(args.request_id.value, args.headers.value, args.result.value, function(error) {
+  forwardingHandler.requestCallback(args.request_id.value, args.headers.value, args.result.value, function(error) {
+  //requestForwardingHandler.doCallback(args.request_id.value, args.headers.value, args.result.value, function(error) {
         if(error) {
             if(error.name == "CastError") {
                 // Error parsing ID
@@ -89,7 +91,8 @@ exports.requestCreatePOST = function(args, res, next) {
 
 var requestCreate = function(request_data, res, next) {
     // New request
-    requestForwardingHandler.createRequest(request_data, function(error, request_id) {
+    forwardingHandler.request(request_data, function(error, request_id) {
+    //requestForwardingHandler.createRequest(request_data, function(error, request_id) {
         if(error) {
             // Malfunction (database) error
             res.setHeader('Content-Type', 'application/json');
@@ -149,8 +152,10 @@ exports.requestCreate_blockerPOST = function(args, res, next) {
 }
 
 var requestCreate_blocker = function(request_data, res, next) {
+
     __logger.silly(JSON.stringify(request_data, null, 2));
-    requestForwardingHandler.createRequest(request_data, function(error, request_id) {
+    forwardingHandler.request(request_data, function(error, request_id) {
+    //requestForwardingHandler.createRequest(request_data, function(error, request_id) {
         if(error) {
             // Malfunction (database) error
             res.setHeader('Content-Type', 'application/json');

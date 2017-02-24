@@ -2,6 +2,7 @@
 
 var brokerConfig = require('../config');
 var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
+var forwardingHandler = require(__base + 'request_forwarding/forward');
 
 exports.forwardDomainPOST = function(args, res, next) {
     /**
@@ -23,7 +24,8 @@ exports.forwardDomainPOST = function(args, res, next) {
     // TODO, find a way to get origin domain
     var origin = __brokerConfig.broker_ed.domain_name;
 
-    requestForwardingHandler.createForwardedRequest(origin, request_data, function(error, request_id) {
+    forwardingHandler.forward(origin, request_data, function(error, request_id) {
+    //requestForwardingHandler.createForwardedRequest(origin, request_data, function(error, request_id) {
         if(error) {
             // Malfunction (database) error
             res.setHeader('Content-Type', 'application/json');
@@ -50,7 +52,8 @@ exports.forwardCallbackPOST = function(args, res, next) {
      * service (Forward_Callback) JSON with all the parameters of the request
      **/
 
-    requestForwardingHandler.doForwardedCallback(args.service.value, function(error) {
+    forwardingHandler.forwardCallback(args.service.value, function(error) {
+    //requestForwardingHandler.doForwardedCallback(args.service.value, function(error) {
         if(error) {
             if(error.name == "CastError") {
                 // Error parsing ID

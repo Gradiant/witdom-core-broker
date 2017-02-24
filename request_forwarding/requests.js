@@ -2,6 +2,8 @@
 
 var Request = require(__base + 'models/mongo/request');
 
+function RequestHandler(){}
+
 /**
  * Saves the new request to the database
  */
