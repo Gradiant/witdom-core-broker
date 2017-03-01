@@ -31,7 +31,7 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
 
     __logger.silly("RestHandler.request: url: " + url);
     __logger.silly("RestHandler.request: method: " + method);
-    __logger.silly("RestHandler.request: headers: " + headers);
+    __logger.silly("RestHandler.request: headers: " + JSON.stringify(headers));
     __logger.silly("RestHandler.request: body: " + body);
 
     var retries = 10; // TODO, make configurable
@@ -88,7 +88,7 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
                                 callback({code: 503, message: "can not reach service"}, null);
 
                             } else {
-                                __logger.debug("RestHandler.request: Success on contating with updated service " + service_id);
+                                __logger.debug("RestHandler.request: Success on contacting with updated service " + service_id);
 
                                 callback(null, response);
                             }
@@ -106,7 +106,7 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
                 callback({code: 500, message: "internal server error"}, null);
             }
         } else {
-            __logger.debug("RestHandler.request: Success on contating with service " + service_id);
+            __logger.debug("RestHandler.request: Success on contacting with service " + service_id);
 
             callback(null, response);
         }

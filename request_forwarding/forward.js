@@ -530,6 +530,8 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                 
                 // Request finished
                 var first_log = request.request_log[0];
+                console.log(first_log);
+                var original_id = first_log.request.original_id;
 
                 // Update data
                 var callback_data = {
@@ -553,7 +555,8 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
 
                     __logger.debug("ForwardingHandler.requestCallback: Forwarding external request.");
                             
-                    RestHandler.forwardCallback(__brokerConfig['broker_ed'], callback_data, request_id, function(error, response) {
+                    //RestHandler.forwardCallback(__brokerConfig['broker_ed'], callback_data, request_id, function(error, response) {
+                    RestHandler.forwardCallback(__brokerConfig['broker_ed'], callback_data, original_id, function(error, response) {
                         if(error) {
                             __logger.error("ForwardingHandler.requestCallback: Got error forwarding callback to external domain.");
                             __logger.debug("ForwardingHandler.requestCallback: Trace:");
@@ -773,7 +776,7 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
     RequestHandler.getRequest(callback_body.request_id, function(error, request) {
         if(error) {
 
-            __logger.error("ForwardingHandler.forwardCallback: Got error finding request " + request_id);
+            __logger.error("ForwardingHandler.forwardCallback: Got error finding request " + original_id);
             __logger.debug("ForwardingHandler.forwardCallback: Trace ");
             __logger.debug("ForwardingHandler.forwardCallback:" + error);
 
@@ -781,7 +784,7 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
 
         } else if(!request) {
 
-            __logger.warn("ForwardingHandler.forwardCallback: Can not find request " + request_id);
+            __logger.warn("ForwardingHandler.forwardCallback: Can not find request " + original_id);
             __logger.debug("ForwardingHandler.forwardCallback: Trace ");
             __logger.debug("ForwardingHandler.forwardCallback:" + error);
 
@@ -792,7 +795,7 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
             if(request.status != 'FORWARDED') {
                 // Non consistent request
 
-                __logger.error("ForwardingHandler.forwardCallback: Found request " + request_id + " that is not in FORWARDED state.");
+                __logger.error("ForwardingHandler.forwardCallback: Found request " + original_id + " that is not in FORWARDED state.");
                 __logger.debug("ForwardingHandler.forwardCallback: Trace ");
                 __logger.debug("ForwardingHandler.forwardCallback:" + error);
 

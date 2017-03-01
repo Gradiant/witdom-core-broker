@@ -51,15 +51,21 @@ services:
     image: dummy-service
     ports:
       - 8080:8080
+    environment:
+      - BROKER_HOST=broker-td
 
   service-td:
     container_name: service_td
     image: dummy-service
     ports:
       - 8081:8080
+    environment:
+      - BROKER_HOST=broker-td
 
   service-ud:
     container_name: service_ud
     image: dummy-service
     ports:
       - 8082:8080
+    environment:
+      - BROKER_HOST=broker-ud
