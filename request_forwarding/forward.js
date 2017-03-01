@@ -3,7 +3,8 @@
 var Request = require(__base + 'models/mongo/request');
 var Service = require(__base + 'models/mongo/service');
 var ServiceInfo = require(__base + 'service_info/ServiceInfo');
-var protector = require(__base + 'protection/po_connector').Protector;
+//var protector = require(__base + 'protection/po_connector').Protector;
+var protector = require(__base + __brokerConfig.po_connector).Protector;
 var RequestHandler = require('./requests');
 var RestHandler = require('./rest');
 
@@ -642,7 +643,7 @@ ForwardingHandler.prototype.forward = function(origin, request_data, callback) {
                         if(error || response.status != 200) {
                             __logger.error("RestHandler.forward: Error doing forward callback to origin");
                             __logger.debug("RestHandler.forward: Trace:");
-                            __logger.debug(response.error || error);
+                            __logger.debug(response.error || error); // TODO: check this, maybe change to just 'error'
                         }
                         RequestHandler.deleteRequest(request_id, function(error) {});
                     });
@@ -679,7 +680,7 @@ ForwardingHandler.prototype.forward = function(origin, request_data, callback) {
                                     if(error || response.status != 200) {
                                         __logger.error("RestHandler.forward: Error doing forward callback to origin");
                                         __logger.debug("RestHandler.forward: Trace:");
-                                        __logger.debug(response.error || error);
+                                        __logger.debug(response.error || error); // TODO: check this, maybe change to just 'error'
                                     }
                                     RequestHandler.deleteRequest(request_id, function(error) {});
                                 });
@@ -714,7 +715,7 @@ ForwardingHandler.prototype.forward = function(origin, request_data, callback) {
                                         if(error || response.status != 200) {
                                             __logger.error("RestHandler.forward: Error doing forward callback to origin");
                                             __logger.debug("RestHandler.forward: Trace:");
-                                            __logger.debug(response.error);
+                                            __logger.debug(response.error); // TODO: check this, maybe change to just 'error'
                                         }
                                         RequestHandler.deleteRequest(request_id, function(error) {});
                                     });
@@ -747,7 +748,7 @@ ForwardingHandler.prototype.forward = function(origin, request_data, callback) {
                             if(error || response.status != 200) {
                                 __logger.error("RestHandler.forward: Error doing forward callback to origin");
                                 __logger.debug("RestHandler.forward: Trace:");
-                                __logger.debug(response.error || error);
+                                __logger.debug(response.error || error); // TODO: check this, maybe change to just 'error'
                             }
                             RequestHandler.deleteRequest(request_id, function(error) {});
                         });

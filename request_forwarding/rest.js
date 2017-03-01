@@ -83,7 +83,7 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
                             if(error) {
                                 __logger.error("RestHandler.request: Unknown error");
                                 __logger.debug("RestHandler.request: Trace:");
-                                __logger.debug(response.error);
+                                __logger.debug(error); // TODO: check this, maybe change to just 'error'
 
                                 callback({code: 503, message: "can not reach service"}, null);
 
@@ -153,7 +153,7 @@ RestHandler.prototype.forwardRequest = function(domain_data, request_data, reque
 
                 __logger.error("RestHandler.forwardRequest: Got error forwarding request " + request_id);
                 __logger.debug("RestHandler.forwardRequest: Trace:");
-                __logger.debug(response.error);
+                __logger.debug(response.error); // TODO: check this, maybe change to just 'error'
 
                 callback({code: 503, message: "can not reach external domain"}, null);
             }
@@ -208,7 +208,7 @@ RestHandler.prototype.forwardCallback = function(domain_data, callback_data, req
 
                 __logger.error("RestHandler.forwardCallback: Got error forwarding callback " + request_id);
                 __logger.debug("RestHandler.forwardCallback: Trace:");
-                __logger.debug(response.error);
+                __logger.debug(response.error); // TODO: check this, maybe change to just 'error'
 
                 callback({code: 503, message: "can not reach external domain"}, null);
             }
