@@ -1,0 +1,24 @@
+#
+# broker_ud.cnf
+#
+
+[ req ]
+prompt                  = no
+distinguished_name      = broker_ud
+req_extensions          = v3_req
+
+[ broker_ud ]
+commonName              = broker-ud
+stateOrProvinceName     = Pontevedra
+countryName             = ES
+emailAddress            = broker_ud@gradiant.org
+organizationName        = Gradiant
+organizationalUnitName  = Broker
+
+[ v3_req ]
+basicConstraints        = CA:FALSE
+keyUsage                = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName          = @alt_names
+
+[ alt_names ]
+DNS.1      = broker-ud

@@ -4,7 +4,7 @@
 
 To import a CA certificate to a new trust store invoke the following command:
 ```
-$ keytool -import -alias witdomca -file witdomcacert.pem -keystore appkeystore
+$ keytool -import -alias tdca -file tdcacert.pem -keystore appkeystore
 ```
 
 A prompt for the trust store key will be requested.
@@ -14,11 +14,11 @@ A prompt for the trust store key will be requested.
 
 'keytool' doesn't support importing a key into a key store, so we need to use openssl to create a pkcs12 keystore. First the key and certificate must be concatenated in the same file:
 ```
-$ cat client1_key.pem client1_crt.pem > client1_key_crt.pem
+$ cat client_td_key.pem client_td_crt.pem > client_td_key_crt.pem
 ```
 Then create the PKCS12 keystore with the following command:
 ```
-$ openssl pkcs12 -export -in client1_key_crt.pem -out client1_keystore.pkcs12 -name client1 -noiter -nomaciter
+$ openssl pkcs12 -export -in client_td_key_crt.pem -out client_td_keystore.pkcs12 -name client_td -noiter -nomaciter
 ```
 
 ## Using the trust store and key store with a Java application
@@ -40,7 +40,7 @@ $ mvn test -Djavax.net.ssl.trustStore=<truststorename> -Djavax.net.ssl.trustStor
 
 To convert a PKCS12 keystore generated with open ssl use the following command:
 ```
-$ keytool -importkeystore -deststorepass W1td0m -destkeypass W1td0m -destkeystore keystore/client1_keystore.jks -srckeystore keystore/client1_keystore.pkcs12 -srcstoretype PKCS12 -srcstorepass W1td0m -alias client1
+$ keytool -importkeystore -deststorepass Gr4d14nt -destkeypass Gr4d14nt -destkeystore keystore/client_td_keystore.jks -srckeystore keystore/client_td_keystore.pkcs12 -srcstoretype PKCS12 -srcstorepass Gr4d14nt -alias client_td
 ```
 With a Java key store the parameters to pass to the JVM are:
 ```

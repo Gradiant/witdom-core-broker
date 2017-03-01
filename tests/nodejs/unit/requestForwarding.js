@@ -37,9 +37,9 @@ before(function (done) {
     orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
         if(error) throw error;
         var forwarderConfig = {
-            certificate_key: __dirname + '/../../../CAs/witdomCA/client1_key.pem',
-            certificate: __dirname + '/../../../CAs/witdomCA/client1_crt.pem',
-            ca: __dirname + '/../../../CAs/witdomCA/witdomcacert.pem'
+            certificate_key: __dirname + '/../../../CAs/tdCA/client_td_key.pem',
+            certificate: __dirname + '/../../../CAs/tdCA/client_td_crt.pem',
+            ca: __dirname + '/../../../CAs/tdCA/tdcacert.pem'
         }
         requestForwardingHandler.initialize(forwarderConfig, function(error) {
             if(error) throw error;

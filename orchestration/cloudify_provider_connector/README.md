@@ -24,9 +24,9 @@ The orchestration module contains the following directories and files (not all t
             host: 'localhost',                                  // Cloudify API host
             port: '1234',                                       // Cloudify API port
             auth_token: 'some token',                           // Auth mechanism (TBD)
-            certificate_key: './CAs/witdomCA/client1_key.pem',  // Client certificate key
-            certificate: './CAs/witdomCA/client1_crt.pem',      // Client certificate
-            ca: './CAs/witdomCA/witdomcacert.pem'               // Client trusted CA
+            certificate_key: './CAs/tdCA/client_td_key.pem',  // Client certificate key
+            certificate: './CAs/tdaCA/client_td_crt.pem',      // Client certificate
+            ca: './CAs/tdCA/tdcacert.pem'               // Client trusted CA
         }
     }
 ```

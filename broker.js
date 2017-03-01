@@ -36,10 +36,14 @@ var httpsOptions = {
     //passphrase: brokerConfig.https.broker_key_passphrase,
     key: privatekey.toPrivatePem(),
     cert: fs.readFileSync(brokerConfig.https.broker_cert), 
-    ca: fs.readFileSync(brokerConfig.https.ca_cert),
+    //ca: [fs.readFileSync(brokerConfig.https.ca_cert), fs.readFileSync('CAs/untrustedCA/untrustedcacert.pem')],
+    ca: [],
     requestCert: true, 
     rejectUnauthorized: false
 };
+for (const ca_cert of brokerConfig.https.ca_certs) {
+    httpsOptions.ca.push(fs.readFileSync(ca_cert));
+}
 __brokerConfig.httpsOptions = httpsOptions;
 
 var restCaller = require('./request/rest').Rest;
@@ -47,7 +51,7 @@ var restCaller = require('./request/rest').Rest;
 restCaller.init(httpsOptions);
 
 var mongoose = require('mongoose');
-var protection = require('./protection/po_connector');
+var protection = require(brokerConfig.po_connector);
 var protector = protection.Protector;
 
 var protectorConfig = {

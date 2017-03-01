@@ -10,7 +10,7 @@ var unirest = require('unirest');
 var fs = require('fs');
 var stream = require('stream');
 var ServiceInfo = require('../service_info/ServiceInfo');
-var protector = require('../protection/po_connector').Protector;
+var protector = require(__base + __brokerConfig.po_connector).Protector;
 var superagent = require('superagent');
 
 /**

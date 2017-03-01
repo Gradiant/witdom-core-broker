@@ -19,7 +19,7 @@ COPY controllers/. controllers/
 COPY models/. models/
 COPY utils/. utils/
 COPY certs/broker_td* certs/
-COPY certs/witdomcacert.pem certs/
+COPY certs/*cacert.pem certs/
 COPY validators/. validators/
 COPY service_info/. service_info/
 COPY request_forwarding/. request_forwarding/

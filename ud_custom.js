@@ -1,14 +1,14 @@
 module.exports = {
+    protocol: "http",
     http: { port: 5100 },
     https: {
         port: 5143,
         broker_key: 'certs/broker_ud_key.pem',
-        broker_key_passphrase: 'W1td0mBr0k3r',
+        broker_key_passphrase: 'Gr4d14ntBr0k3r',
         broker_cert: 'certs/broker_ud_crt.pem',
-        ca_cert: 'certs/witdomcacert.pem'
+        //ca_cert: 'certs/udcacert.pem'
+        ca_certs: ['certs/udcacert.pem', 'certs/tdcacert.pem']
     },
-    //protocol: "http",
-    protocol: "https",
     database: {
         host: 'localhost',
         port: '27018'
@@ -17,7 +17,7 @@ module.exports = {
         name: 'mock_example',
         config: {
             services: {
-                service_ud: {
+                "untrusted-service": {
                     host: "localhost",
                     port: "8082"
                 }

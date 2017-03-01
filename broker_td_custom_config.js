@@ -4,9 +4,10 @@ module.exports = {
     https: {
         port: 5043,
         broker_key: 'certs/broker_td_key.pem',
-        broker_key_passphrase: 'W1td0mBr0k3r',
+        broker_key_passphrase: 'Gr4d14ntBr0k3r',
         broker_cert: 'certs/broker_td_crt.pem',
-        ca_cert: 'certs/witdomcacert.pem'
+        //ca_cert: 'certs/tdcacert.pem'
+        ca_certs: ['certs/tdcacert.pem', 'certs/udcacert.pem']
     },
     protocol: "http",
     broker_ed : { //broker external domain
@@ -36,11 +37,7 @@ module.exports = {
          config: {
             protocol: 'http',
             host: 'cloudify',
-            port: '80',
-            auth_token: 'some token',
-            certificate_key: '../../CAs/witdomCA/client1_key.pem',
-            certificate: '../../CAs/witdomCA/client1_crt.pem',
-            ca: '../../CAs/witdomCA/witdomcacert.pem'
+            port: '80'
         }
     }*/
     orchestrator: {

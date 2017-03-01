@@ -1,13 +1,13 @@
 module.exports = {
-    //protocol: "http",
     protocol: "http",
     http: { port: 5000 },
     https: {
         port: 5043,
         broker_key: 'certs/broker_td_key.pem',
-        broker_key_passphrase: 'W1td0mBr0k3r',
+        broker_key_passphrase: 'Gr4d14ntBr0k3r',
         broker_cert: 'certs/broker_td_crt.pem',
-        ca_cert: 'certs/witdomcacert.pem'
+        //ca_cert: 'certs/tdcacert.pem'
+        ca_certs: ['certs/tdcacert.pem', 'certs/udcacert.pem']
     },
     database: {
         host: 'localhost',
@@ -29,7 +29,7 @@ module.exports = {
                     host: "localhost",
                     port: "8080"
                 },
-                service_td: {
+                "trusted-service": {
                     host: "localhost",
                     port: "8081"
                 }

@@ -4,12 +4,14 @@ module.exports = {
     https: {
         port: 5043,
         broker_key: 'certs/broker_key.pem',
-        broker_key_passphrase: 'W1td0mBr0k3r',
-        broker_cert: 'certs/broker_crt.pem',
-        ca_cert: 'certs/witdomcacert.pem'
+        broker_key_passphrase: 'Gr4d14ntBr0k3r',
+        broker_cert: 'certs/broker_td_crt.pem',
+        //ca_cert: 'certs/tdcacert.pem'
+        ca_certs: ['certs/tdcacert.pem', 'certs/udcacert.pem']
     },
     numberOfRetries: 10,
     po_id: 'po',
+    po_connector: './protection/po_connector',
     broker_ed : { //broker external domain
         domain_name: "broker-ud",
         http: {

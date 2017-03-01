@@ -39,13 +39,8 @@ var host = po_info.uri.split(":")[0];
 var port = po_info.uri.split(":")[1];
 var config = {
     protocol: 'http',
-    //host: 'localhost',
-    //port: '1234',
-    auth_token: 'some token',
-    certificate_key: '../../CAs/witdomCA/client1_key.pem',
-    certificate: '../../CAs/witdomCA/client1_crt.pem',
-    ca: '../../CAs/witdomCA/witdomcacert.pem',
-    po_id: "po"
+    po_id: "po",
+    numberOfRetries: 2
 };
 
 var service_info = {
