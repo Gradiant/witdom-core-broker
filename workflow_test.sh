@@ -122,7 +122,7 @@ echo ""
 echo -ne "${RED}[$(date +"%Y%m%d_%H:%M:%S.%3N")] "
 echo -e "${BLUE}Creating non-blocker GET request to a trusted domain service that responds directly.${NC}"
 echo "====== GET /request/create ====="
-command="curl -s -X GET --header 'Content-Type: application/json' --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create/trusted-service/%2Fv1%2Fdummy_service_td%2Fno_cb'"
+command="curl -s -X GET --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create/trusted-service/%2Fv1%2Fdummy_service_td%2Fno_cb'"
 echo ${command}
 requestid=`eval $command`
 echo -e "${BOLD}Request id=$requestid${NC}"
@@ -148,7 +148,7 @@ echo ""
 echo -ne "${RED}[$(date +"%Y%m%d_%H:%M:%S.%3N")] "
 echo -e "${BLUE}Creating non-blocker GET request to a trusted domain service that responds with a callback.${NC}"
 echo "====== GET /request/create ====="
-command="curl -s -X GET --header 'Content-Type: application/json' --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create/trusted-service/%2Fv1%2Fdummy_service_td%2Fcb'"
+command="curl -s -X GET --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create/trusted-service/%2Fv1%2Fdummy_service_td%2Fcb'"
 echo ${command}
 requestid=`eval $command`
 echo -e "${BOLD}Request id=$requestid${NC}"
@@ -199,7 +199,7 @@ echo ""
 echo -ne "${RED}[$(date +"%Y%m%d_%H:%M:%S.%3N")] "
 echo -e "${BLUE}Creating blocker GET request to a trusted domain service that responds directly.${NC}"
 echo "===== GET /request/create_blocker ====="
-command="curl -s -X GET --header 'Content-Type: application/json' --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create_blocker/trusted-service/%2Fv1%2Fdummy_service_td%2Fno_cb'"
+command="curl -s -X GET --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create_blocker/trusted-service/%2Fv1%2Fdummy_service_td%2Fno_cb'"
 echo ${command}
 result=`eval $command`
 echo -e "${BLUE}Request ended, got result:${NC}"
@@ -209,7 +209,7 @@ echo ""
 echo -ne "${RED}[$(date +"%Y%m%d_%H:%M:%S.%3N")] "
 echo -e "${BLUE}Creating blocker GET request to a trusted domain service that responds with a callback.${NC}"
 echo "===== GET /request/create_blocker ====="
-command="curl -s -X GET --header 'Content-Type: application/json' --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create_blocker/trusted-service/%2Fv1%2Fdummy_service_td%2Fcb'"
+command="curl -s -X GET --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create_blocker/trusted-service/%2Fv1%2Fdummy_service_td%2Fcb'"
 echo ${command}
 result=`eval $command`
 echo -e "${BLUE}Request ended, got result:${NC}"
@@ -284,7 +284,7 @@ echo ""
 echo -ne "${RED}[$(date +"%Y%m%d_%H:%M:%S.%3N")] "
 echo -e "${GREEN}Creating non-blocker GET request to an untrusted domain service that responds directly.${NC}"
 echo "====== GET /request/create ====="
-command="curl -s -X GET --header 'Content-Type: application/json' --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create/untrusted-service/%2Fv1%2Fdummy_service_ud%2Fno_cb'"
+command="curl -s -X GET --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create/untrusted-service/%2Fv1%2Fdummy_service_ud%2Fno_cb'"
 echo ${command}
 requestid=`eval $command`
 echo -e "${BOLD}Request id=$requestid${NC}"
@@ -310,7 +310,7 @@ echo ""
 echo -ne "${RED}[$(date +"%Y%m%d_%H:%M:%S.%3N")] "
 echo -e "${GREEN}Creating non-blocker GET request to an untrusted domain service that responds with a callback.${NC}"
 echo "====== GET /request/create ====="
-command="curl -s -X GET --header 'Content-Type: application/json' --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create/untrusted-service/%2Fv1%2Fdummy_service_ud%2Fcb'"
+command="curl -s -X GET --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create/untrusted-service/%2Fv1%2Fdummy_service_ud%2Fcb'"
 echo ${command}
 requestid=`eval $command`
 echo -e "${BOLD}Request id=$requestid${NC}"
@@ -361,7 +361,7 @@ echo ""
 echo -ne "${RED}[$(date +"%Y%m%d_%H:%M:%S.%3N")] "
 echo -e "${GREEN}Creating blocker GET request to an untrusted domain service that responds directly.${NC}"
 echo "===== GET /request/create_blocker ====="
-command="curl -s -X GET --header 'Content-Type: application/json' --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create_blocker/untrusted-service/%2Fv1%2Fdummy_service_ud%2Fno_cb'"
+command="curl -s -X GET --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create_blocker/untrusted-service/%2Fv1%2Fdummy_service_ud%2Fno_cb'"
 echo ${command}
 result=`eval $command`
 echo -e "${GREEN}Request ended, got result:${NC}"
@@ -371,69 +371,8 @@ echo ""
 echo -ne "${RED}[$(date +"%Y%m%d_%H:%M:%S.%3N")] "
 echo -e "${GREEN}Creating blocker GET request to an untrusted domain service that responds with a callback.${NC}"
 echo "===== GET /request/create_blocker ====="
-command="curl -s -X GET --header 'Content-Type: application/json' --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create_blocker/untrusted-service/%2Fv1%2Fdummy_service_ud%2Fcb'"
+command="curl -s -X GET --header 'Accept: application/text' --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/create_blocker/untrusted-service/%2Fv1%2Fdummy_service_ud%2Fcb'"
 echo ${command}
 result=`eval $command`
 echo -e "${GREEN}Request ended, got result:${NC}"
 echo $result
-
-
-
-
-# echo -ne "${RED}[$(date +"%Y%m%d_%H:%M:%S.%3N")] "
-# echo -e "Creating non-blocker request to the untrusted domain service.${NC}"
-# echo "====== POST /request/create ====="
-
-# command="curl -s -X POST --header 'Content-Type: application/json' --header 'Accept: application/text' --header 'X-Auth-Token: the_token' -d '{\"param1\":\"value\",\"param2\":\"value\"}' 'http://${HOST}:${PORT}/v1/request/create/untrusted-service/%2Fv1%2Fdummy_service_ud%2Fno_cb'"
-# echo ${command}
-# requestid=`eval $command`
-
-# echo -ne "${RED}[$(date +"%Y%m%d_%H:%M:%S.%3N")] "
-# echo "Resquest id=$requestid"
-
-# sleep 1
-
-# echo ""
-# echo -e "Recovering result from broker.${NC}"
-# echo "====== GET /request/getresult ====="
-
-# command="curl -s -X GET --header 'X-Auth-Token: the_token' 'http://${HOST}:${PORT}/v1/request/getresult?request_id=${requestid}'"
-# echo "$command"
-# curl_status_and_body "\${command}"
-# #echo "-----------------------------"
-# #echo "status code: ${HTTP_STATUS}"
-# #echo "result: ${HTTP_BODY}"
-
-
-# #while [ "200" -ne "$statuscode" ]; do
-# while [ "200" -ne "${HTTP_STATUS}" ]; do
-# 	echo -n "."
-# 	sleep 1
-# 	curl_status_and_body "\${command}"
-# done
-# echo ""
-
-# echo -ne "${RED}[$(date +"%Y%m%d_%H:%M:%S.%3N")] "
-# echo -e "Got result data from broker${NC}"
-# echo "${HTTP_BODY}"
-
-
-# echo ""
-# echo ""
-
-# echo -ne "${RED}[$(date +"%Y%m%d_%H:%M:%S.%3N")] "
-# echo -e "Creating blocker request to the untrusted domain service.${NC}"
-# echo "===== POST /request/create_blocker ====="
-
-# #command="curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'X-Auth-Token: the_token' -d '{}' 'http://${HOST}:${PORT}/v1/request/create_blocker/untrusted-service/v1/dummy_service_ud/no_cb'"
-# #command2="curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'X-Auth-Token: the_token' -d '{}' 'http://${HOST}:${PORT}/v1/request/create_blocker/untrusted-service/v1/dummy_service_ud/no_cb' 2> /dev/null"
-
-# command="curl -s -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header 'X-Auth-Token: the_token' -d '{}' 'http://${HOST}:${PORT}/v1/request/create_blocker/untrusted-service/v1/dummy_service_ud/no_cb'"
-
-# echo ${command}
-# #result=`eval ${command2}`
-# result=`eval ${command}`
-
-# echo -e "Request ended, got result:${NC}"
-# echo $result
-# echo ""

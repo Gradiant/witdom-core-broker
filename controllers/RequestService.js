@@ -3,7 +3,8 @@
 var brokerConfig = require('../config');
 var mongoose = require('mongoose');
 var Service = require('../models/mongo/service');
-var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
+//var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
+var RequestHandler = require(__base + 'request_forwarding/requests');
 var forwardingHandler = require(__base + 'request_forwarding/forward');
 var stream = require('stream');
 var protector = require('../protection/po_connector').Protector;
@@ -251,7 +252,8 @@ exports.requestGetresultGET = function(args, res, next) {
      * xAuthToken (String)
      **/
     __logger.silly("RequestService.requestGetresultGET: request_id: " + args.request_id.value);
-    requestForwardingHandler.getRequest(args.request_id.value, function(error, request) {
+    //requestForwardingHandler.getRequest(args.request_id.value, function(error, request) {
+    RequestHandler.getRequest(args.request_id.value, function(error, request) {
         if(error) {
             if(error.name == "CastError") {
                 __logger.silly("RequestService.requestGetresultGET: CastError:");
@@ -318,7 +320,8 @@ exports.requestGetresultGET = function(args, res, next) {
                     // Serializable body
                     res.end(JSON.stringify(response_body));
                 }
-                requestForwardingHandler.deleteRequest(args.request_id.value, function(error){});
+                //requestForwardingHandler.deleteRequest(args.request_id.value, function(error){});
+                RequestHandler.deleteRequest(args.request_id.value, function(error){});
             } else if (request.status == 'PROTECTING' || request.status == 'UNPROTECTING') {
                 __logger.silly("RequestService.requestGetresultGET: request is in PROTECTING or UNPROTECTING state");
                 // The request is in PROTECTING or UNPROTECTING state

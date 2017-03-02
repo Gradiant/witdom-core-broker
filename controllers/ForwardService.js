@@ -1,7 +1,7 @@
 'use strict';
 
 var brokerConfig = require('../config');
-var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
+//var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
 var forwardingHandler = require(__base + 'request_forwarding/forward');
 
 exports.forwardDomainPOST = function(args, res, next) {
