@@ -34,8 +34,8 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
     __logger.silly("RestHandler.request: headers: " + JSON.stringify(headers));
     __logger.silly("RestHandler.request: body: " + body);
 
-    var retries = 10; // TODO, make configurable
-    restCaller.doCall(url, method, headers, body, retries, function(error, response) {
+    //var retries = 10; // TODO, make configurable __brokerConfig.numberOfRetries
+    restCaller.doCall(url, method, headers, body, __brokerConfig.numberOfRetries, function(error, response) {
         if(error) {
             if(error.code == 100) {
                 
@@ -79,7 +79,7 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
                         
                         __logger.debug("RestHandler.request: Updated service " + service_id + " info.");
 
-                        restCaller.doCall(url, method, headers, body, retries, function(error, response) {
+                        restCaller.doCall(url, method, headers, body, __brokerConfig.numberOfRetries, function(error, response) {
                             if(error) {
                                 __logger.error("RestHandler.request: Unknown error");
                                 __logger.debug("RestHandler.request: Trace:");
@@ -138,8 +138,8 @@ RestHandler.prototype.forwardRequest = function(domain_data, request_data, reque
         request_id: request_id
     }
     
-    var retries = 10; // TODO, make configurable
-    restCaller.doCall(url, method, headers, body, retries, function(error, response) {
+    //var retries = 10; // TODO, make configurable
+    restCaller.doCall(url, method, headers, body, __brokerConfig.numberOfRetries, function(error, response) {
         if(error) {
             if(error.code == 102) {
 
@@ -193,8 +193,8 @@ RestHandler.prototype.forwardCallback = function(domain_data, callback_data, req
         request_id: request_id
     }
 
-    var retries = 10; // TODO, make configurable
-    restCaller.doCall(url, method, headers, body, retries, function(error, response) {
+    //var retries = 10; // TODO, make configurable
+    restCaller.doCall(url, method, headers, body, __brokerConfig.numberOfRetries, function(error, response) {
         if(error) {
             if(error.code == 102) {
 
