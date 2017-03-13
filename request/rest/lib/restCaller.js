@@ -43,7 +43,7 @@ Caller.prototype.doCall = function(url, method, headers, body, retries, callback
         this.agent.post(url).timeout(this.options.timeout).send(body).set(headers).end(function(error, response) {
             if (error && !error.status) {
                 //console.log(error);
-                if (error.timeout || error.code == 'ENOTFOUND' || error.code == 'ECONNREFUSED' || error.code == 'EHOSTUNREACH') {
+                if (error.timeout || error.code == 'ENOTFOUND' || error.code == 'ECONNREFUSED' || error.code == 'EHOSTUNREACH' || error.code == 'ECONNRESET') {
                     if (retries > 0) {
                         self.doCall(url, method, headers, body, retries-1, callback);
                     } else {
@@ -53,15 +53,20 @@ Caller.prototype.doCall = function(url, method, headers, body, retries, callback
                     callback(error, response);
                 }
             } else {
+                if (response.type) {
+                    if (response.type.indexOf('text') != -1) { // if content-type is text put the text in response.body
+                        response.body = response.text;
+                    }
+                }
                 callback(null, response);
             }
         });
     } else if (method == 'GET') {
         this.agent.get(url).timeout(this.options.timeout).set(headers).end(function(error, response) {
-            if(error) console.log(error.statusType);
+            //if(error) console.log(error.statusType);
             if (error && !error.status) {
                 //console.log(error.statusType);
-                if (error.timeout || error.code == 'ENOTFOUND' || error.code == 'ECONNREFUSED' || error.code == 'EHOSTUNREACH') {
+                if (error.timeout || error.code == 'ENOTFOUND' || error.code == 'ECONNREFUSED' || error.code == 'EHOSTUNREACH' || error.code == 'ECONNRESET') {
                     if (retries > 0) {
                         self.doCall(url, method, headers, body, retries-1, callback);
                     } else {
@@ -71,6 +76,11 @@ Caller.prototype.doCall = function(url, method, headers, body, retries, callback
                     callback(error, response);
                 }
             } else {
+                if (response.type) {
+                    if (response.type.indexOf('text') != -1) { // if content-type is text put the text in response.body
+                        response.body = response.text;
+                    }
+                }
                 callback(null, response);
             }
         });

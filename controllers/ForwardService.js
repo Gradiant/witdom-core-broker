@@ -74,7 +74,7 @@ exports.forwardCallbackPOST = function(args, res, next) {
                     message: [{
                         code:"500",
                         message:"internal server error",
-                        path:['/v1/request/callback']
+                        path:['/v1/forward/callback']
                     }]
                 }));
             }

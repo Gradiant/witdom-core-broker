@@ -73,9 +73,11 @@ Connector.prototype.protect = function(callbackUrl, service_info, request_header
         } else {
             var protect_url = this.protocol + '://' + po_info.uri + '/v1/execute/' + service_info.details.service_id + '/protect';
             __logger.silly("Connector.protect: Final url: " + protect_url);
-            var headers = {
-                "X-Auth-Token": request_headers["x-auth-token"] || request_headers["X-Auth-Token"]
-            };
+            var headers = {};
+            if (request_headers["x-auth-token"] || request_headers["X-Auth-Token"]) {
+                headers['X-Auth-Token'] = request_headers["x-auth-token"] || request_headers["X-Auth-Token"];
+            }
+                        
             __logger.silly("Connector.protect: Headers:");
             __logger.silly(headers);
             var options = {
@@ -147,7 +149,6 @@ Connector.prototype.protect = function(callbackUrl, service_info, request_header
  * the forwarding process using the finalCallParameters as final body.
  */
 Connector.prototype.endProtection = function(originalCallParameters, receivedCallParameters, callback) {
-
     if( receivedCallParameters.status == "success" &&
         receivedCallParameters.results && 
         receivedCallParameters.results[0] &&
@@ -191,9 +192,10 @@ Connector.prototype.unprotect = function(callbackUrl, service_info, request_head
         } else {
             var unprotect_url = this.protocol + '://' + po_info.uri + '/v1/execute/' + service_info.details.service_id + '/unprotect';
             __logger.silly("Connector.unprotect: Final url: " + unprotect_url);
-            var headers = {
-                "X-Auth-Token": request_headers["x-auth-token"] || request_headers["X-Auth-Token"]
-            };
+            var headers = {};
+            if (request_headers["x-auth-token"] || request_headers["X-Auth-Token"]) {
+                headers['X-Auth-Token'] = request_headers["x-auth-token"] || request_headers["X-Auth-Token"];
+            }
             __logger.silly("Connector.unprotect: Headers:");
             __logger.silly(request_headers);
             var options = {
@@ -295,9 +297,10 @@ Connector.prototype.getProcessStatus = function(processInstanceId, request_heade
         } else {
             var status_url = this.protocol + '://' + po_info.uri + '/v1/processstatus/' + processInstanceId;
             __logger.silly("Connector.getProcessStatus: Final url: " + status_url);
-            var headers = {
-                "X-Auth-Token": request_headers["x-auth-token"] || request_headers["X-Auth-Token"]
-            };
+            var headers = {};
+            if (request_headers["x-auth-token"] || request_headers["X-Auth-Token"]) {
+                headers['X-Auth-Token'] = request_headers["x-auth-token"] || request_headers["X-Auth-Token"];
+            }
             __logger.silly("Connector.getProcessStatus: Headers:");
             __logger.silly(headers);
 

@@ -327,7 +327,7 @@ exports.requestGetresultGET = function(args, res, next) {
                 // The request is in PROTECTING or UNPROTECTING state
                 var response_data = request.request_log[request.request_log.length - 1];
                 __logger.silly(request.request_log);
-                console.log(response_data.response.body);
+                //console.log(response_data.response.body);
                 var response_body = response_data.response.body || {}; // this is the 'processInstanceId'
                 protector.getProcessStatus(response_body, args.headers.value, function(error, statusResponse) {
                     if (error) {

@@ -18,6 +18,15 @@ var services = {
             image: "image"
         }
     },
+    error_service: {
+        location: 'local',
+        details: {
+            service_id: "error_service",
+            description: "Error service",
+            uri: "errordomain:80",
+            image: "image"
+        }
+    },
     ud_service: {
         location: 'broker_ud',
         details: {

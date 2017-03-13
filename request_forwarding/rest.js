@@ -1,6 +1,7 @@
 'use strict';
 
-var ServiceInfo = require('../service_info/ServiceInfo');
+//var ServiceInfo = require('../service_info/ServiceInfo');
+var ServiceInfo = require(__brokerConfig.serviceInfoModule);
 var restCaller = require(__base + 'request/rest').Rest;
 
 function RestHandler() {}
@@ -62,11 +63,11 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
                     if(error) {
 
                         if(error.code == 404) {
-                            __logger.error("RestHandler.request: Can not find service " + service_id + " info");
+                            __logger.error("RestHandler.request: Cannot find service " + service_id + " info");
                             __logger.debug("RestHandler.request: Trace:");
                             __logger.debug(error);
 
-                            callback({code: 404, message: "service not found"}, null);
+                            callback({code: 404, message: "Service not found"}, null);
                         } else {
                             __logger.error("RestHandler.request: Got error updating service " + service_id + " info");
                             __logger.debug("RestHandler.request: Trace:");
@@ -78,14 +79,16 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
                     } else if(service) {
                         
                         __logger.debug("RestHandler.request: Updated service " + service_id + " info.");
-
+                        // Regenerate URL
+                        var url =  __brokerConfig.protocol + "://" + service.details.uri + request_path;
+                        
                         restCaller.doCall(url, method, headers, body, __brokerConfig.numberOfRetries, function(error, response) {
                             if(error) {
                                 __logger.error("RestHandler.request: Unknown error");
                                 __logger.debug("RestHandler.request: Trace:");
                                 __logger.debug(error); // TODO: check this, maybe change to just 'error'
 
-                                callback({code: 503, message: "can not reach service"}, null);
+                                callback({code: 503, message: "cannot reach service"}, null);
 
                             } else {
                                 __logger.debug("RestHandler.request: Success on contacting with updated service " + service_id);
@@ -99,15 +102,16 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
                 __logger.error("RestHandler.request: Unknown error");
                 __logger.debug("RestHandler.request: Trace:");
                 __logger.debug(error);
-                __logger.debug(response.status);
-                __logger.debug(response.text);
-                __logger.debug(response.body);
+                if (response) {
+                    __logger.debug(response.status);
+                    __logger.debug(response.text);
+                    __logger.debug(response.body);
+                }   
 
                 callback({code: 500, message: "internal server error"}, null);
             }
         } else {
             __logger.debug("RestHandler.request: Success on contacting with service " + service_id);
-
             callback(null, response);
         }
     });
@@ -156,7 +160,7 @@ RestHandler.prototype.forwardRequest = function(domain_data, request_data, reque
                 __logger.debug(response.error); // TODO: check this, maybe change to just 'error'
 
                 callback({code: 503, message: "can not reach external domain"}, null);
-            }
+            }// TODO: else for the rest of errors
         } else {
             __logger.debug("RestHandler.forwardRequest: Success on forwading request to external domain.");
 
@@ -192,7 +196,7 @@ RestHandler.prototype.forwardCallback = function(domain_data, callback_data, req
         response_status: data.status,
         request_id: request_id
     }
-
+    
     //var retries = 10; // TODO, make configurable
     restCaller.doCall(url, method, headers, body, __brokerConfig.numberOfRetries, function(error, response) {
         if(error) {

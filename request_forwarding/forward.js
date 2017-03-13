@@ -2,7 +2,8 @@
 
 var Request = require(__base + 'models/mongo/request');
 var Service = require(__base + 'models/mongo/service');
-var ServiceInfo = require(__base + 'service_info/ServiceInfo');
+//var ServiceInfo = require(__base + 'service_info/ServiceInfo');
+var ServiceInfo = require(__brokerConfig.serviceInfoModule);
 //var protector = require(__base + 'protection/po_connector').Protector;
 var protector = require(__base + __brokerConfig.po_connector).Protector;
 var RequestHandler = require('./requests');
@@ -243,7 +244,6 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
  * @param {function} callback (error) Callback with the error or null if the request_id is correct
  */
 ForwardingHandler.prototype.requestCallback = function(request_id, callback_headers, callback_body, callback) {
-    
     // Get request from database
     RequestHandler.getRequest(request_id, function(error, request) {
         if(error) {
@@ -303,7 +303,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                                     }]
                                 }
                             }
-                        });
+                        }, function(error) {});
                     } else {
                         // Continue the request forwarding
                         __logger.debug("ForwardingHandler.requestCallback: Successful body transformation, resuming forwarding process.");
@@ -531,7 +531,6 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                 
                 // Request finished
                 var first_log = request.request_log[0];
-                console.log(first_log);
                 var original_id = first_log.request.original_id;
 
                 // Update data

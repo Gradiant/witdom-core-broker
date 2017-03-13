@@ -42,7 +42,7 @@ RequestHandler.prototype.updateRequest = function(request_id, status, new_data, 
             __logger.debug("RequestHandler.updateRequest: trace");
             __logger.debug(error);
             callback(error, null);
-        } else {
+        } else if (request) {
             // Push new_data to request log
             var new_log = request.request_log;
             new_log.push(new_data);
@@ -55,6 +55,8 @@ RequestHandler.prototype.updateRequest = function(request_id, status, new_data, 
                 }
                 callback(error, request);
             });
+        } else {
+            callback(error, request);
         }
     });
 }
