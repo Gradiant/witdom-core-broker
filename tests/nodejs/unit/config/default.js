@@ -9,6 +9,7 @@ module.exports = {
     },
     protocol: "http",
     //protocol: "https",
+    numberOfRetries: 0,
     po_id: 'po',
     po_connector: './protection/po_connector',
     broker_ed : { //broker external domain
@@ -45,6 +46,18 @@ module.exports = {
                 google_https: {
                     host: "www.google.com",
                     port: "443"
+                },
+                error_service: {
+                    host: "errordomain",
+                    port: "80"
+                },
+                working_service: {
+                    host: "working-service",
+                    port: "80"
+                },
+                po: {
+                    host: "po",
+                    port: "8080"
                 }
             }
         }

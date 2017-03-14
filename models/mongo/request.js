@@ -12,7 +12,7 @@ var RequestSchema = new Schema({
     status: String,
     request_log: [{}]
 },
-{ timestamps: true}); // adds createdAt and updatedAt fields
+{ timestamps: true, minimize: false}); // adds createdAt and updatedAt fields. 'minimize: false' added to save empty objects in database like 'headers' or 'body'
 
 /**
  * Updates both satus and requests log

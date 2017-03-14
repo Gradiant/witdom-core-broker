@@ -1,4 +1,5 @@
-var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
+//var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
+var RequestHandler = require(__base + 'request_forwarding/requests');
 var stream = require('stream');
 
 /**
@@ -36,7 +37,8 @@ function checkRequest(requests, theindex, toDelete, watcher) {
         if (__logger) {
             __logger.info("Checking status of request " + therequest.requestId);
         }
-        requestForwardingHandler.getRequest(therequest.requestId, function(error, request) {
+        //requestForwardingHandler.getRequest(therequest.requestId, function(error, request) {
+        RequestHandler.getRequest(therequest.requestId, function(error, request) {
             if(error || !request) {
                 if (__logger) {
                     __logger.info("Error getting the status of the request " + therequest.requestId);
@@ -87,7 +89,8 @@ function checkRequest(requests, theindex, toDelete, watcher) {
                         }
                         response_object.end(JSON.stringify(response_body));
                     }
-                    requestForwardingHandler.deleteRequest(therequest.requestId, function(error){});
+                    //requestForwardingHandler.deleteRequest(therequest.requestId, function(error){});
+                    RequestHandler.deleteRequest(therequest.requestId, function(error){});
                     toDelete.push(theindex);
                     theindex=theindex+1;
                     checkRequest(requests, theindex, toDelete, watcher);

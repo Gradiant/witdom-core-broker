@@ -9,7 +9,8 @@ var Service = require('../models/mongo/service');
 var unirest = require('unirest');
 var fs = require('fs');
 var stream = require('stream');
-var ServiceInfo = require('../service_info/ServiceInfo');
+//var ServiceInfo = require('../service_info/ServiceInfo');
+var ServiceInfo = require(__brokerConfig.serviceInfoModule);
 var protector = require(__base + __brokerConfig.po_connector).Protector;
 var superagent = require('superagent');
 

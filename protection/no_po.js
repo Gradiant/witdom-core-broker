@@ -14,12 +14,12 @@ Connector.prototype.connect = function(config ,callback) {
 
 Connector.prototype.protect = function(callbackUrl, service_info, request_headers, serviceCallParameters, callback) {
     __logger.silly("no_po: protect");
-    callback(null, null, serviceCallParameters);
+    callback(null, null, serviceCallParameters || {});
 }
 
 Connector.prototype.unprotect = function(callbackUrl, service_info, request_headers, serviceCallParameters, callback) {
     __logger.silly("no_po: unprotect");
-    callback(null, null, serviceCallParameters);
+    callback(null, null, serviceCallParameters || {});
 }
 
 //var Connector = module.exports = exports = new Connector;

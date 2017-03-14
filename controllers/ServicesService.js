@@ -4,7 +4,8 @@ var brokerConfig = require('../config');
 var orchestrator = require(brokerConfig.orchestrator.name).Orchestrator;
 var mongoose = require('mongoose');
 var Service = require('../models/mongo/service');
-var ServiceInfo = require(__base + 'service_info/ServiceInfo');
+//var ServiceInfo = require(__base + 'service_info/ServiceInfo');
+var ServiceInfo = require(__brokerConfig.serviceInfoModule);
 
 function sendResponse(error, response, response_data, next) {
     if (error) {

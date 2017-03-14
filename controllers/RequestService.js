@@ -3,7 +3,9 @@
 var brokerConfig = require('../config');
 var mongoose = require('mongoose');
 var Service = require('../models/mongo/service');
-var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
+//var requestForwardingHandler = require('../request_forwarding/requestForwardingHandler');
+var RequestHandler = require(__base + 'request_forwarding/requests');
+var forwardingHandler = require(__base + 'request_forwarding/forward');
 var stream = require('stream');
 var protector = require('../protection/po_connector').Protector;
 var PoError = require(__base + 'protection/po_connector/lib/poError');
@@ -17,7 +19,8 @@ exports.requestCallbackPOST = function(args, res, next) {
    **/
 
   var request_id = args.request_id.value;
-  requestForwardingHandler.doCallback(args.request_id.value, args.headers.value, args.result.value, function(error) {
+  forwardingHandler.requestCallback(args.request_id.value, args.headers.value, args.result.value, function(error) {
+  //requestForwardingHandler.doCallback(args.request_id.value, args.headers.value, args.result.value, function(error) {
         if(error) {
             if(error.name == "CastError") {
                 // Error parsing ID
@@ -89,7 +92,8 @@ exports.requestCreatePOST = function(args, res, next) {
 
 var requestCreate = function(request_data, res, next) {
     // New request
-    requestForwardingHandler.createRequest(request_data, function(error, request_id) {
+    forwardingHandler.request(request_data, function(error, request_id) {
+    //requestForwardingHandler.createRequest(request_data, function(error, request_id) {
         if(error) {
             // Malfunction (database) error
             res.setHeader('Content-Type', 'application/json');
@@ -149,8 +153,10 @@ exports.requestCreate_blockerPOST = function(args, res, next) {
 }
 
 var requestCreate_blocker = function(request_data, res, next) {
+
     __logger.silly(JSON.stringify(request_data, null, 2));
-    requestForwardingHandler.createRequest(request_data, function(error, request_id) {
+    forwardingHandler.request(request_data, function(error, request_id) {
+    //requestForwardingHandler.createRequest(request_data, function(error, request_id) {
         if(error) {
             // Malfunction (database) error
             res.setHeader('Content-Type', 'application/json');
@@ -246,7 +252,8 @@ exports.requestGetresultGET = function(args, res, next) {
      * xAuthToken (String)
      **/
     __logger.silly("RequestService.requestGetresultGET: request_id: " + args.request_id.value);
-    requestForwardingHandler.getRequest(args.request_id.value, function(error, request) {
+    //requestForwardingHandler.getRequest(args.request_id.value, function(error, request) {
+    RequestHandler.getRequest(args.request_id.value, function(error, request) {
         if(error) {
             if(error.name == "CastError") {
                 __logger.silly("RequestService.requestGetresultGET: CastError:");
@@ -313,13 +320,14 @@ exports.requestGetresultGET = function(args, res, next) {
                     // Serializable body
                     res.end(JSON.stringify(response_body));
                 }
-                requestForwardingHandler.deleteRequest(args.request_id.value, function(error){});
+                //requestForwardingHandler.deleteRequest(args.request_id.value, function(error){});
+                RequestHandler.deleteRequest(args.request_id.value, function(error){});
             } else if (request.status == 'PROTECTING' || request.status == 'UNPROTECTING') {
                 __logger.silly("RequestService.requestGetresultGET: request is in PROTECTING or UNPROTECTING state");
                 // The request is in PROTECTING or UNPROTECTING state
                 var response_data = request.request_log[request.request_log.length - 1];
                 __logger.silly(request.request_log);
-                console.log(response_data.response.body);
+                //console.log(response_data.response.body);
                 var response_body = response_data.response.body || {}; // this is the 'processInstanceId'
                 protector.getProcessStatus(response_body, args.headers.value, function(error, statusResponse) {
                     if (error) {

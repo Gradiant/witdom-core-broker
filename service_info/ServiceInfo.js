@@ -74,6 +74,7 @@ function getOtherDomainsServices(callback) {
 
 module.exports.updateService = function(service_id, callback) {
     // Retrieve from orchestrator module
+    // TODO: since getServiceData in the Cloudify connector calls the method getServiceList, maybe is better to just call getServiceList and update the list in mongo database
     orchestrator.getServiceData(service_id, function(error, service_data) {
         if(error) {
             if(error.code == 404) { // Service not found in local orchestrator try to find it in other domain
@@ -99,15 +100,27 @@ module.exports.updateService = function(service_id, callback) {
                         if (typeof callback === 'function') {
                             __logger.debug("ServiceInfo.updateService: Service not found in others domains.");
                             callback({code:404, message: "Service not found"});
+                            // TODO: delete services from database??
+                            Service.remove({id: service_id}, function(error, removeResult) {
+                                if (removeResult) {
+                                    //console.log(removeResult.result);
+                                }
+                            });
                         }
                     }
                 });
             } else {
                 __logger.warn("ServiceInfo.updateService: Can not reach orchestration service.");
                 callback({code: 503, reason: "service unavaliable"});
+                // TODO: delete services from database??
+                Service.remove({id: service_id}, function(error, removeResult) {
+                    if (removeResult) {
+                        //console.log(removeResult.result);
+                    }
+                });
             }
         } else {
-            __logger.silly("ServiceInfo.updateService: Found service" + service_id);
+            __logger.silly("ServiceInfo.updateService: Found service " + service_id);
             var service_response = {
                 service_id: service_id,
                 description: service_data.description,
