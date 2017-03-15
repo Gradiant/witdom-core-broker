@@ -1,0 +1,24 @@
+#
+# po.cnf
+#
+
+[ req ]
+prompt                  = no
+distinguished_name      = po
+req_extensions          = v3_req
+
+[ po ]
+commonName              = po
+stateOrProvinceName     = Pontevedra
+countryName             = ES
+emailAddress            = po@gradiant.org
+organizationName        = Gradiant
+organizationalUnitName  = PO
+
+[ v3_req ]
+basicConstraints        = CA:FALSE
+keyUsage                = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName          = @alt_names
+
+[ alt_names ]
+DNS.1      = po

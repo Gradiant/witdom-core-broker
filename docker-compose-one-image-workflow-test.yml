@@ -33,6 +33,7 @@ services:
       - iam
     env_file:
       - td.env
+      - common.env
 
   broker-ud:
     container_name: broker_untrusted
@@ -45,27 +46,34 @@ services:
       - mongo2
     env_file:
       - ud.env
+      - common.env
 
   po:
     container_name: po
     image: dummy-service
     ports:
       - 8080:8080
-    environment:
-      - BROKER_HOST=broker-td
+      - 8443:8443
+    env_file:
+      - po.env
+      - common.env
 
   service-td:
     container_name: service_td
     image: dummy-service
     ports:
       - 8081:8080
-    environment:
-      - BROKER_HOST=broker-td
+      - 8444:8443
+    env_file:
+      - service_td.env
+      - common.env
 
   service-ud:
     container_name: service_ud
     image: dummy-service
     ports:
       - 8082:8080
-    environment:
-      - BROKER_HOST=broker-ud
+      - 8445:8443
+    env_file:
+      - service_ud.env
+      - common.env

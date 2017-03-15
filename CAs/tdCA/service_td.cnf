@@ -1,0 +1,24 @@
+#
+# service_td.cnf
+#
+
+[ req ]
+prompt                  = no
+distinguished_name      = service_td
+req_extensions          = v3_req
+
+[ service_td ]
+commonName              = service-td
+stateOrProvinceName     = Pontevedra
+countryName             = ES
+emailAddress            = service_td@gradiant.org
+organizationName        = Gradiant
+organizationalUnitName  = service_td
+
+[ v3_req ]
+basicConstraints        = CA:FALSE
+keyUsage                = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName          = @alt_names
+
+[ alt_names ]
+DNS.1      = service-td

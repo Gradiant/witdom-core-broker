@@ -1,0 +1,24 @@
+#
+# service_ud.cnf
+#
+
+[ req ]
+prompt                  = no
+distinguished_name      = service_ud
+req_extensions          = v3_req
+
+[ service_ud ]
+commonName              = service-ud
+stateOrProvinceName     = Pontevedra
+countryName             = ES
+emailAddress            = service_ud@gradiant.org
+organizationName        = Gradiant
+organizationalUnitName  = service_ud
+
+[ v3_req ]
+basicConstraints        = CA:FALSE
+keyUsage                = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName          = @alt_names
+
+[ alt_names ]
+DNS.1      = service-ud
