@@ -301,7 +301,7 @@ sleep 1
 echo -e "${GREEN}Recovering result from broker.${NC}"
 echo "====== GET /request/getresult ====="
 
-get_result ${requestid}
+get_result ${requestid} ${token}
 echo ""
 
 if [ "200" -eq "${HTTP_STATUS}" ]; then

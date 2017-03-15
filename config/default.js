@@ -12,6 +12,7 @@ module.exports = {
     numberOfRetries: 10,
     po_id: 'po',
     po_connector: './protection/po_connector',
+    po_basepath: '/v1',
     broker_ed : { //broker external domain
         domain_name: "broker-ud",
         http: {

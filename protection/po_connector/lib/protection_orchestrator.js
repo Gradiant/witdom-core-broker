@@ -20,6 +20,7 @@ function Connector()
     this.certificate_key;
     this.certificate;
     this.po_id;
+    this.basepath;
 }
 
 /**
@@ -37,6 +38,7 @@ Connector.prototype.connect = function(config, callback) {
     //this.auth_token = config.auth_token;
     this.po_id = config.po_id;
     this.numberOfRetries = config.numberOfRetries;
+    this.basepath = config.basepath;
     try {
         //this.ca = fs.readFileSync(config.ca);
         //this.certificate_key = fs.readFileSync(config.certificate_key);
@@ -71,7 +73,7 @@ Connector.prototype.protect = function(callbackUrl, service_info, request_header
         if (error) {
             callback(error);
         } else {
-            var protect_url = this.protocol + '://' + po_info.uri + '/v1/execute/' + service_info.details.service_id + '/protect';
+            var protect_url = this.protocol + '://' + po_info.uri + this.basepath + '/execute/' + service_info.details.service_id + '/protect';
             __logger.silly("Connector.protect: Final url: " + protect_url);
             var headers = {};
             if (request_headers["x-auth-token"] || request_headers["X-Auth-Token"]) {
@@ -190,7 +192,7 @@ Connector.prototype.unprotect = function(callbackUrl, service_info, request_head
         if (error) {
             callback(error);
         } else {
-            var unprotect_url = this.protocol + '://' + po_info.uri + '/v1/execute/' + service_info.details.service_id + '/unprotect';
+            var unprotect_url = this.protocol + '://' + po_info.uri + this.basepath + '/execute/' + service_info.details.service_id + '/unprotect';
             __logger.silly("Connector.unprotect: Final url: " + unprotect_url);
             var headers = {};
             if (request_headers["x-auth-token"] || request_headers["X-Auth-Token"]) {
@@ -295,7 +297,7 @@ Connector.prototype.getProcessStatus = function(processInstanceId, request_heade
         if (error) {
             callback(error);
         } else {
-            var status_url = this.protocol + '://' + po_info.uri + '/v1/processstatus/' + processInstanceId;
+            var status_url = this.protocol + '://' + po_info.uri + this.basepath + '/processstatus/' + processInstanceId;
             __logger.silly("Connector.getProcessStatus: Final url: " + status_url);
             var headers = {};
             if (request_headers["x-auth-token"] || request_headers["X-Auth-Token"]) {

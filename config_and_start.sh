@@ -111,6 +111,10 @@ if [ -z "$PO_ID" ]; then
     PO_ID="po"
 fi
 
+if [ -z "$PO_BASEPATH" ]; then
+    PO_BASEPATH ='/v1'
+fi
+
 if [ -z "$LOGGING_LEVEL" ]; then
     LOGGING_LEVEL="silly"
 fi
@@ -137,6 +141,7 @@ module.exports = {
     numberOfRetries: ${RETRIES},
     po_id: '${PO_ID}',
     po_connector: '$PO_CONNECTOR',
+    po_basepath: '$PO_BASEPATH',
     protocol: "${PROTOCOL}",
     broker_ed : { //broker external domain
         domain_name: "${BROKER_ED_HOST}",
