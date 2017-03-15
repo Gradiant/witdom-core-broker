@@ -40,8 +40,8 @@ done
 IFS=$OIFS
 
 
-if [ -z "$BROKER_PROTOCOL" ]; then
-    BROKER_PROTOCOL="http"
+if [ -z "$PROTOCOL" ]; then
+    PROTOCOL="http"
 fi
 
 if [ -z "$BROKER_ED_HOST" ]; then
@@ -137,7 +137,7 @@ module.exports = {
     numberOfRetries: ${RETRIES},
     po_id: '${PO_ID}',
     po_connector: '$PO_CONNECTOR',
-    protocol: "${BROKER_PROTOCOL}",
+    protocol: "${PROTOCOL}",
     broker_ed : { //broker external domain
         domain_name: "${BROKER_ED_HOST}",
         http: {
