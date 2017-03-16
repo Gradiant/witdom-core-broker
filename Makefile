@@ -38,7 +38,8 @@ test_unit:
 test_api:
 	# Before API tests, sleep
 	# Sometimes some of the tests fail if we don't let some time pass before running tests
-	sleep 15
+	# Wait 30 seconds to let the IAM start
+	sleep 30
 	npm run api_test # All pass now
 
 remove_files:
