@@ -74,16 +74,16 @@ try {
     throw 'Can not load orchestator module: ' + error;
 }
 
-var requestIp = require('request-ip');
-
 // Database connection
 mongoose.connect('mongodb://' + brokerConfig.database.host + ':' + brokerConfig.database.port);
 
-//========TESTING==Clean database
-for (var i in mongoose.connection.collections) {
-    mongoose.connection.collections[i].remove(function() {});
+if (brokerConfig.testing) {
+    //========TESTING==Clean database
+    for (var i in mongoose.connection.collections) {
+        mongoose.connection.collections[i].remove(function() {});
+    }
+    //========TESTING================
 }
-//========TESTING================
 
 // SwaggerRouter configuration
 var options = {
@@ -97,36 +97,24 @@ var spec = fs.readFileSync('./api/swagger.yaml', 'utf8');
 var swaggerDoc = jsyaml.safeLoad(spec);
 
 
-////// TODO Implement decryption of private key where required
-/*var ursa = require('ursa');
-var key = ursa.createPrivateKey(httpsOptions.key, httpsOptions.passphrase);
-console.log(key.toPrivatePem().toString());
-console.log(httpsOptions.key.toString());
-httpsOptions.key = key.toPrivatePem();
-httpsOptions.passphrase = '';*/
-
-
-
 // Orchestrator connection
 var orchestrator = orchestration.Orchestrator;
 orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
     if(!error) {
         // Initialize the Swagger middleware
         swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
-            // Register the middleware that gets the client ip
-            //app.use(requestIp.mw()) // Not needed now, was used for clientAuthHandler
 
-            // Register a client auth validator
-            //app.use(clientAuthHandler);
-
-            // FIXME only for dev!!
-            app.use(httpAuthValidator);
+            if (brokerConfig.testing) {
+                // FIXME only for dev!!
+                // This middleware accepts all HTTP request as if they were HTTPS request with a valid client certificate
+                // avoiding the need of providing a valid token. This is only using for testing/integration purposes
+                app.use(httpAuthValidator);
+            }
 
             // Interpret Swagger resources and attach metadata to request - must be first in swagger-tools middleware chain
             app.use(middleware.swaggerMetadata());
 
             // Register a client auth validator
-            //app.use(clientAuthHandler);
             app.use(authHandler);
 
             // Validate Swagger requests
@@ -144,11 +132,13 @@ orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
             // Use error handler
             app.use(errorHandler);
 
-            // Start the server
-            http.createServer(app).listen(brokerConfig.http.port, function () {
-                __logger.info('Your server is listening on port %d (http://localhost:%d)', brokerConfig.http.port, brokerConfig.http.port);
-                __logger.info('Swagger-ui is available on http://localhost:%d/docs', brokerConfig.http.port);
-            });
+            if (brokerConfig.testing) {
+                // Start the server
+                http.createServer(app).listen(brokerConfig.http.port, function () {
+                    __logger.info('Your server is listening on port %d (http://localhost:%d)', brokerConfig.http.port, brokerConfig.http.port);
+                    __logger.info('Swagger-ui is available on http://localhost:%d/docs', brokerConfig.http.port);
+                });
+            }
 
             // Start the https server
             https.createServer(httpsOptions,app).listen(brokerConfig.https.port, function () {

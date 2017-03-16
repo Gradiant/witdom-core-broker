@@ -5,7 +5,7 @@ var queryString = require('querystring');
 /**
  * This middleware reads the HTTP headers from request and puts
  * them inside request.swagger.params.headers.value
- * Only for the methods '/request/create' and '/request/create_blocker'
+ * Only for the methods '/request/create', '/request/create_blocker', '/request/callback' and '/request/getresult'
  * 
  * It also adds the query string to the parameter service_uri if it
  * doesn't have it yet, this is needed because of the way Swagger parses

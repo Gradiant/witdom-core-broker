@@ -44,6 +44,10 @@ if [ -z "$PROTOCOL" ]; then
     PROTOCOL="http"
 fi
 
+if [ -z "$TESTING" ]; then
+    TESTING="true"
+fi
+
 if [ -z "$BROKER_ED_HOST" ]; then
     BROKER_ED_HOST="broker-ud"
 fi
@@ -138,6 +142,7 @@ module.exports = {
         //ca_cert: '${CA_CERTS}'
         ca_certs: [${CA_CERTS_STRING}]
     },
+    testing: ${TESTING},
     numberOfRetries: ${RETRIES},
     po_id: '${PO_ID}',
     po_connector: '$PO_CONNECTOR',

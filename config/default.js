@@ -9,6 +9,7 @@ module.exports = {
         //ca_cert: 'certs/tdcacert.pem'
         ca_certs: ['certs/tdcacert.pem', 'certs/udcacert.pem']
     },
+    testing: true,
     numberOfRetries: 10,
     po_id: 'po',
     po_connector: './protection/po_connector',
