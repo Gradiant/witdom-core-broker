@@ -23,42 +23,57 @@ services:
 
   broker-td:
     container_name: broker_trusted
-    build:
-      context: ./
-      dockerfile: Dockerfile_td
+    build: .
+    image: witdom-core-broker
     ports:
       - 5000:5000
       - 5043:5043
     depends_on:
       - mongo
       - iam
+    env_file:
+      - env/td.env
+      - env/common.env
 
   broker-ud:
     container_name: broker_untrusted
-    build:
-      context: ./
-      dockerfile: Dockerfile_ud
+    image: witdom-core-broker
     ports:
       - 5100:5000
       - 5143:5043
     depends_on:
       - broker-td
       - mongo2
+    env_file:
+      - env/ud.env
+      - env/common.env
 
   po:
     container_name: po
     image: dummy-service
     ports:
       - 8080:8080
+      - 8443:8443
+    env_file:
+      - env/po.env
+      - env/common.env
 
   service-td:
     container_name: service_td
     image: dummy-service
     ports:
       - 8081:8080
+      - 8444:8443
+    env_file:
+      - env/service_td.env
+      - env/common.env
 
   service-ud:
     container_name: service_ud
     image: dummy-service
     ports:
       - 8082:8080
+      - 8445:8443
+    env_file:
+      - env/service_ud.env
+      - env/common.env

@@ -11,6 +11,7 @@ module.exports = {
     //protocol: "https",
     numberOfRetries: 0,
     po_id: 'po',
+    po_basepath: '/v1',
     po_connector: './protection/po_connector',
     broker_ed : { //broker external domain
         domain_name: "broker-ud",

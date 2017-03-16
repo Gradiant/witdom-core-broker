@@ -315,13 +315,16 @@ Connector.prototype.getProcessStatus = function(processInstanceId, request_heade
                         __logger.silly("Connector.getProcessStatus: Successful response from PO");
                         // If success, we only set protectionResponse
                         callback(null, response.body);
+                    } if (response.status == 404) {
+                        __logger.silly("Connector.getProcessStatus: processInstanceId doesn't exist");
+                        callback(new PoError(response.status, "Requested process doesn't exist"));
                     } else {
                         __logger.warn("Connector.getProcessStatus: Unexpected response from PO");
                         __logger.debug("Connector.getProcessStatus: Trace");
                         __logger.debug(response.status);
                         __logger.debug(response.text);
                         __logger.debug(response.body);
-                        // If error in unprotection, we return control to main function
+                        // If error in getProcessStatus, we return control to main function
                         callback(new PoError(response.status, "error in processstatus"));
                     }
                 }

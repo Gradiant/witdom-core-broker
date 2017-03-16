@@ -32,4 +32,4 @@ EXPOSE 5043
 CMD [ "./config_and_start.sh" ]
 
 # For the image build: $ docker build -t witdom-core-broker .
-# For the container run: $ docker run --name broker -p 5000:5000 -p 5043:5043 --link mongo-container-name:mongo -d witdom-core-broker
+# For the container run: $ docker run --name broker --env-file <file.env> -p 5000:5000 -p 5043:5043 --link mongo-container-name:mongo -d witdom-core-broker

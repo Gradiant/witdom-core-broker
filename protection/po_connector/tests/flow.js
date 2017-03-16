@@ -7,9 +7,9 @@ var nock = require('nock');
 
 var winston = require('winston');
 global.__logger = new winston.Logger({
-    level: 'info',
+    //level: 'info',
     transports: [
-      new (winston.transports.Console)()
+    //  new (winston.transports.Console)()
     ]
 });
 
@@ -40,7 +40,8 @@ var port = po_info.uri.split(":")[1];
 var config = {
     protocol: 'http',
     po_id: "po",
-    numberOfRetries: 2
+    numberOfRetries: 2,
+    basepath: __brokerConfig.po_basepath
 };
 
 var service_info = {
@@ -144,7 +145,9 @@ describe("Status",  function() {
         protector.getProcessStatus(123456, {'X-Auth-Token': 'token'}, function(error, statusResponse) {
             should.exist(error);
             should.not.exist(statusResponse);
-            error.status.should.equal(404);
+            error.name.should.equal('PoError');
+            error.code.should.equal(404);
+            error.reason.should.equal('Requested process doesn\'t exist');
             done();
         });
     });

@@ -89,6 +89,12 @@ describe("Service Info: domainList: ", function() {
                     description: "Storage service component",
                     uri: "192.168.0.14:3317",
                     image: "image"
+                },
+                {    
+                    service_id: "error_service",
+                    description: "Error service",
+                    uri: "errordomain:80",
+                    image: "image"
                 }
             ]);
             done();
@@ -132,6 +138,12 @@ describe("Service Info: list: ", function() {
                     service_id: "storage",
                     description: "Storage service component",
                     uri: "192.168.0.14:3317",
+                    image: "image"
+                },
+                {    
+                    service_id: "error_service",
+                    description: "Error service",
+                    uri: "errordomain:80",
                     image: "image"
                 },
                 {

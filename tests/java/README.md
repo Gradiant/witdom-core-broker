@@ -71,12 +71,11 @@ public class ForwardApiExample {
     public static void main(String[] args) {
         
         ForwardApi apiInstance = new ForwardApi();
-        Request service = new Request(); // Request | Name of the service
+        ForwardCallback service = new ForwardCallback(); // ForwardCallback | Service info and request data
         try {
-            String result = apiInstance.forwardDomainPOST(service);
-            System.out.println(result);
+            apiInstance.forwardCallbackPOST(service);
         } catch (ApiException e) {
-            System.err.println("Exception when calling ForwardApi#forwardDomainPOST");
+            System.err.println("Exception when calling ForwardApi#forwardCallbackPOST");
             e.printStackTrace();
         }
     }
@@ -90,20 +89,26 @@ All URIs are relative to *https://localhost/v1*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*ForwardApi* | [**forwardCallbackPOST**](docs/ForwardApi.md#forwardCallbackPOST) | **POST** /forward/callback | Forward request response to a WITDOM domain
 *ForwardApi* | [**forwardDomainPOST**](docs/ForwardApi.md#forwardDomainPOST) | **POST** /forward/domain | Forward request to a WITDOM domain
-*RequestApi* | [**requestCallbackPOST**](docs/RequestApi.md#requestCallbackPOST) | **POST** /request/callback | Update a request
-*RequestApi* | [**requestCreateBlockerPOST**](docs/RequestApi.md#requestCreateBlockerPOST) | **POST** /request/create_blocker | Forwards a request to a service or module in a blocking manner
-*RequestApi* | [**requestCreatePOST**](docs/RequestApi.md#requestCreatePOST) | **POST** /request/create | Forwarding a request to a service or module
+*RequestApi* | [**requestCallbackPOST**](docs/RequestApi.md#requestCallbackPOST) | **POST** /request/callback | Signals the end of a previous request
+*RequestApi* | [**requestCreateBlockerGET**](docs/RequestApi.md#requestCreateBlockerGET) | **GET** /request/create_blocker/{service_id}/{service_uri}* | Forwards a GET request to a service or module in a blocking manner
+*RequestApi* | [**requestCreateBlockerPOST**](docs/RequestApi.md#requestCreateBlockerPOST) | **POST** /request/create_blocker/{service_id}/{service_uri}* | Forwards a POST request to a service or module in a blocking manner
+*RequestApi* | [**requestCreateGET**](docs/RequestApi.md#requestCreateGET) | **GET** /request/create/{service_id}/{service_uri}* | Forwards a GET request to a service or module
+*RequestApi* | [**requestCreatePOST**](docs/RequestApi.md#requestCreatePOST) | **POST** /request/create/{service_id}/{service_uri}* | Forwards a POST request to a service or module
 *RequestApi* | [**requestGetresultGET**](docs/RequestApi.md#requestGetresultGET) | **GET** /request/getresult | Try to get the result of a previous request if available
 *ServicesApi* | [**serviceDetailsGET**](docs/ServicesApi.md#serviceDetailsGET) | **GET** /service/details | Details like location of a specific services
 *ServicesApi* | [**serviceDomainlistGET**](docs/ServicesApi.md#serviceDomainlistGET) | **GET** /service/domainlist | List of services available in the domain
 *ServicesApi* | [**serviceListGET**](docs/ServicesApi.md#serviceListGET) | **GET** /service/list | List of services available in WITDOM
-*ServicesApi* | [**serviceOutsidelistGET**](docs/ServicesApi.md#serviceOutsidelistGET) | **GET** /service/outsidelist | Time Estimates
+*ServicesApi* | [**serviceOutsidelistGET**](docs/ServicesApi.md#serviceOutsidelistGET) | **GET** /service/outsidelist | List of the services available outside this broker&#39;s domain
 
 
 ## Documentation for Models
 
  - [Error](docs/Error.md)
+ - [ErrorData](docs/ErrorData.md)
+ - [ForwardCallback](docs/ForwardCallback.md)
+ - [ForwardRequest](docs/ForwardRequest.md)
  - [Request](docs/Request.md)
  - [Result](docs/Result.md)
  - [Service](docs/Service.md)

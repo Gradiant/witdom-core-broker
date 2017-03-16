@@ -24,7 +24,8 @@ var protector = protection.Protector;
 var protectorConfig = {
     protocol: __brokerConfig.protocol,
     po_id: __brokerConfig.po_id,
-    numberOfRetries: __brokerConfig.numberOfRetries
+    numberOfRetries: __brokerConfig.numberOfRetries,
+    basepath: __brokerConfig.po_basepath
 };
 
 protector.connect(protectorConfig, function (error) {
@@ -183,7 +184,7 @@ describe("ForwardingHandler tests: ", function() {
                             response.body.message[0].message.should.equal('cannot reach service');
                             done();
                         });      
-                    }, 2000);
+                    }, 3000);
                 }
             );
         });
