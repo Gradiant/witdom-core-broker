@@ -14,7 +14,6 @@ if (__customConfigFile.charAt(0) != '/') {
 var brokerConfig = require('./config');
 global.__brokerConfig = brokerConfig;
 var errorHandler = require('./utils/errorHandler')
-var clientAuthHandler = require('./utils/clientAuthHandler');
 var authHandler = require('./utils/authHandler');
 var httpAuthValidator = require('./utils/httpAuthValidator');
 var requestHeadersParser = require('./utils/requestHeadersParser');

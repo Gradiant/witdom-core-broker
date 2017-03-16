@@ -315,7 +315,7 @@ Connector.prototype.getProcessStatus = function(processInstanceId, request_heade
                         __logger.silly("Connector.getProcessStatus: Successful response from PO");
                         // If success, we only set protectionResponse
                         callback(null, response.body);
-                    } if (response.status == 404) {
+                    } else if (response.status == 404) {
                         __logger.silly("Connector.getProcessStatus: processInstanceId doesn't exist");
                         callback(new PoError(response.status, "Requested process doesn't exist"));
                     } else {
