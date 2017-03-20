@@ -80,13 +80,13 @@ describe("ForwardingHandler tests: ", function() {
         .post('/v1/execute/external_service/protect')
         .replyWithError('Can\'t reach PO')
         .post('/v1/execute/external_service/protect')
-        .reply(200,'1')
+        .reply(200,{processInstanceId: 1, randomUUID: 12345},{'Content-Type': 'application/json'})
         .post('/v1/execute/external_service/unprotect')
-        .reply(200,'2')
+        .reply(200,{processInstanceId: 2, randomUUID: 12345},{'Content-Type': 'application/json'})
 /*        .post('/v1/execute/external_service/protect')
         .reply(200,'3')*/
         .post('/v1/execute/external_service/unprotect')
-        .reply(200,'4');
+        .reply(200,{processInstanceId: 4, randomUUID: 12345},{'Content-Type': 'application/json'})
 
         function clearDB() {
             for (var i in mongoose.connection.collections) {
@@ -361,7 +361,9 @@ describe("ForwardingHandler tests: ", function() {
                             var size = request.request_log.length;
                             var response = request.request_log[size-1].response;
                             response.status.should.equal(200);
-                            response.body.should.equal("1");
+                            response.should.have.property('body');
+                            response.body.should.have.property('processInstanceId');
+                            response.body.processInstanceId.should.equal(1);
 
                             done();
                         });
@@ -464,7 +466,9 @@ describe("ForwardingHandler tests: ", function() {
                         var size = request.request_log.length;
                         var response = request.request_log[size-1].response;
                         response.status.should.equal(200);
-                        response.body.should.equal('2');
+                        response.should.have.property('body');
+                        response.body.should.have.property('processInstanceId');
+                        response.body.processInstanceId.should.equal(2);
 
                         // Callback from the PO
                         ForwardingHandler.requestCallback(requestId,{},{status:'success',results:[{key:'modifiedServiceParams',value:{result: "This is the service result"}}]}, function(error) {
@@ -666,7 +670,9 @@ describe("ForwardingHandler tests: ", function() {
                                     var size = request.request_log.length;
                                     var response = request.request_log[size-1].response;
                                     response.status.should.equal(200);
-                                    response.body.should.equal('4');
+                                    response.should.have.property('body');
+                                    response.body.should.have.property('processInstanceId');
+                                    response.body.processInstanceId.should.equal(4);
 
                                     done();
                                 });
