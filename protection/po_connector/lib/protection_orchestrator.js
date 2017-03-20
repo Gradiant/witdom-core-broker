@@ -105,7 +105,8 @@ Connector.prototype.protect = function(callbackUrl, service_info, request_header
                 } else if (response) {
                     if (response.status == 200) {
                         // If success, we only set protectionResponse
-                        callback(null, response.text, null);
+                        //callback(null, response.text, null);
+                        callback(null, response.body, null);
                     } else {
                         __logger.warn("Connector.protect: Unexpected response from PO");
                         __logger.debug("Connector.protect: Trace");
@@ -224,7 +225,8 @@ Connector.prototype.unprotect = function(callbackUrl, service_info, request_head
                     if (response.status == 200) {
                         __logger.silly("Connector.unprotect: Successful response from PO");
                         // If success, we only set protectionResponse
-                        callback(null, response.text, null);
+                        //callback(null, response.text, null);
+                        callback(null, response.body, null);
                     } else {
                         __logger.warn("Connector.unprotect: Unexpected response from PO");
                         __logger.debug("Connector.unprotect: Trace");

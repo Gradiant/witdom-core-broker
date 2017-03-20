@@ -328,8 +328,11 @@ exports.requestGetresultGET = function(args, res, next) {
                 var response_data = request.request_log[request.request_log.length - 1];
                 __logger.silly(request.request_log);
                 //console.log(response_data.response.body);
-                var response_body = response_data.response.body || {}; // this is the 'processInstanceId'
-                protector.getProcessStatus(response_body, args.headers.value, function(error, statusResponse) {
+//                var response_body = response_data.response.body || {}; // this is the 'processInstanceId'
+                var response_body = response_data.response.body || {}; // the response body is an object that contains the property 'processInstanceId'
+                var processInstanceId = response_body.processInstanceId;
+                //protector.getProcessStatus(response_body, args.headers.value, function(error, statusResponse) {
+                protector.getProcessStatus(processInstanceId, args.headers.value, function(error, statusResponse) {
                     if (error) {
                         if (error instanceof PoError) {
                             res.writeHead(503); // ??Other error
