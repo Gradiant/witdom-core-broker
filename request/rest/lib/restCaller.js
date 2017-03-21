@@ -43,7 +43,7 @@ Caller.prototype.doCall = function(url, method, headers, body, retries, callback
         this.agent.post(url).timeout(this.options.timeout).send(body).set(headers).end(function(error, response) {
             if (error && !error.status) {
                 //console.log(error);
-                if (error.timeout || error.code == 'ENOTFOUND' || error.code == 'ECONNREFUSED' || error.code == 'EHOSTUNREACH' || error.code == 'ECONNRESET') {
+                if (error.timeout || error.code == 'ENOTFOUND' || error.code == 'ECONNREFUSED' || error.code == 'EHOSTUNREACH' || error.code == 'ECONNRESET' || error.code == 'EAI_AGAIN') {
                     if (retries > 0) {
                         self.doCall(url, method, headers, body, retries-1, callback);
                     } else {
@@ -66,7 +66,7 @@ Caller.prototype.doCall = function(url, method, headers, body, retries, callback
             //if(error) console.log(error.statusType);
             if (error && !error.status) {
                 //console.log(error.statusType);
-                if (error.timeout || error.code == 'ENOTFOUND' || error.code == 'ECONNREFUSED' || error.code == 'EHOSTUNREACH' || error.code == 'ECONNRESET') {
+                if (error.timeout || error.code == 'ENOTFOUND' || error.code == 'ECONNREFUSED' || error.code == 'EHOSTUNREACH' || error.code == 'ECONNRESET' || error.code == 'EAI_AGAIN') {
                     if (retries > 0) {
                         self.doCall(url, method, headers, body, retries-1, callback);
                     } else {
