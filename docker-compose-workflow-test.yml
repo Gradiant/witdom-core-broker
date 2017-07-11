@@ -10,8 +10,8 @@ services:
   mongo2:
     container_name: mongo-broker-ud
     image: mongo
-    expose:
-      - "27017"
+    ports:
+      - 27018:27017
 
   iam:
     container_name: iam

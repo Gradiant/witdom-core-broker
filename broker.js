@@ -74,7 +74,7 @@ try {
 }
 
 // Database connection
-mongoose.connect('mongodb://' + brokerConfig.database.host + ':' + brokerConfig.database.port);
+mongoose.connect('mongodb://' + brokerConfig.database.host + ':' + brokerConfig.database.port + '/broker');
 
 if (brokerConfig.testing) {
     //========TESTING==Clean database
@@ -82,6 +82,20 @@ if (brokerConfig.testing) {
         mongoose.connection.collections[i].remove(function() {});
     }
     //========TESTING================
+}
+
+// Setup the audit component
+var auditLogExpress = undefined;
+if (brokerConfig.audit.active == 'true') {
+    var auditLog = require('audit-log');
+    auditLog._debug = true;
+    auditLog.addTransport("mongoose", {connectionString: 'mongodb://' + brokerConfig.audit.database.host + ':' + brokerConfig.audit.database.port + '/auditlog'});
+
+    var auditLogExtendedExpress = require('./utils/auditLogExtendedExpress');
+    var auditLogExpress = new auditLogExtendedExpress({
+        auditLog: auditLog,
+        blackListPaths:[/^\/docs.*$/,/^\/api-docs.*$/]
+    });
 }
 
 // SwaggerRouter configuration
@@ -121,6 +135,11 @@ orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
 
             // Put request HTTP headers in request.swagger.params.headers
             app.use(requestHeadersParser);
+
+            if (auditLogExpress != undefined) {
+                // use audit-log express plugin middleware
+                app.use(auditLogExpress.middleware);
+            }
 
             // Route validated requests to appropriate controller
             app.use(middleware.swaggerRouter(options));

@@ -132,6 +132,13 @@ outputs:
         endpoint: "http://127.0.0.1:5001/v3"
     },
     tokenValidationModule: "openstack-token-utils",             // Token validation module used to validate user tokens. 'validators/dummyTokenValidation' can be used for testing environments where an IAM is not deployed
+    audit: {                                                    // Audit component configuration
+        active: 'true',                                         // Whether or not use the audit component ('true'|'false')
+        database: {                                             // Mongo database configuration
+            host: 'mongo',
+            port: '27017'
+        }
+    }
 }
 ```
 
@@ -155,6 +162,9 @@ IAM_ADMIN_USER=admin                        # Admin user of the IAM
 IAM_ADMIN_PASSWORD=adminpw                  # Admin user password of the IAM
 MONGO_HOST=mongo                            # Hostname of the mongo engine used by this Broker instance
 MONGO_PORT=27017                            # Port of the mongo engine
+AUDIT_ACTIVE=true                           # Whether or not use the audit component
+AUDIT_MONGO_HOST=mongo                      # Mongo host for the audit component
+AUDIT_MONGO_PORT=27017                      # Mongo port for the audit component
 ORCHESTRATOR=mock_example                   # Module used for communicate with the orchestrator (cloudify_provider_connector|mock_example)
 MOCK_SERVICES=po:{host:"po",port:"8080"}    # List of services in JSON format to configure in the 'mock_example' module
 CLOUDIFY_HOST=cloudify                      # Hostname of Cloudify (only for module 'cloudify_provider_connector')
@@ -163,6 +173,19 @@ RETRIES=8                                   # Number of retries to do when there
 PO_ID=po                                    # ID of the PO defined in the cloud orchestrator
 PO_BASEPATH=/v1                             # Basepath of the PO URK
 LOGGING_LEVEL=silly                         # Logging level (error|warn|info|verbose|debug|silly)
+```
+
+## Auditing
+
+The Broker uses the npm module 'audit-log' to save auditing logs of all requests that the Broker receives. The logged information of each request is saved in a mongo database and its format is the following:
+
+```
+    - actor: The token provided in the request in the header 'X-Auth-Token'.
+    - origin: If the requester provides a valid client certificate, the certificate subject is stored here.
+    - action: HTTP method, POST|GET.
+    - label: Request URI.
+    - object: Request headers.
+    - description: Request body.
 ```
 
 ## Building IAM docker image and launching container

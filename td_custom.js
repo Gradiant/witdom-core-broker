@@ -13,6 +13,10 @@ module.exports = {
         host: 'localhost',
         port: '27017'
     },
+    audit_database: {
+        host: 'localhost',
+        port: '27017'
+    },
     orchestrator: {
         name: 'mock_example',
         config: {

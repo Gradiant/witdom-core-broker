@@ -37,6 +37,13 @@ module.exports = {
         host: 'mongo',
         port: '27017'
     },
+    audit: {
+        active: 'true',
+        database: {
+            host: 'mongo',
+            port: '27017'
+        }
+    },
     orchestrator: {
         name: 'mock_example',
         config: {

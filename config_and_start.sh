@@ -87,6 +87,18 @@ if [ -z "$MONGO_PORT" ]; then
     MONGO_PORT="27017"
 fi
 
+if [ -z "$AUDIT_ACTIVE" ]; then
+    MONGO_HOST="true"
+fi
+
+if [ -z "$AUDIT_MONGO_HOST" ]; then
+    MONGO_HOST="mongo"
+fi
+
+if [ -z "$AUDIT_MONGO_PORT" ]; then
+    MONGO_PORT="27017"
+fi
+
 if [ -z "$ORCHESTRATOR" ]; then
     ORCHESTRATOR="mock_example"
 fi
@@ -169,6 +181,13 @@ module.exports = {
     database: {
         host: '${MONGO_HOST}',
         port: '${MONGO_PORT}'
+    },
+    audit: {
+        active: '${AUDIT_ACTIVE}',
+        database: {
+            host: '${AUDIT_MONGO_HOST}',
+            port: '${AUDIT_MONGO_PORT}'
+        }
     },
     orchestrator: {
         name: '${ORCHESTRATOR}',
