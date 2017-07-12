@@ -346,7 +346,8 @@ exports.requestGetresultGET = function(args, res, next) {
                     } else {
                         res.setHeader('Content-Type', 'application/json');
                         res.writeHead(202);
-                        res.end(JSON.stringify(statusResponse));
+                        //res.end(JSON.stringify(statusResponse));
+                        res.end(JSON.stringify({status:request.status.toLowerCase(),data:statusResponse}));
                     }
                 });
 
@@ -356,8 +357,7 @@ exports.requestGetresultGET = function(args, res, next) {
                 // Request has not yet ended
                 res.setHeader('Content-Type', 'application/json');
                 res.writeHead(202);
-                res.end(/* TODO, define data */);
-                // ASK for status to the PO??
+                res.end(JSON.stringify({status:"processing"}));
             }
         }
     });
