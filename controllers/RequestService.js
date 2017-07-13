@@ -58,6 +58,7 @@ exports.requestCreateGET = function(args, res, next) {
      * service_id (String)
      * service_uri (String)
      * xAuthToken (String)
+     * xProtectionConfiguration (String)
      **/
 
     requestCreate({
@@ -77,6 +78,7 @@ exports.requestCreatePOST = function(args, res, next) {
      * service_uri (String)
      * request_data (Request)
      * xAuthToken (String)
+     * xProtectionConfiguration (String)
      **/
 
     requestCreate({
@@ -120,6 +122,7 @@ exports.requestCreate_blockerGET = function(args, res, next) {
    * service_id (String)
    * service_uri (String)
    * xAuthToken (String) 
+   * xProtectionConfiguration (String)
    **/
 
     requestCreate_blocker({
@@ -139,6 +142,7 @@ exports.requestCreate_blockerPOST = function(args, res, next) {
    * service_uri (String)
    * request_data (Request)
    * xAuthToken (String)
+   * xProtectionConfiguration (String)
    **/
 
    requestCreate_blocker({

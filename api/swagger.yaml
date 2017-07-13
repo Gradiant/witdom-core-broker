@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   description: "API to use services from the Broker"
-  version: "1.5.0"
+  version: "1.6.0"
   title: "WITDOM Broker API"
 basePath: "/v1"
 produces:
@@ -188,6 +188,10 @@ paths:
         in: "header"
         description: "The authentication token of the user"
         type: "string"
+      - name: "X-Protection-Configuration"
+        in: "header"
+        description: "Protection configuration id to use when calling PO methods protect and unprotect. If it's not provided the service id is used"
+        type: "string"
   /request/create_blocker/{service_id}/{service_uri}*:
     post:
       tags:
@@ -288,6 +292,10 @@ paths:
       - name: "X-Auth-Token"
         in: "header"
         description: "The authentication token of the user"
+        type: "string"
+      - name: "X-Protection-Configuration"
+        in: "header"
+        description: "Protection configuration id to use when calling PO methods protect and unprotect. If it's not provided the service id is used"
         type: "string"
   /request/getresult:
     get:
@@ -617,7 +625,7 @@ definitions:
         description: "A set of HTTP headers to pass to the service/module when sending the response"
       response_data:
         type: "object"
-        description: JSON with the parameters of the response"
+        description: "JSON with the parameters of the response"
   Service:
     type: "object"
     required:

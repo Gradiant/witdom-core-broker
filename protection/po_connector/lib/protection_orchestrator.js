@@ -52,7 +52,7 @@ Connector.prototype.connect = function(config, callback) {
 /**
  * Starts the protection of the data identified by the body (serviceCallParameters)
  * @param {string} callbackUrl callback url where the PO will communicate the end of the protection process
- * @param {json} service_info information of the service that was requested. It has two properties 'location' and 'details'.
+ * @param {json} service_info information of the service that was requested. It has three properties 'location', 'details' and 'protectionConfigurationId'.
  * 'location' can be 'local' or the domain name of the broker where the service is deployed, if its value is 'local'
  * the PO doesn't need to do anything and the request can be directly forwarded to the service, but if the value is
  * a domain name the request will be forwarded to the PO and after that it will be forwarded to the other domain.
@@ -73,7 +73,8 @@ Connector.prototype.protect = function(callbackUrl, service_info, request_header
         if (error) {
             callback(error);
         } else {
-            var protect_url = this.protocol + '://' + po_info.uri + this.basepath + '/execute/' + service_info.details.service_id + '/protect';
+            //var protect_url = this.protocol + '://' + po_info.uri + this.basepath + '/execute/' + service_info.details.service_id + '/protect';
+            var protect_url = this.protocol + '://' + po_info.uri + this.basepath + '/execute/' + service_info.protectionConfigurationId + '/protect';
             __logger.silly("Connector.protect: Final url: " + protect_url);
             var headers = {};
             if (request_headers["x-auth-token"] || request_headers["X-Auth-Token"]) {
@@ -169,7 +170,7 @@ Connector.prototype.endProtection = function(originalCallParameters, receivedCal
 /**
  * Starts the unprotection of the data identified by the body (serviceCallParameters)
  * @param {string} callbackUrl callback url where the PO will communicate the end of the protection process
- * @param {json} service_info information of the service that was requested. It has two properties 'location' and 'details'.
+ * @param {json} service_info information of the service that was requested. It has three properties 'location', 'details' and 'protectionConfigurationId'.
  * 'location' can be 'local' or the domain name of the broker where the service is deployed, if its value is 'local'
  * the PO doesn't need to do anything and the request can be directly forwarded to the service, but if the value is
  * a domain name the request will be forwarded to the PO and after that it will be forwarded to the other domain.
@@ -193,7 +194,8 @@ Connector.prototype.unprotect = function(callbackUrl, service_info, request_head
         if (error) {
             callback(error);
         } else {
-            var unprotect_url = this.protocol + '://' + po_info.uri + this.basepath + '/execute/' + service_info.details.service_id + '/unprotect';
+            //var unprotect_url = this.protocol + '://' + po_info.uri + this.basepath + '/execute/' + service_info.details.service_id + '/unprotect';
+            var unprotect_url = this.protocol + '://' + po_info.uri + this.basepath + '/execute/' + service_info.protectionConfigurationId + '/unprotect';
             __logger.silly("Connector.unprotect: Final url: " + unprotect_url);
             var headers = {};
             if (request_headers["x-auth-token"] || request_headers["X-Auth-Token"]) {

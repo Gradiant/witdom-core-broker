@@ -129,6 +129,10 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
                     } else {
 
                         __logger.debug("ForwardingHandler.request: Found service " + service_id + " in external domain.");
+                        
+                        var protectionConfigurationId = request_data.request.headers["X-Protection-Configuration"] || request_data.request.headers["x-protection-configuration"] || service.details.service_id;
+                        //__logger.silly("ProtectionConfigurationId for protect: " + protectionConfigurationId);
+                        service.protectionConfigurationId = protectionConfigurationId;
 
                         // TODO, make this call configurable
                         protector.protect("/request/callback?request_id=" + request_id, service, request_data.request.headers, request_data.request.body, function(error, protectionResponse, finalCallParameters) {
@@ -867,6 +871,11 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
                                 __logger.silly("ForwardingHandler.doForwardedCallback: token retrieved from first log and saved in response headers:");
                                 __logger.silly(JSON.stringify(callback_body.response_headers, null, 2));
                             }
+                            
+                            var protectionConfigurationId = first_log.request.headers["X-Protection-Configuration"] || first_log.request.headers["x-protection-configuration"] || service.details.service_id;
+                            //__logger.silly("ProtectionConfigurationId for unprotect: " + protectionConfigurationId);
+                            service.protectionConfigurationId = protectionConfigurationId;
+
                             protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
                                 if(error) {
                                     

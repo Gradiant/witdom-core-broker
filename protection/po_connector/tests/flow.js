@@ -51,7 +51,8 @@ var service_info = {
         description: "Service from the UD",
         uri: "192.168.1.16:9000",
         image: "image"
-    }
+    },
+    protectionConfigurationId: "ud_service"
 }            
 
 var protector = protection.Protector;
@@ -65,11 +66,13 @@ before(function(done) {
 
 beforeEach(function(done){
     nock(config.protocol + '://' + host + ':' + port)
-    .post('/v1/execute/' + service_info.details.service_id + '/protect')
+    //.post('/v1/execute/' + service_info.details.service_id + '/protect')
+    .post('/v1/execute/' + service_info.protectionConfigurationId + '/protect')
     .reply(200,13456789)
 
     nock(config.protocol + '://' + host + ':' + port)
-    .post('/v1/execute/' + service_info.details.service_id + '/unprotect')
+    //.post('/v1/execute/' + service_info.details.service_id + '/unprotect')
+    .post('/v1/execute/' + service_info.protectionConfigurationId + '/unprotect')
     .reply(200,13456788)
     done();
 });
