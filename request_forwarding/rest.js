@@ -26,6 +26,7 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
     var method = request_data.request.method;
     // Get request headers and add broker callback header
     var headers = request_data.request.headers;
+    // TODO: Add Broker's basepath with __brokerConfig.basePath
     headers['X-Broker-Callback-URL'] = '/request/callback?request_id=' + request_id;
     // Get body
     var body = request_data.request.body;

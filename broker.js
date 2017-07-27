@@ -109,6 +109,8 @@ var options = {
 var spec = fs.readFileSync('./api/swagger.yaml', 'utf8');
 var swaggerDoc = jsyaml.safeLoad(spec);
 
+// TODO: Store basePath in configuration
+//brokerConfig.basePath = swaggerDoc.basepath;
 
 // Orchestrator connection
 var orchestrator = orchestration.Orchestrator;

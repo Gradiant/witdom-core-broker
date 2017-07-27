@@ -67,12 +67,12 @@ before(function(done) {
 beforeEach(function(done){
     nock(config.protocol + '://' + host + ':' + port)
     //.post('/v1/execute/' + service_info.details.service_id + '/protect')
-    .post('/v1/execute/' + service_info.protectionConfigurationId + '/protect')
+    .post(config.basepath + '/execute/' + service_info.protectionConfigurationId + '/protect')
     .reply(200,13456789)
 
     nock(config.protocol + '://' + host + ':' + port)
     //.post('/v1/execute/' + service_info.details.service_id + '/unprotect')
-    .post('/v1/execute/' + service_info.protectionConfigurationId + '/unprotect')
+    .post(config.basepath + '/execute/' + service_info.protectionConfigurationId + '/unprotect')
     .reply(200,13456788)
     done();
 });
@@ -122,7 +122,7 @@ describe("Protection : ", function() {
 describe("Status",  function() {
     before(function(done){
         nock(config.protocol + '://' + host + ':' + port)
-        .get('/v1/processstatus/' + 123456)
+        .get(config.basepath + '/processstatus/' + 123456)
         .reply(200,{'code': 0, 'message': 'STATE_PENDING'});
         done();
     });
@@ -140,7 +140,7 @@ describe("Status",  function() {
     });
     before(function(done){
         nock(config.protocol + '://' + host + ':' + port)
-        .get('/v1/processstatus/' + 123456)
+        .get(config.basepath + '/processstatus/' + 123456)
         .reply(404);
         done();
     });
@@ -156,7 +156,7 @@ describe("Status",  function() {
     });
     before(function(done){
         nock(config.protocol + '://' + host + ':' + port)
-        .get('/v1/processstatus/' + 555555)
+        .get(config.basepath + '/processstatus/' + 555555)
         .reply(200,{'code': 1, 'message': 'STATE_ACTIVE'});
         done();
     });
