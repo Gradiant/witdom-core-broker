@@ -112,6 +112,7 @@ outputs:
     testing: true,                                              // If it is set to true the Broker allows connections through HTTP (should only be used for testing purposes) and doesn't validate the tokens
     numberOfRetries: 10,                                        // Number of times to retry the connection with a service/component if it's not responding
     po_id: 'po',                                                // ID given to the PO by Cloudify at deployment time
+    po_cn: 'po',                                                // Common Name of the PO expected to be received in its client certificate, used to skip the calls to PO when the PO is the service making calls to the untrusted domain 
     po_basepath: '/v1',                                         // Base path of the PO URL
     broker_ed : { //broker external domain
         domain_name: "broker-ud",                               // Hostname of the external domain Broker
@@ -171,6 +172,7 @@ CLOUDIFY_HOST=cloudify                      # Hostname of Cloudify (only for mod
 CLOUDIFY_PORT=80                            # Port of Cloudify (only for module 'cloudify_provider_connector')
 RETRIES=8                                   # Number of retries to do when there is a network error when communicating with other components
 PO_ID=po                                    # ID of the PO defined in the cloud orchestrator
+PO_CN=po                                    # Common Name expected to be received in the client certificate of the PO
 PO_BASEPATH=/v1                             # Basepath of the PO URK
 LOGGING_LEVEL=silly                         # Logging level (error|warn|info|verbose|debug|silly)
 ```

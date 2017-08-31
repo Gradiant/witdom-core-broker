@@ -127,6 +127,10 @@ if [ -z "$PO_ID" ]; then
     PO_ID="po"
 fi
 
+if [ -z "$PO_CN" ]; then
+    PO_CN="po"
+fi
+
 if [ -z "$PO_BASEPATH" ]; then
     PO_BASEPATH ='/v1'
 fi
@@ -157,6 +161,7 @@ module.exports = {
     testing: ${TESTING},
     numberOfRetries: ${RETRIES},
     po_id: '${PO_ID}',
+    po_cn: '${PO_CN}',
     po_connector: '$PO_CONNECTOR',
     po_basepath: '$PO_BASEPATH',
     protocol: "${PROTOCOL}",

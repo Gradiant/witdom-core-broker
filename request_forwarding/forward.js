@@ -130,107 +130,175 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
 
                         __logger.debug("ForwardingHandler.request: Found service " + service_id + " in external domain.");
                         
-                        var protectionConfigurationId = request_data.request.headers["X-Protection-Configuration"] || request_data.request.headers["x-protection-configuration"] || service.details.service_id;
-                        //__logger.silly("ProtectionConfigurationId for protect: " + protectionConfigurationId);
-                        service.protectionConfigurationId = protectionConfigurationId;
+                        __logger.debug("request_data: " + JSON.stringify(request_data,null,2));
 
-                        // TODO, make this call configurable
-                        protector.protect("/request/callback?request_id=" + request_id, service, request_data.request.headers, request_data.request.body, function(error, protectionResponse, finalCallParameters) {
-                            if(error) {
+                        // TODO: Avoid calling the PO for protecting if the skip_po is activated
+                        if (request_data.request.skip_po) {
 
-                                __logger.error("ForwardingHandler.request: Got error protecting request " + request_id);
-                                __logger.debug("ForwardingHandler.request: trace:");
-                                __logger.debug(error);
-
-                                // Error with PO communication
-                                RequestHandler.updateRequest(request_id, 'FINISHED', {
-                                    response:{
-                                        service_name: request_data.request.service_name,
-                                        service_path: request_data.request.service_path,
-                                        status: 503,
-                                        headers: {},
-                                        body: {
-                                            message: [{
-                                                code:"503",
-                                                message: "can not reach protection service",
-                                                path:[]
-                                            }]
-                                        }
-                                    }
-                                }, function(error) {});
-
-                            } else if(protectionResponse) {
-
-                                __logger.silly("ForwardingHandler.request: Protection process started.");
-                                
-                                // Update request and wait for callback
-                                RequestHandler.updateRequest(request_id, 'PROTECTING', {
-                                    response:{
-                                        service_name: request_data.request.service_name,
-                                        service_path: request_data.request.service_path,
-                                        status: 200,    // TODO, we could get status from protector
-                                        headers: {},    // TODO, we could get headers from protector
-                                        body: protectionResponse
-                                    }
-                                }, function(error) {});
-
-                            } else if(finalCallParameters) {
-
-                                __logger.silly("RequestForwardingHandler.doRequest: Protection process ended.");
-                                
-                                // Update body
-                                request_data.request.body = finalCallParameters;
-
-                                RestHandler.forwardRequest(__brokerConfig['broker_ed'], request_data, request_id, function(error, response) {
-                                    if(error) {
-
-                                        __logger.debug("ForwardingHandler.request: Got error forwarding request to external domain.");
-
-                                        // If we get an error, we finish the request with this error
-                                        RequestHandler.updateRequest(request_id, 'FINISHED', {
-                                            response:{
-                                                service_name: request_data.request.service_name,
-                                                service_path: request_data.request.service_path,
-                                                status: error.code,
-                                                headers: {},
-                                                body: {
-                                                    message: [{
-                                                        code: error.code.toString(),
-                                                        message: error.message,
-                                                        path:[]
-                                                    }]
-                                                }
-                                            }
-                                        }, function(error) {});
-
-                                    } else {
-
-                                        __logger.debug("ForwardingHandler.request: Success on forwarding request.");
-
-                                        // If we got a response, we add it to the request log
-                                        var new_log = {
-                                            response:{
-                                                service_name: request_data.request.service_name,
-                                                service_path: request_data.request.service_path,
-                                                status: response.status,
-                                                headers: response.headers,
-                                                body: response.body
-                                            }
-                                        };
-
-                                        if(response.status == 202) {
-                                            // If the service responds a 202 status, we asume that it will use callback
-                                            var status = 'FORWARDED';
-                                            RequestHandler.updateRequest(request_id, status, new_log, function(error) {});
-                                        } else {
-                                            // If the service uses anything else, we asume that the request is finished
-                                            var status = 'FINISHED';
-                                            RequestHandler.updateRequest(request_id, status, new_log, function(error) {});
-                                        }
-                                    }
-                                });
+                            if (!request_data.request.body) {
+                                request_data.request.body = {};
                             }
-                        });
+
+                            __logger.debug("Skipping call to PO protect because skip_po is true.");
+
+                            RestHandler.forwardRequest(__brokerConfig['broker_ed'], request_data, request_id, function(error, response) {
+                                if(error) {
+
+                                    __logger.debug("ForwardingHandler.request: Got error forwarding request to external domain.");
+
+                                    // If we get an error, we finish the request with this error
+                                    RequestHandler.updateRequest(request_id, 'FINISHED', {
+                                        response:{
+                                            service_name: request_data.request.service_name,
+                                            service_path: request_data.request.service_path,
+                                            status: error.code,
+                                            headers: {},
+                                            body: {
+                                                message: [{
+                                                    code: error.code.toString(),
+                                                    message: error.message,
+                                                    path:[]
+                                                }]
+                                            }
+                                        }
+                                    }, function(error) {});
+
+                                } else {
+
+                                    __logger.debug("ForwardingHandler.request: Success on forwarding request.");
+
+                                    // If we got a response, we add it to the request log
+                                    var new_log = {
+                                        response:{
+                                            service_name: request_data.request.service_name,
+                                            service_path: request_data.request.service_path,
+                                            status: response.status,
+                                            headers: response.headers,
+                                            body: response.body
+                                        }
+                                    };
+
+                                    if(response.status == 202) {
+                                        // If the service responds a 202 status, we asume that it will use callback
+                                        var status = 'FORWARDED';
+                                        RequestHandler.updateRequest(request_id, status, new_log, function(error) {});
+                                    } else {
+                                        // If the service uses anything else, we asume that the request is finished
+                                        var status = 'FINISHED';
+                                        RequestHandler.updateRequest(request_id, status, new_log, function(error) {});
+                                    }
+                                }
+                            });
+
+                            
+
+
+
+                        } else {
+                            var protectionConfigurationId = request_data.request.headers["X-Protection-Configuration"] || request_data.request.headers["x-protection-configuration"] || service.details.service_id;
+                            //__logger.silly("ProtectionConfigurationId for protect: " + protectionConfigurationId);
+                            service.protectionConfigurationId = protectionConfigurationId;
+    
+                            // TODO, make this call configurable
+                            // TODO: Add Broker's basepath with __brokerConfig.basePath
+                            protector.protect("/request/callback?request_id=" + request_id, service, request_data.request.headers, request_data.request.body, function(error, protectionResponse, finalCallParameters) {
+                                if(error) {
+    
+                                    __logger.error("ForwardingHandler.request: Got error protecting request " + request_id);
+                                    __logger.debug("ForwardingHandler.request: trace:");
+                                    __logger.debug(error);
+    
+                                    // Error with PO communication
+                                    RequestHandler.updateRequest(request_id, 'FINISHED', {
+                                        response:{
+                                            service_name: request_data.request.service_name,
+                                            service_path: request_data.request.service_path,
+                                            status: 503,
+                                            headers: {},
+                                            body: {
+                                                message: [{
+                                                    code:"503",
+                                                    message: "can not reach protection service",
+                                                    path:[]
+                                                }]
+                                            }
+                                        }
+                                    }, function(error) {});
+    
+                                } else if(protectionResponse) {
+    
+                                    __logger.silly("ForwardingHandler.request: Protection process started.");
+                                    
+                                    // Update request and wait for callback
+                                    RequestHandler.updateRequest(request_id, 'PROTECTING', {
+                                        response:{
+                                            service_name: request_data.request.service_name,
+                                            service_path: request_data.request.service_path,
+                                            status: 200,    // TODO, we could get status from protector
+                                            headers: {},    // TODO, we could get headers from protector
+                                            body: protectionResponse
+                                        }
+                                    }, function(error) {});
+    
+                                } else if(finalCallParameters) {
+    
+                                    __logger.silly("RequestForwardingHandler.doRequest: Protection process ended.");
+                                    
+                                    // Update body
+                                    request_data.request.body = finalCallParameters;
+    
+                                    RestHandler.forwardRequest(__brokerConfig['broker_ed'], request_data, request_id, function(error, response) {
+                                        if(error) {
+    
+                                            __logger.debug("ForwardingHandler.request: Got error forwarding request to external domain.");
+    
+                                            // If we get an error, we finish the request with this error
+                                            RequestHandler.updateRequest(request_id, 'FINISHED', {
+                                                response:{
+                                                    service_name: request_data.request.service_name,
+                                                    service_path: request_data.request.service_path,
+                                                    status: error.code,
+                                                    headers: {},
+                                                    body: {
+                                                        message: [{
+                                                            code: error.code.toString(),
+                                                            message: error.message,
+                                                            path:[]
+                                                        }]
+                                                    }
+                                                }
+                                            }, function(error) {});
+    
+                                        } else {
+    
+                                            __logger.debug("ForwardingHandler.request: Success on forwarding request.");
+    
+                                            // If we got a response, we add it to the request log
+                                            var new_log = {
+                                                response:{
+                                                    service_name: request_data.request.service_name,
+                                                    service_path: request_data.request.service_path,
+                                                    status: response.status,
+                                                    headers: response.headers,
+                                                    body: response.body
+                                                }
+                                            };
+    
+                                            if(response.status == 202) {
+                                                // If the service responds a 202 status, we asume that it will use callback
+                                                var status = 'FORWARDED';
+                                                RequestHandler.updateRequest(request_id, status, new_log, function(error) {});
+                                            } else {
+                                                // If the service uses anything else, we asume that the request is finished
+                                                var status = 'FINISHED';
+                                                RequestHandler.updateRequest(request_id, status, new_log, function(error) {});
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                        }
+
                     }
                 }
             });
@@ -872,64 +940,86 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
                                 __logger.silly(JSON.stringify(callback_body.response_headers, null, 2));
                             }
                             
-                            var protectionConfigurationId = first_log.request.headers["X-Protection-Configuration"] || first_log.request.headers["x-protection-configuration"] || service.details.service_id;
-                            //__logger.silly("ProtectionConfigurationId for unprotect: " + protectionConfigurationId);
-                            service.protectionConfigurationId = protectionConfigurationId;
+                            // TODO: Avoid calling the PO for unprotecting if the skip_po is activated
+                            if (first_log.request.skip_po) {
 
-                            protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
-                                if(error) {
-                                    
-                                    // Error with PO communication
-                                    __logger.error("ForwardingHandler.forwardCallback: Got error un-transforming body.");
-                                    __logger.debug("ForwardingHandler.forwardCallback: Trace ");
-                                    __logger.debug("ForwardingHandler.forwardCallback:" + error);
+                                __logger.debug("Skipping call to PO unprotect because skip_po is true.");
 
-                                    RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
-                                        response:{
-                                            service_name: first_log.request.service_name,
-                                            service_path: first_log.request.service_path,
-                                            status: 503,
-                                            headers: {},
-                                            body: {
-                                                message: [{
-                                                    code:"503",
-                                                    message: "can not reach protection service",
-                                                    path:[]
-                                                }]
+                                RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
+                                    response:{
+                                        service_name: first_log.request.service_name,
+                                        service_path: first_log.request.service_path,
+                                        status: callback_body.response_status,
+                                        headers: callback_body.response_headers,
+                                        body: callback_body.response_data,
+                                    }
+                                }, function(error) {});
+
+
+                            } else {
+
+                                var protectionConfigurationId = first_log.request.headers["X-Protection-Configuration"] || first_log.request.headers["x-protection-configuration"] || service.details.service_id;
+                                //__logger.silly("ProtectionConfigurationId for unprotect: " + protectionConfigurationId);
+                                service.protectionConfigurationId = protectionConfigurationId;
+    
+                                protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
+                                    if(error) {
+                                        
+                                        // Error with PO communication
+                                        __logger.error("ForwardingHandler.forwardCallback: Got error un-transforming body.");
+                                        __logger.debug("ForwardingHandler.forwardCallback: Trace ");
+                                        __logger.debug("ForwardingHandler.forwardCallback:" + error);
+    
+                                        RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
+                                            response:{
+                                                service_name: first_log.request.service_name,
+                                                service_path: first_log.request.service_path,
+                                                status: 503,
+                                                headers: {},
+                                                body: {
+                                                    message: [{
+                                                        code:"503",
+                                                        message: "can not reach protection service",
+                                                        path:[]
+                                                    }]
+                                                }
                                             }
-                                        }
-                                    }, function(error) {});
+                                        }, function(error) {});
+    
+                                    } else if(protectionResponse) {
+    
+                                        // Protection in progress
+                                        __logger.debug("ForwardingHandler.forwardCallback: Un-transformation process started.");
+    
+                                        RequestHandler.updateRequest(callback_body.request_id, 'UNPROTECTING', {
+                                            response:{
+                                                service_name: first_log.request.service_name,
+                                                service_path: first_log.request.service_path,
+                                                status: 200,    // TODO, we could get status from protector
+                                                headers: {},    // TODO, we could get headers from protector
+                                                body: protectionResponse
+                                            }
+                                        }, function(error) {});
+                                    } else if(finalCallParameters) {
+    
+                                        // Protection ended
+                                        __logger.debug("ForwardingHandler.forwardCallback: Un-transformation process finished.");
+    
+                                        RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
+                                            response:{
+                                                service_name: first_log.request.service_name,
+                                                service_path: first_log.request.service_path,
+                                                status: callback_body.response_status,
+                                                headers: callback_body.response_headers,
+                                                body: finalCallParameters,
+                                            }
+                                        }, function(error) {});
+                                    }
+                                });
 
-                                } else if(protectionResponse) {
+                            }
 
-                                    // Protection in progress
-                                    __logger.debug("ForwardingHandler.forwardCallback: Un-transformation process started.");
-
-                                    RequestHandler.updateRequest(callback_body.request_id, 'UNPROTECTING', {
-                                        response:{
-                                            service_name: first_log.request.service_name,
-                                            service_path: first_log.request.service_path,
-                                            status: 200,    // TODO, we could get status from protector
-                                            headers: {},    // TODO, we could get headers from protector
-                                            body: protectionResponse
-                                        }
-                                    }, function(error) {});
-                                } else if(finalCallParameters) {
-
-                                    // Protection ended
-                                    __logger.debug("ForwardingHandler.forwardCallback: Un-transformation process finished.");
-
-                                    RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
-                                        response:{
-                                            service_name: first_log.request.service_name,
-                                            service_path: first_log.request.service_path,
-                                            status: callback_body.response_status,
-                                            headers: callback_body.response_headers,
-                                            body: finalCallParameters,
-                                        }
-                                    }, function(error) {});
-                                }
-                            });
+                            
                         }
                     });
                 }

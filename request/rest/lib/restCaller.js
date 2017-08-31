@@ -40,7 +40,12 @@ Caller.prototype.doCall = function(url, method, headers, body, retries, callback
     }
     var self = this;
     if (method == 'POST') {
+        // __logger.debug("Making POST request to " + url);
+        // __logger.debug("timeout: " + this.options.timeout);
+        // __logger.debug("body: " + JSON.stringify(body));
+        // __logger.debug("headers: " + JSON.stringify(headers, null, 2));
         this.agent.post(url).timeout(this.options.timeout).send(body).set(headers).end(function(error, response) {
+            // __logger.debug("retries: " + retries);
             if (error && !error.status) {
                 //console.log(error);
                 if (error.timeout || error.code == 'ENOTFOUND' || error.code == 'ECONNREFUSED' || error.code == 'EHOSTUNREACH' || error.code == 'ECONNRESET' || error.code == 'EAI_AGAIN') {

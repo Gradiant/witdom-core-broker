@@ -34,7 +34,7 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
     __logger.silly("RestHandler.request: url: " + url);
     __logger.silly("RestHandler.request: method: " + method);
     __logger.silly("RestHandler.request: headers: " + JSON.stringify(headers));
-    __logger.silly("RestHandler.request: body: " + body);
+    __logger.silly("RestHandler.request: body: " + JSON.stringify(body, null, 2));
 
     //var retries = 10; // TODO, make configurable __brokerConfig.numberOfRetries
     restCaller.doCall(url, method, headers, body, __brokerConfig.numberOfRetries, function(error, response) {
@@ -143,6 +143,8 @@ RestHandler.prototype.forwardRequest = function(domain_data, request_data, reque
         request_id: request_id
     }
     
+    __logger.debug("RestHandler.forwardRequest: body: " + JSON.stringify(body, null, 2));
+
     //var retries = 10; // TODO, make configurable
     restCaller.doCall(url, method, headers, body, __brokerConfig.numberOfRetries, function(error, response) {
         if(error) {

@@ -7,6 +7,16 @@ function authHandler(request, response, next) {
         return;
     }
     if (request.client.authorized) {
+        if (request.client.encrypted) {
+            var cert = request.connection.getPeerCertificate();
+            if (cert) {
+                if (cert.subject.CN === __brokerConfig.po_cn) {
+                    request.swagger.params['skip_po'] = {
+                        value: 'true'
+                    };
+                }
+            }
+        }
         next();
         return;
     } else {

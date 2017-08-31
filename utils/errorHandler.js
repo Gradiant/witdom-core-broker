@@ -87,6 +87,8 @@ function globalHandler(error, request, response, next) {
                     path:[request._parsedUrl.pathname]
                 }]
             }));
+        } else {
+            __logger.debug(error);
         }
     }
     next();

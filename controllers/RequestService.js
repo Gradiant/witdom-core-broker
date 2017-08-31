@@ -66,7 +66,8 @@ exports.requestCreateGET = function(args, res, next) {
             service_name: args.service_id.value,
             service_path: args.service_uri.value,
             method: 'GET',
-            headers: args.headers.value
+            headers: args.headers.value,
+            skip_po: (args.skip_po && args.skip_po.value === 'true') ? true : false
         }
     }, res, next);
 }
@@ -87,12 +88,21 @@ exports.requestCreatePOST = function(args, res, next) {
             service_path: args.service_uri.value,
             method: 'POST',
             headers: args.headers.value,
-            body: args.request_data.value
+            body: args.request_data.value,
+            skip_po: (args.skip_po && args.skip_po.value === 'true') ? true : false
         }
     }, res, next);
 }
 
 var requestCreate = function(request_data, res, next) {
+    // Delete the header Content-Length because it can be different at serialization time when
+    // forwarding the request if the serialization used is different
+    if (request_data.request.headers['Content-Length']) {
+        delete request_data.request.headers['Content-Length'];
+    }
+    if (request_data.request.headers['content-length']) {
+        delete request_data.request.headers['content-length'];
+    }
     // New request
     forwardingHandler.request(request_data, function(error, request_id) {
     //requestForwardingHandler.createRequest(request_data, function(error, request_id) {
@@ -130,7 +140,8 @@ exports.requestCreate_blockerGET = function(args, res, next) {
             service_name: args.service_id.value,
             service_path: args.service_uri.value,
             method: 'GET',
-            headers: args.headers.value
+            headers: args.headers.value,
+            skip_po: (args.skip_po && args.skip_po.value === 'true') ? true : false
         }
     }, res, next);
 }
@@ -151,13 +162,21 @@ exports.requestCreate_blockerPOST = function(args, res, next) {
             service_path: args.service_uri.value,
             method: 'POST',
             headers: args.headers.value,
-            body: args.request_data.value
+            body: args.request_data.value,
+            skip_po: (args.skip_po && args.skip_po.value === 'true') ? true : false
         }
     }, res, next);
 }
 
 var requestCreate_blocker = function(request_data, res, next) {
-
+    // Delete the header Content-Length because it can be different at serialization time when
+    // forwarding the request if the serialization used is different
+    if (request_data.request.headers['Content-Length']) {
+        delete request_data.request.headers['Content-Length'];
+    }
+    if (request_data.request.headers['content-length']) {
+        delete request_data.request.headers['content-length'];
+    }
     __logger.silly(JSON.stringify(request_data, null, 2));
     forwardingHandler.request(request_data, function(error, request_id) {
     //requestForwardingHandler.createRequest(request_data, function(error, request_id) {

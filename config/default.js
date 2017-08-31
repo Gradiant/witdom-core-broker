@@ -12,6 +12,7 @@ module.exports = {
     testing: true,
     numberOfRetries: 10,
     po_id: 'po',
+    po_cn: 'po', // Common Name of the PO expected to be received in its client certificate, used to skip the calls to PO when the PO is the service making calls to the untrusted domain 
     po_connector: './protection/po_connector',
     po_basepath: '/v1',
     broker_ed : { //broker external domain
