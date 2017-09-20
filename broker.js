@@ -121,7 +121,7 @@ orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
         swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
 
             // Too allow bigger bodys in the requests
-            app.use(bodyParser.json({limit: '50mb'}));
+            app.use(bodyParser.json({limit: '10mb'}));
 
             if (brokerConfig.testing) {
                 // FIXME only for dev!!
