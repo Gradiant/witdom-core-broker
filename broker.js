@@ -25,6 +25,7 @@ global.__logger = new winston.Logger({
       new (winston.transports.File)({ filename: 'broker.log' })
     ]
 });
+var bodyParser = require('body-parser');
 
 var ursa = require('ursa');
 var privatekey = ursa.createPrivateKey(fs.readFileSync(brokerConfig.https.broker_key), brokerConfig.https.broker_key_passphrase);
@@ -118,6 +119,9 @@ orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
     if(!error) {
         // Initialize the Swagger middleware
         swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
+
+            // Too allow bigger bodys in the requests
+            app.use(bodyParser.json({limit: '50mb'}));
 
             if (brokerConfig.testing) {
                 // FIXME only for dev!!

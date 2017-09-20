@@ -173,7 +173,7 @@ CLOUDIFY_PORT=80                            # Port of Cloudify (only for module 
 RETRIES=8                                   # Number of retries to do when there is a network error when communicating with other components
 PO_ID=po                                    # ID of the PO defined in the cloud orchestrator
 PO_CN=po                                    # Common Name expected to be received in the client certificate of the PO
-PO_BASEPATH=/v1                             # Basepath of the PO URK
+PO_BASEPATH=/v1                             # Basepath of the PO URL
 LOGGING_LEVEL=silly                         # Logging level (error|warn|info|verbose|debug|silly)
 ```
 
@@ -356,7 +356,7 @@ System.setProperty("javax.net.ssl.trustStorePassword",truststorepassword);
 ```
 
 ### Key store creation
-For the mutual authentication a client certificate must be provided to the broker along the request. This certificate is read by a Java application from the selected key store. The java 'keytool' command can't be used to directly create this key store because it doesn't allow to import a key when generating the key store, the only option is to create a new key along the key stotre creation. So the openssl tool is used to create the new key store in PKCS12 format and to import into it the client key and certificate. First the client key and the client certificate must be concatenated in one file:
+For the mutual authentication a client certificate must be provided to the broker along the request. This certificate is read by a Java application from the selected key store. The java 'keytool' command can't be used to directly create this key store because it doesn't allow to import a key when generating the key store, the only option is to create a new key along the key store creation. So the openssl tool is used to create the new key store in PKCS12 format and to import into it the client key and certificate. First the client key and the client certificate must be concatenated in one file:
 ```
 $ cat <client_key_file> <client_crt_file> > client_key_crt.pem
 ```

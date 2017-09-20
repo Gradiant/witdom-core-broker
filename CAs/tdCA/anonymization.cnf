@@ -1,0 +1,24 @@
+#
+# anonymization.cnf
+#
+
+[ req ]
+prompt                  = no
+distinguished_name      = anonymization
+req_extensions          = v3_req
+
+[ anonymization ]
+commonName              = anonymization
+stateOrProvinceName     = Pontevedra
+countryName             = ES
+emailAddress            = anonymization@gradiant.org
+organizationName        = Gradiant
+organizationalUnitName  = Anonymization
+
+[ v3_req ]
+basicConstraints        = CA:FALSE
+keyUsage                = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName          = @alt_names
+
+[ alt_names ]
+DNS.1      = anonymization
