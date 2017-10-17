@@ -360,11 +360,11 @@ exports.requestGetresultGET = function(args, res, next) {
                     if (error) {
                         if (error instanceof PoError) {
                             res.writeHead(503); // ??Other error
-                            res.end({message: [{"code": error.code, "message": error.reason, "path": ""}]});
+                            res.end(JSON.stringify({message: [{"code": error.code, "message": error.reason, "path": ""}]}));
                         } else if (error.status == 404) {
                             res.setHeader('Content')
                             res.writeHead(404);
-                            res.end({message: [{"code": 404, "message": "Request not found in PO", "path": ""}]});
+                            res.end(JSON.stringify({message: [{"code": 404, "message": "Request not found in PO", "path": ""}]}));
                         }
                         // Maybe mark the request as finished
                     } else {
