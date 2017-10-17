@@ -350,6 +350,7 @@ exports.requestGetresultGET = function(args, res, next) {
                 // The request is in PROTECTING or UNPROTECTING state
                 var response_data = request.request_log[request.request_log.length - 1];
                 __logger.silly(request.request_log);
+                __logger.silly(JSON.stringify(request.request_log, null, 2));
                 //console.log(response_data.response.body);
 //                var response_body = response_data.response.body || {}; // this is the 'processInstanceId'
                 var response_body = response_data.response.body || {}; // the response body is an object that contains the property 'processInstanceId'
