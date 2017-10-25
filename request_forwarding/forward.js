@@ -344,6 +344,8 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
             // Return control and continue on background
             callback(null);
 
+            __logger.debug("ForwardingHandler.requestCallback: callback_body: " + JSON.stringify(callback_body,null,2));
+
             if(request.status == 'PROTECTING') {
 
                 __logger.debug("ForwardingHandler.requestCallback: Request is in PROTECTING state.");
