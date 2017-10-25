@@ -368,11 +368,11 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                                 service_name: first_log.request.service_name,
                                 service_path: first_log.request.service_path,
                                 status: 500,
-                                headers: {},
+                                headers: {'Content-Type': 'application/json'},
                                 body: {
                                     message: [{
                                         code:"500",
-                                        message: "internal server error, can not end body transformation process",
+                                        message: error.reason || "internal server error, can not end protection process",
                                         path:[]
                                     }]
                                 }
@@ -534,6 +534,8 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
 
                 __logger.debug("ForwardingHandler.requestCallback: Request is in UNPROTECTING state.");
 
+                __logger.debug("ForwardingHandler.requestCallback: UNPROTECTING, request_log: " + JSON.stringify(request.request_log, null, 2));
+
                 // Recover original response
                 var last_response_log = request.request_log[request.request_log.length - 2];    // Substract 1 for the last element (request) in the array and another for the last response.
                                                                                                 // FIXME, this does not look like a proper way to recover last response
@@ -552,11 +554,11 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                                 service_name: last_response_log.response.service_name,
                                 service_path: last_response_log.response.service_path,
                                 status: 500,
-                                headers: {},
+                                headers: {'Content-Type': 'application/json'},
                                 body: {
                                     message: [{
                                         code:"500",
-                                        message: "internal server error, can not end unprotection process",
+                                        message: error.reason || "internal server error, can not end unprotection process",
                                         path:[]
                                     }]
                                 }
@@ -569,6 +571,8 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                         // Update body
                         var response_data = last_response_log;
                         response_data.response.body = finalCallParameters;
+
+                        __logger.debug("ForwardingHandler.requestCallback: Protection completed, response to the client: " + JSON.stringify(response_data, null, 2));
 
                         if(request.origin == 'local') {
 
@@ -628,6 +632,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                 } else {
 
                     __logger.debug("ForwardingHandler.requestCallback: Forwarding external request.");
+                    __logger.debug("ForwardingHandler.requestCallback: forward callback response.headers: " + JSON.stringify(callback_data.response.headers,null, 2));
                             
                     //RestHandler.forwardCallback(__brokerConfig['broker_ed'], callback_data, request_id, function(error, response) {
                     RestHandler.forwardCallback(__brokerConfig['broker_ed'], callback_data, original_id, function(error, response) {
@@ -773,6 +778,9 @@ ForwardingHandler.prototype.forward = function(origin, request_data, callback) {
                                     }
                                 };
 
+
+                                //__logger.debug("ForwardingHandler.forward: new_log: " + JSON.stringify(new_log, null, 2));
+
                                 if(response.status == 202) {
                                     // If the service responses with a 202 status, we asume that it will use callback
                                     var status = 'IN_PROGRESS';
@@ -896,7 +904,7 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
                             service_name: first_log.request.service_name,
                             service_path: first_log.request.service_path,
                             status: callback_body.response_status,
-                            headers: {},
+                            headers: {},// ? Get content-type header
                             body: callback_body.response_data
                         }
                     }, function(error) {});
@@ -937,9 +945,9 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
                             var first_log = request.request_log[0];
                             var token = first_log.request.headers['X-Auth-Token'] || first_log.request.headers['x-auth-token'];
                             if (token) {
-                                callback_body.response_headers['X-Auth-Token'] = token;
-                                __logger.silly("ForwardingHandler.doForwardedCallback: token retrieved from first log and saved in response headers:");
-                                __logger.silly(JSON.stringify(callback_body.response_headers, null, 2));
+                                //callback_body.response_headers['X-Auth-Token'] = token;
+                                __logger.silly("ForwardingHandler.forwardCallback: token retrieved from first log and saved in response headers:");
+                                //__logger.silly(JSON.stringify(callback_body.response_headers, null, 2));
                             }
                             
                             // TODO: Avoid calling the PO for unprotecting if the skip_po is activated
@@ -960,63 +968,79 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
 
                             } else {
 
-                                var protectionConfigurationId = first_log.request.headers["X-Protection-Configuration"] || first_log.request.headers["x-protection-configuration"] || service.details.service_id;
-                                //__logger.silly("ProtectionConfigurationId for unprotect: " + protectionConfigurationId);
-                                service.protectionConfigurationId = protectionConfigurationId;
-    
-                                protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
-                                    if(error) {
-                                        
-                                        // Error with PO communication
-                                        __logger.error("ForwardingHandler.forwardCallback: Got error un-transforming body.");
-                                        __logger.debug("ForwardingHandler.forwardCallback: Trace ");
-                                        __logger.debug("ForwardingHandler.forwardCallback:" + error);
-    
-                                        RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
-                                            response:{
-                                                service_name: first_log.request.service_name,
-                                                service_path: first_log.request.service_path,
-                                                status: 503,
-                                                headers: {},
-                                                body: {
-                                                    message: [{
-                                                        code:"503",
-                                                        message: "can not reach protection service",
-                                                        path:[]
-                                                    }]
-                                                }
-                                            }
-                                        }, function(error) {});
-    
-                                    } else if(protectionResponse) {
-    
-                                        // Protection in progress
-                                        __logger.debug("ForwardingHandler.forwardCallback: Un-transformation process started.");
-    
-                                        RequestHandler.updateRequest(callback_body.request_id, 'UNPROTECTING', {
-                                            response:{
-                                                service_name: first_log.request.service_name,
-                                                service_path: first_log.request.service_path,
-                                                status: 200,    // TODO, we could get status from protector
-                                                headers: {},    // TODO, we could get headers from protector
-                                                body: protectionResponse
-                                            }
-                                        }, function(error) {});
-                                    } else if(finalCallParameters) {
-    
-                                        // Protection ended
-                                        __logger.debug("ForwardingHandler.forwardCallback: Un-transformation process finished.");
-    
-                                        RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
-                                            response:{
-                                                service_name: first_log.request.service_name,
-                                                service_path: first_log.request.service_path,
-                                                status: callback_body.response_status,
-                                                headers: callback_body.response_headers,
-                                                body: finalCallParameters,
-                                            }
-                                        }, function(error) {});
+                                // Save the data obtained from the external domain
+                                var contentTypeHeader = {'Content-Type': callback_body.response_headers["Content-Type"] || callback_body.response_headers["content-type"] || ''}
+                                RequestHandler.updateRequest(callback_body.request_id, 'IN_PROGRESS', {
+                                    response:{
+                                        service_name: first_log.request.service_name,
+                                        service_path: first_log.request.service_path,
+                                        status: callback_body.response_status,
+                                        //headers: callback_body.response_headers,
+                                        headers: contentTypeHeader,
+                                        body: callback_body.response_data
                                     }
+                                }, function(error) {
+
+                                    var protectionConfigurationId = first_log.request.headers["X-Protection-Configuration"] || first_log.request.headers["x-protection-configuration"] || service.details.service_id;
+                                    //__logger.silly("ProtectionConfigurationId for unprotect: " + protectionConfigurationId);
+                                    service.protectionConfigurationId = protectionConfigurationId;
+        
+                                    //protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
+                                    protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, {'X-Auth-Token': token||''}, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
+                                        if(error) {
+                                            
+                                            // Error with PO communication
+                                            __logger.error("ForwardingHandler.forwardCallback: Got error un-transforming body.");
+                                            __logger.debug("ForwardingHandler.forwardCallback: Trace ");
+                                            __logger.debug("ForwardingHandler.forwardCallback:" + error);
+        
+                                            RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
+                                                response:{
+                                                    service_name: first_log.request.service_name,
+                                                    service_path: first_log.request.service_path,
+                                                    status: 503,
+                                                    headers: {},
+                                                    body: {
+                                                        message: [{
+                                                            code:"503",
+                                                            message: "can not reach protection service",
+                                                            path:[]
+                                                        }]
+                                                    }
+                                                }
+                                            }, function(error) {});
+        
+                                        } else if(protectionResponse) {
+        
+                                            // Protection in progress
+                                            __logger.debug("ForwardingHandler.forwardCallback: Un-transformation process started.");
+        
+                                            RequestHandler.updateRequest(callback_body.request_id, 'UNPROTECTING', {
+                                                response:{
+                                                    service_name: first_log.request.service_name,
+                                                    service_path: first_log.request.service_path,
+                                                    status: 200,    // TODO, we could get status from protector
+                                                    headers: {},    // TODO, we could get headers from protector
+                                                    body: protectionResponse
+                                                }
+                                            }, function(error) {});
+                                        } else if(finalCallParameters) {
+        
+                                            // Protection ended
+                                            __logger.debug("ForwardingHandler.forwardCallback: Un-transformation process finished.");
+        
+                                            RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
+                                                response:{
+                                                    service_name: first_log.request.service_name,
+                                                    service_path: first_log.request.service_path,
+                                                    status: callback_body.response_status,
+                                                    headers: callback_body.response_headers,
+                                                    body: finalCallParameters,
+                                                }
+                                            }, function(error) {});
+                                        }
+                                    });
+
                                 });
 
                             }

@@ -163,7 +163,7 @@ Connector.prototype.endProtection = function(originalCallParameters, receivedCal
         callback(null, receivedCallParameters.results[0].value);
     } else {
         // In other case we return an error
-        callback(new PoError(receivedCallParameters.status, "error protecting data"), null);
+        callback(new PoError(receivedCallParameters.status, { process: "PO protect", failed_component: receivedCallParameters.failed_component }), null);
     }
 }
 
@@ -285,7 +285,7 @@ Connector.prototype.endUnprotection = function(originalCallParameters, receivedC
         callback(null, receivedCallParameters.results[0].value);
     } else {
         // In other case we return an error
-        callback(new PoError(receivedCallParameters.status, "error protecting data"), null);
+        callback(new PoError(receivedCallParameters.status, { process: "PO unprotect", failed_component: receivedCallParameters.failed_component }), null);
     }
 }
 
