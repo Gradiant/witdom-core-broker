@@ -183,6 +183,9 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
                                         var status = 'FORWARDED';
                                         RequestHandler.updateRequest(request_id, status, new_log, function(error) {});
                                     } else {
+                                        // TODO: check this else, if the response status is 200 it means that the external Broker gave
+                                        // directly the result from the service execution and we would need to unprotect. But this
+                                        // will never happen because the external Broker always answers with a 202 to forward/domain
                                         // If the service uses anything else, we asume that the request is finished
                                         var status = 'FINISHED';
                                         RequestHandler.updateRequest(request_id, status, new_log, function(error) {});
@@ -617,7 +620,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                         service_name: first_log.request.service_name,
                         service_path: first_log.request.service_path,
                         status: 200,
-                        headers: callback_headers,
+                        headers: callback_headers, // TODO: maybe use only 'content-type' header, because other headers are 'request' headers not response 'headers'
                         body: callback_body
                     }
                 };

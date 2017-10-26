@@ -88,15 +88,15 @@ if [ -z "$MONGO_PORT" ]; then
 fi
 
 if [ -z "$AUDIT_ACTIVE" ]; then
-    MONGO_HOST="true"
+    AUDIT_ACTIVE="true"
 fi
 
 if [ -z "$AUDIT_MONGO_HOST" ]; then
-    MONGO_HOST="mongo"
+    AUDIT_MONGO_HOST="mongo"
 fi
 
 if [ -z "$AUDIT_MONGO_PORT" ]; then
-    MONGO_PORT="27017"
+    AUDIT_MONGO_PORT="27017"
 fi
 
 if [ -z "$ORCHESTRATOR" ]; then
