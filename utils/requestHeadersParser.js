@@ -20,6 +20,12 @@ function requestHeadersParser(request, response, next) {
         request.swagger.params['headers'] = {
             value: request.headers
         };
+        //Skip calling PO for protect/unprotect if the header X-Skip-PO is set to true
+        if (request.swagger.params['X-Skip-PO'] && (request.swagger.params['X-Skip-PO'].value === 'true')) {
+            request.swagger.params['skip_po'] = {
+                value: 'true'
+            }
+        }
     }
     if (request.swagger.apiPath.startsWith('/request/create')) {
         if (request.url.indexOf('?') > -1) {

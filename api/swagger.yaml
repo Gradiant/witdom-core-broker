@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   description: "API to use services from the Broker"
-  version: "1.6.0"
+  version: "1.7.0"
   title: "WITDOM Broker API"
 basePath: "/v1"
 produces:
@@ -192,6 +192,10 @@ paths:
         in: "header"
         description: "Protection configuration id to use when calling PO methods protect and unprotect. If it's not provided the service id is used"
         type: "string"
+      - name: "X-Skip-PO"
+        in: "header"
+        description: "This header signals the Broker not to invoke the PO when the service requested is located in the external domain when its value is set to true"
+        type: "string"
   /request/create_blocker/{service_id}/{service_uri}*:
     post:
       tags:
@@ -296,6 +300,10 @@ paths:
       - name: "X-Protection-Configuration"
         in: "header"
         description: "Protection configuration id to use when calling PO methods protect and unprotect. If it's not provided the service id is used"
+        type: "string"
+      - name: "X-Skip-PO"
+        in: "header"
+        description: "This header signals the Broker not to invoke the PO when the service requested is located in the external domain when its value is set to true"
         type: "string"
   /request/getresult:
     get:
