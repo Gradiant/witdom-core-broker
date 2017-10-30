@@ -18,10 +18,18 @@ var authHandler = require('./utils/authHandler');
 var httpAuthValidator = require('./utils/httpAuthValidator');
 var requestHeadersParser = require('./utils/requestHeadersParser');
 var winston = require('winston');
+var moment = require('moment');
 global.__logger = new winston.Logger({
     level: __brokerConfig.logging_level || 'silly',
     transports: [
-      new (winston.transports.Console)(),
+      new (winston.transports.Console)({
+        timestamp: function() {
+            return moment().format('DD-MM-YYYY HH:mm:ss.SSS');
+        },
+        formatter: function(options) {
+            return winston.config.colorize(options.level,'[' + options.timestamp() + '] ' + options.level + ': ') + (options.message ? options.message : '');
+        }
+      }),
       new (winston.transports.File)({ filename: 'broker.log' })
     ]
 });
