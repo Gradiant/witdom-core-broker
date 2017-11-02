@@ -121,6 +121,9 @@ var swaggerDoc = jsyaml.safeLoad(spec);
 // TODO: Store basePath in configuration
 //brokerConfig.basePath = swaggerDoc.basepath;
 
+var bodyDumper           = require('./utils/bodyDumper')
+
+
 // Orchestrator connection
 var orchestrator = orchestration.Orchestrator;
 orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
@@ -129,7 +132,7 @@ orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
         swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
 
             // Too allow bigger bodys in the requests
-            app.use(bodyParser.json({limit: '10mb'}));
+            app.use(bodyParser.json({limit: '10mb',verify:function(req,res,buf){req.rawBody=buf}}));
 
             if (brokerConfig.testing) {
                 // FIXME only for dev!!
@@ -146,6 +149,9 @@ orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
 
             // Validate Swagger requests
             app.use(middleware.swaggerValidator());
+
+            // Dump body for request to 'request/callback'
+            app.use(bodyDumper);
 
             // Put request HTTP headers in request.swagger.params.headers
             app.use(requestHeadersParser);
