@@ -110,7 +110,8 @@ paths:
         description: "Data to pass to the service/module when invoking it"
         required: true
         schema:
-          $ref: "#/definitions/Request"
+          type: "object"
+          #$ref: "#/definitions/Request"
           #type: "object"
       responses:
         200:
@@ -216,12 +217,14 @@ paths:
         description: "Data to pass to the service/module when invoking it"
         required: true
         schema:
-          $ref: "#/definitions/Request"
+          type: object
+          #$ref: "#/definitions/Request"
       responses:
         200:
           description: "Request result"
           schema:
-            $ref: "#/definitions/Result"
+            type: object
+            #$ref: "#/definitions/Result"
         400:
           description: "Request parameters validation error"
           schema:
@@ -260,7 +263,8 @@ paths:
         200:
           description: "Request result"
           schema:
-            $ref: "#/definitions/Result"
+            type: "object"
+          #  $ref: "#/definitions/Result"
         400:
           description: "Request parameters validation error"
           schema:
@@ -333,7 +337,8 @@ paths:
         200:
           description: "Request result"
           schema:
-            $ref: "#/definitions/Result"
+            type: "object"
+            #$ref: "#/definitions/Result"
         202:
           description: "Request is in progress"
         400:
@@ -378,7 +383,8 @@ paths:
         description: "Result of the request to the service"
         required: true
         schema:
-          $ref: "#/definitions/Result"
+          type: object
+        #  $ref: "#/definitions/Result"
       - name: "request_id"
         in: "query"
         description: "Number to identify the request referenced"
@@ -583,8 +589,6 @@ paths:
             $ref: "#/definitions/Error"
       x-swagger-router-controller: "Services"
 definitions:
-  Request:
-    type: "object"
   Forward_Request:
     type: "object"
     required:
@@ -654,9 +658,6 @@ definitions:
       image:
         type: "string"
         description: "Image URL representing the service."
-  Result:
-    type: "object"
-    description: "JSON of the result"
   Error:
     type: "object"
     required:
