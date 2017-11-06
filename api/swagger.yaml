@@ -110,9 +110,9 @@ paths:
         description: "Data to pass to the service/module when invoking it"
         required: true
         schema:
-          type: "object"
-          #$ref: "#/definitions/Request"
+          $ref: "#/definitions/Object"
           #type: "object"
+          #$ref: "#/definitions/Request"
       responses:
         200:
           description: "Request ID"
@@ -217,13 +217,15 @@ paths:
         description: "Data to pass to the service/module when invoking it"
         required: true
         schema:
-          type: object
+          $ref: "#/definitions/Object"
+          #type: object
           #$ref: "#/definitions/Request"
       responses:
         200:
           description: "Request result"
           schema:
-            type: object
+            $ref: "#/definitions/Object"
+            #type: object
             #$ref: "#/definitions/Result"
         400:
           description: "Request parameters validation error"
@@ -263,7 +265,8 @@ paths:
         200:
           description: "Request result"
           schema:
-            type: "object"
+            $ref: "#/definitions/Object"
+            #type: "object"
           #  $ref: "#/definitions/Result"
         400:
           description: "Request parameters validation error"
@@ -337,7 +340,8 @@ paths:
         200:
           description: "Request result"
           schema:
-            type: "object"
+            $ref: "#/definitions/Object"
+            #type: "object"
             #$ref: "#/definitions/Result"
         202:
           description: "Request is in progress"
@@ -383,7 +387,8 @@ paths:
         description: "Result of the request to the service"
         required: true
         schema:
-          type: object
+          $ref: "#/definitions/Object"
+          #type: object
         #  $ref: "#/definitions/Result"
       - name: "request_id"
         in: "query"
@@ -683,3 +688,5 @@ definitions:
         type: "array"
         items:
           type: "string"
+  Object:
+    type: "object"
