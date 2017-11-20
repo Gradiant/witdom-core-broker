@@ -18,6 +18,8 @@ exports.requestCallbackPOST = function(args, res, next) {
    * request_id (String)
    **/
 
+  var tStart = new Date();
+
   var request_id = args.request_id.value;
   forwardingHandler.requestCallback(args.request_id.value, args.headers.value, args.result.value, function(error) {
   //requestForwardingHandler.doCallback(args.request_id.value, args.headers.value, args.result.value, function(error) {
@@ -46,6 +48,7 @@ exports.requestCallbackPOST = function(args, res, next) {
                 }));
             }
         } else {
+            __performanceLogger.info('[' + args.request_id.value + '] Received [/request/callback] from [' + args.remote_ip.value + ']');
             // no response value expected for this operation
             res.end();
         }
@@ -68,7 +71,9 @@ exports.requestCreateGET = function(args, res, next) {
             service_path: args.service_uri.value,
             method: 'GET',
             headers: args.headers.value,
-            skip_po: (args.skip_po && args.skip_po.value === 'true') ? true : false
+            skip_po: (args.skip_po && args.skip_po.value === 'true') ? true : false,
+            remote_ip: args.remote_ip.value,
+            tStart: new Date()
         }
     }, res, next);
 }
@@ -91,12 +96,15 @@ exports.requestCreatePOST = function(args, res, next) {
             method: 'POST',
             headers: args.headers.value,
             body: args.request_data.value,
-            skip_po: (args.skip_po && args.skip_po.value === 'true') ? true : false
+            skip_po: (args.skip_po && args.skip_po.value === 'true') ? true : false,
+            remote_ip: args.remote_ip.value,
+            tStart: new Date()
         }
     }, res, next);
 }
 
 var requestCreate = function(request_data, res, next) {
+    var tStart = new Date();
     // Delete the header Content-Length because it can be different at serialization time when
     // forwarding the request if the serialization used is different
     if (request_data.request.headers['Content-Length']) {
@@ -120,6 +128,7 @@ var requestCreate = function(request_data, res, next) {
                 }]
             }));
         } else {
+            __performanceLogger.info('[' + request_id + '] Received [' + request_data.request.method + ' /request/create] from [' + request_data.request.remote_ip + ']');
             // Request created
             res.setHeader('Content-Type', 'text/plain');
             res.writeHead(202);
@@ -144,7 +153,9 @@ exports.requestCreate_blockerGET = function(args, res, next) {
             service_path: args.service_uri.value,
             method: 'GET',
             headers: args.headers.value,
-            skip_po: (args.skip_po && args.skip_po.value === 'true') ? true : false
+            skip_po: (args.skip_po && args.skip_po.value === 'true') ? true : false,
+            remote_ip: args.remote_ip.value,
+            tStart: new Date()
         }
     }, res, next);
 }
@@ -167,7 +178,9 @@ exports.requestCreate_blockerPOST = function(args, res, next) {
             method: 'POST',
             headers: args.headers.value,
             body: args.request_data.value,
-            skip_po: (args.skip_po && args.skip_po.value === 'true') ? true : false
+            skip_po: (args.skip_po && args.skip_po.value === 'true') ? true : false,
+            remote_ip: args.remote_ip.value,
+            tStart: new Date()
         }
     }, res, next);
 }
@@ -196,6 +209,7 @@ var requestCreate_blocker = function(request_data, res, next) {
                 }]
             }));
         } else {
+            __performanceLogger.info('[' + request_id + '] Received [' + request_data.request.method + ' /request/create_blocker] from [' + request_data.request.remote_ip + ']');
             // Save the request in the request watcher
             __logger.silly("requestCreate_blocker: adding request " + request_id);
             requestWatcher.addRequest(request_id, res);
@@ -321,6 +335,7 @@ exports.requestGetresultGET = function(args, res, next) {
                 }]
             }));
         } else {
+            __performanceLogger.info('[' + args.request_id.value + '] Received [/request/getresult] from [' + args.remote_ip.value + ']');
             // Got request
             if(request.status == 'FINISHED') {
                 __logger.silly("RequestService.requestGetresultGET: request has finished");
@@ -349,6 +364,14 @@ exports.requestGetresultGET = function(args, res, next) {
                 }
                 //requestForwardingHandler.deleteRequest(args.request_id.value, function(error){});
                 RequestHandler.deleteRequest(args.request_id.value, function(error){});
+                var tStart = request.request_log[0].request.tStart;
+                if(response_status == 200)
+                {
+                    __performanceLogger.info('[' + args.request_id.value + '] Elapsed [' + (new Date()-tStart) + '] ms. Process finished with status [success]');
+                } else
+                {
+                    __performanceLogger.info('[' + args.request_id.value + '] Elapsed [' + (new Date()-tStart) + '] ms. Process finished with status [failure]');
+                }
             } else if (request.status == 'PROTECTING' || request.status == 'UNPROTECTING') {
                 __logger.silly("RequestService.requestGetresultGET: request is in PROTECTING or UNPROTECTING state");
                 // The request is in PROTECTING or UNPROTECTING state

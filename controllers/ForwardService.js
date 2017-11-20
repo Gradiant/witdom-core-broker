@@ -17,7 +17,8 @@ exports.forwardDomainPOST = function(args, res, next) {
             service_path: args.service.value.request_uri,
             method: args.service.value.request_type,
             headers: args.service.value.request_headers,
-            body: args.service.value.request_data
+            body: args.service.value.request_data,
+            tStart: new Date()
         }
     };
 
@@ -38,6 +39,7 @@ exports.forwardDomainPOST = function(args, res, next) {
                 }]
             }));
         } else {
+            __performanceLogger.info('[' + request_id + '] Received [/forward/domain] from [' + args.remote_ip.value + '] [calling Broker request_id: ' + args.service.value.request_id +']');
             // Request created
             res.setHeader('Content-Type', 'text/plain');
             res.writeHead(202);
@@ -79,6 +81,7 @@ exports.forwardCallbackPOST = function(args, res, next) {
                 }));
             }
         } else {
+            __performanceLogger.info('[' + args.service.value.request_id + '] Received [/forward/callback] from [' + args.remote_ip.value + ']');
             // no response value expected for this operation
             res.end();
         }

@@ -91,6 +91,16 @@ function checkRequest(requests, theindex, toDelete, watcher) {
                     }
                     //requestForwardingHandler.deleteRequest(therequest.requestId, function(error){});
                     RequestHandler.deleteRequest(therequest.requestId, function(error){});
+                    
+                    var tStart = request.request_log[0].request.tStart;
+                    if(response_status == 200)
+                    {
+                        __performanceLogger.info('[' + therequest.requestId + '] Elapsed [' + (new Date()-tStart) + '] ms. Process finished with status [success]');
+                    } else
+                    {
+                        __performanceLogger.info('[' + therequest.requestId + '] Elapsed [' + (new Date()-tStart) + '] ms. Process finished with status [failure]');
+                    }
+
                     toDelete.push(theindex);
                     theindex=theindex+1;
                     checkRequest(requests, theindex, toDelete, watcher);

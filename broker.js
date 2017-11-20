@@ -17,6 +17,7 @@ var errorHandler = require('./utils/errorHandler')
 var authHandler = require('./utils/authHandler');
 var httpAuthValidator = require('./utils/httpAuthValidator');
 var requestHeadersParser = require('./utils/requestHeadersParser');
+var remoteIPHandler = require('./utils/remoteIPHandler');
 var winston = require('winston');
 var moment = require('moment');
 global.__logger = new winston.Logger({
@@ -33,6 +34,20 @@ global.__logger = new winston.Logger({
       new (winston.transports.File)({ filename: 'broker.log' })
     ]
 });
+
+global.__performanceLogger = new winston.Logger({
+    transports: [
+        new (winston.transports.Console)({
+            timestamp: function() {
+                return moment().format('DD-MM-YYYY HH:mm:ss.SSS');
+            },
+            formatter: function(options) {
+                return winston.config.colorize(options.level,'[' + options.timestamp() + '] [Broker] ' + (options.message ? options.message : ''));
+            }  
+        })
+    ]
+});
+
 var bodyParser = require('body-parser');
 
 var ursa = require('ursa');
@@ -156,6 +171,9 @@ orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
             // Put request HTTP headers in request.swagger.params.headers
             app.use(requestHeadersParser);
 
+            // Put the remote ip in request.swagger.params.remote_ip
+            app.use(remoteIPHandler);
+
             if (auditLogExpress != undefined) {
                 // use audit-log express plugin middleware
                 app.use(auditLogExpress.middleware);
@@ -184,7 +202,7 @@ orchestrator.connect(brokerConfig.orchestrator.config, function(error) {
                 __logger.info('Swagger-ui is available on https://localhost:%d/docs', brokerConfig.https.port);
             });
 
-            __logger.info("Broker intialized successfully");
+            __logger.info("Broker initialized successfully");
         });
     }
 });

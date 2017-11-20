@@ -81,7 +81,8 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
                     if(service.location == 'local') {
 
                         __logger.debug("ForwardingHandler.request: Found service " + service_id + " in local domain.");
-
+                        
+                        var tStartRequest = new Date();
                         RestHandler.request(service, request_data, request_id, function(error, response) {
                             if(error) {
 
@@ -114,14 +115,18 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
                                         service_path: request_data.request.service_path,
                                         status: response.status,
                                         headers: response.headers,
-                                        body: response.body
+                                        body: response.body,
+                                        tStart: tStartRequest
                                     }
                                 };
 
                                 // If the service responses with a 202 status, we asume that it will use callback
                                 if(response.status == 202) var status = 'IN_PROGRESS';
                                 // If the service uses anything else, we asume that the request is finished
-                                else var status = 'FINISHED';
+                                else {
+                                    __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStartRequest) + '] ms for [serviceRequest/' + request_data.request.service_name + ']');
+                                    var status = 'FINISHED';
+                                }
 
                                 RequestHandler.updateRequest(request_id, status, new_log, function(error) {});
                             }
@@ -141,6 +146,7 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
 
                             __logger.debug("Skipping call to PO protect because skip_po is true.");
 
+                            var tStart = new Date();
                             RestHandler.forwardRequest(__brokerConfig['broker_ed'], request_data, request_id, function(error, response) {
                                 if(error) {
 
@@ -174,7 +180,8 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
                                             service_path: request_data.request.service_path,
                                             status: response.status,
                                             headers: response.headers,
-                                            body: response.body
+                                            body: response.body,
+                                            tStart: tStart
                                         }
                                     };
 
@@ -202,6 +209,7 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
                             //__logger.silly("ProtectionConfigurationId for protect: " + protectionConfigurationId);
                             service.protectionConfigurationId = protectionConfigurationId;
     
+                            var tStartPO = new Date();
                             // TODO, make this call configurable
                             // TODO: Add Broker's basepath with __brokerConfig.basePath
                             protector.protect("/request/callback?request_id=" + request_id, service, request_data.request.headers, request_data.request.body, function(error, protectionResponse, finalCallParameters) {
@@ -239,7 +247,8 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
                                             service_path: request_data.request.service_path,
                                             status: 200,    // TODO, we could get status from protector
                                             headers: {},    // TODO, we could get headers from protector
-                                            body: protectionResponse
+                                            body: protectionResponse,
+                                            tStart: tStartPO
                                         }
                                     }, function(error) {});
     
@@ -247,9 +256,12 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
     
                                     __logger.silly("RequestForwardingHandler.doRequest: Protection process ended.");
                                     
+                                    __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStartPO) + '] ms for [protect/PO]');
+
                                     // Update body
                                     request_data.request.body = finalCallParameters;
     
+                                    var tStart = new Date();
                                     RestHandler.forwardRequest(__brokerConfig['broker_ed'], request_data, request_id, function(error, response) {
                                         if(error) {
     
@@ -283,7 +295,8 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
                                                     service_path: request_data.request.service_path,
                                                     status: response.status,
                                                     headers: response.headers,
-                                                    body: response.body
+                                                    body: response.body,
+                                                    tStart: tStart
                                                 }
                                             };
     
@@ -358,6 +371,10 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                 var originalCallParameters = first_log.request.body;
                 var receivedCallParameters = callback_body;
 
+
+                var tStartPO = request.request_log[request.request_log.length - 1].response.tStart;
+                __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStartPO) + '] ms for [protect/PO]');
+
                 // Change data and forward request
                 protector.endProtection(originalCallParameters, receivedCallParameters, function(error, finalCallParameters) {
                     if(error) {
@@ -431,6 +448,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
 
                                     __logger.debug("ForwardingHandler.requestCallback: Found service " + service_id + " in local domain.");
 
+                                    var tStartRequest = new Date();
                                     RestHandler.request(service, request_data, request_id, function(error, response) {
                                         if(error) {
 
@@ -464,14 +482,18 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                                                     service_path: request_data.request.service_path,
                                                     status: response.status,
                                                     headers: response.headers,
-                                                    body: response.body
+                                                    body: response.body,
+                                                    tStart: tStartRequest
                                                 }
                                             };
 
                                             // If the service responses with a 202 status, we asume that it will use callback
                                             if(response.status == 202) var status = 'IN_PROGRESS';
                                             // If the service uses anything else, we asume that the request is finished
-                                            else var status = 'FINISHED';
+                                            else {
+                                                __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStartRequest) + '] ms for [serviceRequest/' + request_data.request.service_name + ']');
+                                                var status = 'FINISHED';
+                                            }
 
                                             RequestHandler.updateRequest(request_id, status, new_log, function(error) {});
                                         }
@@ -480,6 +502,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                                     
                                     __logger.debug("RequestForwardingHandler.requestCallback: Forwarding request " + request_id + " to external domain.");
                                     
+                                    var tStart = new Date();
                                     RestHandler.forwardRequest(__brokerConfig['broker_ed'], request_data, request_id, function(error, response) {
                                         if(error) {
 
@@ -513,7 +536,8 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                                                     service_path: request_data.request.service_path,
                                                     status: response.status,
                                                     headers: response.headers,
-                                                    body: response.body
+                                                    body: response.body,
+                                                    tStart: tStart
                                                 }
                                             };
 
@@ -542,6 +566,10 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                 // Recover original response
                 var last_response_log = request.request_log[request.request_log.length - 2];    // Substract 1 for the last element (request) in the array and another for the last response.
                                                                                                 // FIXME, this does not look like a proper way to recover last response
+
+                var tStartPO = request.request_log[request.request_log.length - 1].response.tStart;
+                __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStartPO) + '] ms for [unprotect/PO]');
+
                 var originalResponseParameters = last_response_log.response.body;
                 var receivedResponseParameters = callback_body;
                 // Change data and end request
@@ -614,6 +642,9 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                 var first_log = request.request_log[0];
                 var original_id = first_log.request.original_id;
 
+                var tStartRequest = request.request_log[request.request_log.length - 1].response.tStart;
+                __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStartRequest) + '] ms for [serviceRequest/' + first_log.request.service_name + ']');
+
                 // Update data
                 var callback_data = {
                     response: {
@@ -639,10 +670,14 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                             
                     //RestHandler.forwardCallback(__brokerConfig['broker_ed'], callback_data, request_id, function(error, response) {
                     RestHandler.forwardCallback(__brokerConfig['broker_ed'], callback_data, original_id, function(error, response) {
+                        var tStart = request.request_log[0].request.tStart;
                         if(error) {
                             __logger.error("ForwardingHandler.requestCallback: Got error forwarding callback to external domain.");
                             __logger.debug("ForwardingHandler.requestCallback: Trace:");
                             __logger.debug("ForwardingHandler.requestCallback: " + error);
+                            __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStart) + '] ms. Process finished with status [failure]');
+                        } else {
+                            __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStart) + '] ms. Process finished with status [success]');
                         }
                         RequestHandler.deleteRequest(request_id, function(error) {});
                     });
@@ -719,7 +754,10 @@ ForwardingHandler.prototype.forward = function(origin, request_data, callback) {
                         }
                     };
 
+                    
                     // If we get an error, we must call external broker
+                    var tStart = request_data.request.tStart;
+                    __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStart) + '] ms. Process finished with status [failure]');
                     RestHandler.forwardCallback(__brokerConfig['broker_ed'], new_log, original_id, function(error, response) {
                         if(error || response.status != 200) {
                             __logger.error("RestHandler.forward: Error doing forward callback to origin");
@@ -734,6 +772,7 @@ ForwardingHandler.prototype.forward = function(origin, request_data, callback) {
 
                         __logger.debug("ForwardingHandler.forward: Found service " + service_id + " in local domain.");
 
+                        var tStartRequest = new Date();
                         RestHandler.request(service, request_data, request_id, function(error, response) {
                             if(error) {
 
@@ -757,11 +796,13 @@ ForwardingHandler.prototype.forward = function(origin, request_data, callback) {
                                 };
 
                                 // If we get an error, we must call external broker
+                                var tStart = request_data.request.tStart;
+                                __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStart) + '] ms. Process finished with status [failure]');
                                 RestHandler.forwardCallback(__brokerConfig['broker_ed'], new_log, original_id, function(error, response) {
                                     if(error || response.status != 200) {
                                         __logger.error("RestHandler.forward: Error doing forward callback to origin");
                                         __logger.debug("RestHandler.forward: Trace:");
-                                        __logger.debug(response.error || error); // TODO: check this, maybe change to just 'error'
+                                        __logger.debug(response.error || error); // TODO: check this, maybe change to just 'error'   
                                     }
                                     RequestHandler.deleteRequest(request_id, function(error) {});
                                 });
@@ -777,7 +818,8 @@ ForwardingHandler.prototype.forward = function(origin, request_data, callback) {
                                         service_path: request_data.request.service_path,
                                         status: response.status,
                                         headers: response.headers,
-                                        body: response.body
+                                        body: response.body,
+                                        tStart: tStartRequest
                                     }
                                 };
 
@@ -789,10 +831,18 @@ ForwardingHandler.prototype.forward = function(origin, request_data, callback) {
                                     var status = 'IN_PROGRESS';
                                     RequestHandler.updateRequest(request_id, status, new_log, function(error) {});
                                 } else {
+                                    __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStartRequest) + '] ms for [serviceRequest/' + request_data.request.service_name + ']');
                                     // If the service uses anything else, we asume that the request is finished and we call external broker
                                     var status = 'FINISHED';
 
                                     __logger.debug("ForwardingHandler.forward: Returning request to original domain.");
+
+                                    var tStart = request_data.request.tStart;
+                                    if (response.status != 200) {
+                                        __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStart) + '] ms. Process finished with status [failure]');
+                                    } else {
+                                        __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStart) + '] ms. Process finished with status [success]');
+                                    }
 
                                     // Return to original domain
                                     RestHandler.forwardCallback(__brokerConfig['broker_ed'], new_log, original_id, function(error, response) {
@@ -828,6 +878,8 @@ ForwardingHandler.prototype.forward = function(origin, request_data, callback) {
                         };
 
                         // If we get an error, we must call external broker
+                        var tStart = request_data.request.tStart;
+                        __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStart) + '] ms. Process finished with status [failure]');
                         RestHandler.forwardCallback(__brokerConfig['broker_ed'], new_log, original_id, function(error, response) {
                             if(error || response.status != 200) {
                                 __logger.error("RestHandler.forward: Error doing forward callback to origin");
@@ -893,6 +945,9 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
 
                 // Return control and continue on background
                 callback(null);
+
+                var tStart = request.request_log[request.request_log.length - 1].response.tStart;
+                __performanceLogger.info('[' + callback_body.request_id + '] Elapsed [' + (new Date()-tStart) + '] ms for [forwardDomain/ExternalBroker]');
 
                 // Forwarding process finished
                 var first_log = request.request_log[0];
@@ -988,6 +1043,7 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
                                     //__logger.silly("ProtectionConfigurationId for unprotect: " + protectionConfigurationId);
                                     service.protectionConfigurationId = protectionConfigurationId;
         
+                                    var tStartPO = new Date();
                                     //protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
                                     protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, {'X-Auth-Token': token||''}, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
                                         if(error) {
@@ -1024,13 +1080,16 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
                                                     service_path: first_log.request.service_path,
                                                     status: 200,    // TODO, we could get status from protector
                                                     headers: {},    // TODO, we could get headers from protector
-                                                    body: protectionResponse
+                                                    body: protectionResponse,
+                                                    tStart: tStartPO
                                                 }
                                             }, function(error) {});
                                         } else if(finalCallParameters) {
         
                                             // Protection ended
                                             __logger.debug("ForwardingHandler.forwardCallback: Un-transformation process finished.");
+
+                                            __performanceLogger.info('[' + callback_body.request_id + '] Elapsed [' + (new Date()-tStartPO) + '] ms for [unprotect/PO]');
         
                                             RequestHandler.updateRequest(callback_body.request_id, 'FINISHED', {
                                                 response:{
