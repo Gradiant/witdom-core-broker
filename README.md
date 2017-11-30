@@ -153,6 +153,7 @@ BROKER_KEY=certs/broker_td_key.pem          # Key of the certificate
 BROKER_KEY_PASSPHRASE=Gr4d14ntBr0k3r        # Passphrase of the key (in case it's encrypted)
 CA_CERTS=certs/tdcacert.pem                 # Certificates of the CAs that provided the certificates of the WITDOM services (more than one CA can be provided using the ',' as separator, for example for using differnet CAs for the trusted and untrusted domains)
 PROTOCOL=http                               # Protocol used by the Broker to communicate with other components (http|http)
+TESTING=true                                # If set to true the Broker allows connections through HTTP and doesn't validate the tokens
 BROKER_ED_HOST=broker-ud                    # Host name of the Broker in the external domain (For the TD Broker this will be the hostname of the UD Broker and vice versa)
 BROKER_ED_HTTP_PORT=5000                    # HTTP port of the Broker in the external domain
 BROKER_ED_HTTPS_PORT=5043                   # HTTPS port of the Broker in the external domain
@@ -229,9 +230,9 @@ This will start the broker using the contents of the file `custom_config.js` to 
 Also the TD broker needs a mongo server listening in the port 27017 and the UD broker a mongo server in the port 27018. An IAM listening at the port 5001 is also needed.
 
 ## Deployment of the broker with Dockerfile
-The provided Dockerfile creates a Docker image that can be configured when the container is run through an ENV file. The same image can be used to deploy the Broker for the trusted and the untrusted domain. Two ENV files are provided, one for each domain, `env/td.env` and `env/ud.env`.
+The provided Dockerfile creates a Docker image that can be configured through an ENV file when the container is run. The same image can be used to deploy the Broker for the trusted and the untrusted domain. Two ENV files are provided, one for each domain, `env/td.env` and `env/ud.env`.
 
-It's not recommended to change the value of 'BROKER_HTTP_PORT' and 'BROKER_HTTPS_PORT' because the default values are hardcoded in 'Dockerfile', for this reason if any of those values are changed the 'Dockerfile' has also to be changed accordingly and the docker image has to be rebuilt.
+It's not recommended to change the value of 'BROKER_HTTP_PORT' and 'BROKER_HTTPS_PORT' because the default values are hardcoded in the 'Dockerfile', for this reason if any of those values are changed, the 'Dockerfile' has to also be changed accordingly and the docker image has to be rebuilt.
 
 To build the Docker image run the following Docker command:
 
@@ -251,7 +252,7 @@ After this run the following command to run the Broker container using the confi
 $ docker run --name broker --env-file config.env -p 5000:5000 -p 5043:5043 --link mongo-container-name:mongo -d witdom-core-broker
 ```
 
-It's also possible to run the Broker container using docker-compose. A docker-compose file ('docker-compose-one-image.yml') is provided in order to launch a testing environment using the image that is built from Dockerfile', this environment launches two Broker containers (TD and UD) along with a mongo container for each one and an IAM container. The configuration used in each Broker is contained in the files `td.env` and `ud.env`. With this docker-compose file there is no need to build the Broker image because docker-compose will handle it.
+It's also possible to run the Broker container using docker-compose. A docker-compose file ('docker-compose.yml') is provided in order to launch a testing environment using the image that is built from the 'Dockerfile', this environment launches two Broker containers (TD and UD) along with a mongo container for each one and an IAM container. The configuration used in each Broker is contained in the files `env/td.env` and `env/ud.env`. With this docker-compose file there is no need to build the Broker image because docker-compose will handle it.
 
 To build the images and run the containers use the following commands:
 
@@ -328,7 +329,7 @@ $ npm run requestHandler_test       # requestHandler module tests (needs mongo)
 $ npm run restHandler_test          # restHandler module tests (needs mongo)
 ```
 
-## Launching java API tests
+## Launching Java API tests
 
 The Java tests are inside the directory tests/java. This directory contains a maven script 'pom.xml' that can be used to compile and package the API client library and to run the example tests.
 Apache maven 3.3.3 or greater is needed to build the API client library and run the tests.
@@ -465,7 +466,7 @@ $ docker-compose -f docker-compose-workflow-test.yml build  # Builds images
 $ docker-compose -f docker-compose-workflow-test.yml up     # Creates and starts containers
 ```
 
-The script `workflow_test.sh` contains 16 test, 8 for each domain. Once all the containers are up the workflow test can be run with the following command:
+The script `workflow_test.sh` contains 16 tests, 8 for each domain. Once all the containers are up the workflow test can be run with the following command:
 ```bash
 $ ./workflow_test.sh
 ```
@@ -475,4 +476,4 @@ Once the test is done the containers can be stopped and removed:
 $ docker-compose -f docker-compose-workflow-test.yml down
 ```
 
-We also provide the script `workflow_test_https.sh` that runs the same test but internally uses HTTP. It also first obtains a token from the IAM and uses it in all the requests to the Broker. To run this script first it is necessary to edit the file `env/common.env` and change `PROTOCOL` to `https`. It is also necessary to change the port used to connect to the dummy services by editing the files `env/td.env` and `env/ud.env` and changing the port of services `po`, `trusted-service` and `untrusted-service` from `8080` to `8443`.
+We also provide the script `workflow_test_https.sh` that runs the same tests but internally uses HTTPS. It also obtains a token from the IAM first and uses it in all the requests to the Broker. To run this script it is necessary to edit the file `env/common.env` first and change `PROTOCOL` to `https`. It is also necessary to change the port used to connect to the dummy services by editing the files `env/td.env` and `env/ud.env` and changing the port of services `po`, `trusted-service` and `untrusted-service` from `8080` to `8443`.
