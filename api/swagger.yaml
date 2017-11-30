@@ -206,7 +206,7 @@ paths:
         This requests works the same as /request/create, the main difference 
         is that this one will not answer with a request_id, but with the result of the operations 
         performed by the target service. This means that the connection will be open until the 
-        service ends the requested operations and may reach timeout if the operations take to long.
+        service ends the requested operations and may reach timeout if the operations take too long.
 
         The access authorization remains the same, it can be accessed with a valid certificate or 
         a valid token.
@@ -256,7 +256,7 @@ paths:
         This requests works the same as /request/create, the main difference 
         is that this one will not answer with a request_id, but with the result of the operations 
         performed by the target service. This means that the connection will be open until the 
-        service ends the requested operations and may reach timeout if the operations take to long.
+        service ends the requested operations and may reach timeout if the operations take too long.
 
         The access authorization remains the same, it can be accessed with a valid certificate or 
         a valid token.
