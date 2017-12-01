@@ -160,7 +160,14 @@ Connector.prototype.endProtection = function(originalCallParameters, receivedCal
         receivedCallParameters.results[0].value)
     {
         // If everything is alright we return received results from PO as new body
-        callback(null, receivedCallParameters.results[0].value);
+        var unprotectParams = null;
+        if (receivedCallParameters.results[1] &&
+            receivedCallParameters.results[1].key == "unprotectParams" &&
+            receivedCallParameters.results[1].value)
+        {
+            unprotectParams = receivedCallParameters.results[1].value;
+        }
+        callback(null, receivedCallParameters.results[0].value, unprotectParams);
     } else {
         // In other case we return an error
         callback(new PoError(receivedCallParameters.status, { process: "PO protect", failed_component: receivedCallParameters.failed_component }), null);

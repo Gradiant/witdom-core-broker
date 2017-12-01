@@ -9,6 +9,8 @@ var protector = require(__base + __brokerConfig.po_connector).Protector;
 var RequestHandler = require('./requests');
 var RestHandler = require('./rest');
 
+var _ = require("lodash");
+
 function ForwardingHandler() {}
 
 /**
@@ -376,7 +378,7 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                 __performanceLogger.info('[' + request_id + '] Elapsed [' + (new Date()-tStartPO) + '] ms for [protect/PO]');
 
                 // Change data and forward request
-                protector.endProtection(originalCallParameters, receivedCallParameters, function(error, finalCallParameters) {
+                protector.endProtection(originalCallParameters, receivedCallParameters, function(error, finalCallParameters, unprotectParams) {
                     if(error) {
 
                         __logger.error("ForwardingHandler.requestCallback: Got error ending body transformation.");
@@ -537,7 +539,8 @@ ForwardingHandler.prototype.requestCallback = function(request_id, callback_head
                                                     status: response.status,
                                                     headers: response.headers,
                                                     body: response.body,
-                                                    tStart: tStart
+                                                    tStart: tStart,
+                                                    unprotectParams: unprotectParams
                                                 }
                                             };
 
@@ -1043,6 +1046,14 @@ ForwardingHandler.prototype.forwardCallback = function(callback_body, callback) 
                                     //__logger.silly("ProtectionConfigurationId for unprotect: " + protectionConfigurationId);
                                     service.protectionConfigurationId = protectionConfigurationId;
         
+
+                                    // Retrieve unprotectParams from database if they are available
+                                    var forward_log = request.request_log[2];
+                                    var unprotectParams = forward_log.response.unprotectParams;
+                                    if (unprotectParams) { // Mix unprotect params with callback_body.response_data
+                                        callback_body.response_data = _.merge({}, callback_body.response_data, unprotectParams);
+                                    }
+
                                     var tStartPO = new Date();
                                     //protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, callback_body.response_headers, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
                                     protector.unprotect("/request/callback?request_id=" + callback_body.request_id, service, {'X-Auth-Token': token||''}, callback_body.response_data, function(error, protectionResponse, finalCallParameters) {
