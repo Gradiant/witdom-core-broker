@@ -12,7 +12,7 @@ var RequestSchema = new Schema({
     status: String,
     request_log: [{}]
 },
-{ timestamps: true, minimize: false}); // adds createdAt and updatedAt fields. 'minimize: false' added to save empty objects in database like 'headers' or 'body'
+{ timestamps: true, minimize: false, usePushEach: true}); // adds createdAt and updatedAt fields. 'minimize: false' added to save empty objects in database like 'headers' or 'body'.  'usePushEach: true' is used to avoid the '$pushAll' issue in the latest mongo version
 
 /**
  * Updates both satus and requests log

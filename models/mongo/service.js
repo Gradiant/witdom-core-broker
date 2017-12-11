@@ -12,7 +12,7 @@ var ServiceSchema = new Schema({
     source: String,
     service_data: Object
 },
-{ timestamps: true});   // adds createdAt and updatedAt fields
+{ timestamps: true, usePushEach: true});   // adds createdAt and updatedAt fields. 'usePushEach: true' is used to avoid the '$pushAll' issue in the latest mongo version
 
 ServiceSchema.statics.findById = function findById(given_id, callback) {
     var Service = mongoose.model('Service', ServiceSchema);
