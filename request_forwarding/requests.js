@@ -52,6 +52,7 @@ RequestHandler.prototype.updateRequest = function(request_id, status, new_data, 
                     __logger.error("RequestHandler.updateRequest: error saving request to database");
                     __logger.debug("RequestHandler.updateRequest: trace");
                     __logger.debug(error);
+		    __logger.debug('update request error: ' + JSON.stringify(error,null,2));
                 }
                 callback(error, request);
             });
