@@ -196,7 +196,7 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
                                                 __logger.debug("ForwardingHandler.request: request retrieved from db after update.");
                                                 __logger.debug("the status of the request is: " + request.status);
                                             }
-                                        }
+                                        });
                                     } else {
                                         // TODO: check this else, if the response status is 200 it means that the external Broker gave
                                         // directly the result from the service execution and we would need to unprotect. But this
