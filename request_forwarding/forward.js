@@ -190,12 +190,13 @@ ForwardingHandler.prototype.request = function(request_data, callback) {
                                     if(response.status == 202) {
                                         // If the service responds a 202 status, we asume that it will use callback
                                         var status = 'FORWARDED';
-                                        RequestHandler.updateRequest(request_id, status, new_log, function(error) {});
-                                        RequestHandler.getRequest(request_id, function(error, request) {
-                                            if (request) {
-                                                __logger.debug("ForwardingHandler.request: request retrieved from db after update.");
-                                                __logger.debug("the status of the request is: " + request.status);
-                                            }
+                                        RequestHandler.updateRequest(request_id, status, new_log, function(error) {
+                                            RequestHandler.getRequest(request_id, function(error, request) {
+                                                if (request) {
+                                                    __logger.debug("ForwardingHandler.request: request retrieved from db after update.");
+                                                    __logger.debug("the status of the request is: " + request.status);
+                                                }
+                                            });
                                         });
                                     } else {
                                         // TODO: check this else, if the response status is 200 it means that the external Broker gave
