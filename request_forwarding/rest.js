@@ -21,7 +21,13 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
     var request_path = request_data.request.service_path || "";
     if(request_path.charAt(0) != '/') request_path = '/' + request_path;
     // URL generation
-    var url =  __brokerConfig.protocol + "://" + service_data.details.uri + request_path;
+    var url;
+    if (service_data.details.uri.startsWith('http')) {
+        url = service_data.details.uri + request_path;
+    } else {
+        url =  __brokerConfig.protocol + "://" + service_data.details.uri + request_path;
+    }
+    //var url =  __brokerConfig.protocol + "://" + service_data.details.uri + request_path;
     // HTTP method
     var method = request_data.request.method;
     // Get request headers and add broker callback header
