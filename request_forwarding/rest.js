@@ -116,6 +116,7 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
                 __logger.error("RestHandler.request: Unknown error");
                 __logger.debug("RestHandler.request: Trace:");
                 __logger.debug(error);
+                __logger.debug("error stringified: " + JSON.stringify(error,null,2));
                 if (response) {
                     __logger.debug(response.status);
                     __logger.debug(response.text);

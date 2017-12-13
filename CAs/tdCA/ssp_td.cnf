@@ -1,0 +1,24 @@
+#
+# ssp_td.cnf
+#
+
+[ req ]
+prompt                  = no
+distinguished_name      = ssp_td
+req_extensions          = v3_req
+
+[ ssp_td ]
+commonName              = ssp-td
+stateOrProvinceName     = Pontevedra
+countryName             = ES
+emailAddress            = ssp_td@witdom.eu
+organizationName        = Witdom
+organizationalUnitName  = SSP
+
+[ v3_req ]
+basicConstraints        = CA:FALSE
+keyUsage                = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName          = @alt_names
+
+[ alt_names ]
+DNS.1      = ssp-td

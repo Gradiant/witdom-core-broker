@@ -3,3 +3,5 @@ V	220222174305Z		02	unknown	/CN=client-td/ST=Pontevedra/C=ES/emailAddress=client
 V	220313170651Z		03	unknown	/CN=po/ST=Pontevedra/C=ES/emailAddress=po@gradiant.org/O=Gradiant/OU=PO
 V	220313170757Z		04	unknown	/CN=service-td/ST=Pontevedra/C=ES/emailAddress=service_td@gradiant.org/O=Gradiant/OU=service_td
 V	220912175900Z		05	unknown	/CN=anonymization/ST=Pontevedra/C=ES/emailAddress=anonymization@gradiant.org/O=Gradiant/OU=Anonymization
+V	221212145929Z		06	unknown	/CN=ssp-td/ST=Pontevedra/C=ES/emailAddress=ssp_td@witdom.eu/O=Witdom/OU=SSP
+V	221212150146Z		07	unknown	/CN=annot-transformer/ST=Pontevedra/C=ES/emailAddress=ssp_td@witdom.eu/O=Witdom/OU=Transformer
