@@ -3,13 +3,13 @@ version: '2'
 services:
   mongo:
     container_name: mongo-broker-td
-    image: mongo
+    image: mongo:3.4
     ports:
       - 27017:27017
 
   mongo2:
     container_name: mongo-broker-ud
-    image: mongo
+    image: mongo:3.4
     expose:
       - "27017"
 

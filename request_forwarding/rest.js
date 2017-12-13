@@ -31,6 +31,13 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
     // Get body
     var body = request_data.request.body;
 
+    if (body.callbackURL != undefined) {
+        body.callbackURL = body.callbackURL + request_id;
+    }
+    if (body.callbackUrl != undefined) {
+        body.callbackUrl = body.callbackUrl + request_id;
+    }
+
     __logger.silly("RestHandler.request: url: " + url);
     __logger.silly("RestHandler.request: method: " + method);
     __logger.silly("RestHandler.request: headers: " + JSON.stringify(headers));
