@@ -37,12 +37,17 @@ RestHandler.prototype.request = function(service_data, request_data, request_id,
     // Get body
     var body = request_data.request.body;
 
+    // Workaround to invoke PCs directly through Broker from a script
     if (body != undefined) {
         if (body.callbackURL != undefined) {
-            body.callbackURL = body.callbackURL + request_id;
+            if (body.callbackURL.endsWith('request_id=')) {
+                body.callbackURL = body.callbackURL + request_id;
+            }
         }
         if (body.callbackUrl != undefined) {
-            body.callbackUrl = body.callbackUrl + request_id;
+            if (body.callbackUrl.endsWith('request_id=')) {
+                body.callbackUrl = body.callbackUrl + request_id;
+            }
         }
     }
 
