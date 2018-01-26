@@ -43,7 +43,7 @@
     "unirest": "^0.5.1",
     "ursa": "^0.9.4",
     "winston": "^2.3.0",
-    "moment": "2.0.0",
+    "moment": "~>2.11.2",
     "audit-log": "^0.9.1",
     "body-parser": "^1.18.1"
   },
