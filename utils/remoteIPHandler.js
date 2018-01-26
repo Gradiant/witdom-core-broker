@@ -8,6 +8,10 @@ function getRemoteIP(req) {
 }
 
 function remoteIPHandler(request, response, next) {
+    if (request.url.startsWith('/docs') || request.url.startsWith('/api-docs')) { //Don't check docs URLs
+        next();
+        return;
+    }
     request.swagger.params['remote_ip'] = {
         value: getRemoteIP(request)
     }
