@@ -453,7 +453,7 @@ Below you can find a screenshot of this execution.
 ![RESULTS](./Image.png)
 
 ## Testing with dummy services
-The code for the dummy services we used for the workflow test can be foun in [this repository.](https://gitlab-witdom.xlab.si/gonzalo.jimenez/dummy_service_for_testing)
+The code for the dummy services we used for the workflow test can be foun in [this repository.](../witdom-dummy-service)
 This code creates a server which exposes three REST APIs; one for acting as a dummy PO, other for acting as a trusted domain service and the last one for acting as the untrusted service.
 Both trusted and untrusted domain services allow responding with callback after a few seconds or in the request response.
 
